@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="?attr/colorPrimary"
+              style="?android:attr/buttonBarStyle"
+              android:orientation="horizontal">
+    <Button
+        android:id="@+id/text_rename"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        style="?android:attr/buttonBarButtonStyle"
+        android:textColor="@android:color/white"
+        android:layout_weight="1"
+        android:text="@string/rename" />
+    <Button
+        android:id="@+id/text_alias"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        style="?android:attr/buttonBarButtonStyle"
+        android:textColor="@android:color/white"
+        android:layout_weight="1"
+        android:text="@string/alias" />
+    <Button
+        android:id="@+id/text_delete"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        style="?android:attr/buttonBarButtonStyle"
+        android:textColor="@android:color/white"
+        android:layout_weight="1"
+        android:text="@string/delete" />
+    <Button
+        android:id="@+id/text_ctrl_model"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        style="?android:attr/buttonBarButtonStyle"
+        android:textColor="@android:color/white"
+        android:layout_weight="1"
+        android:text="@string/set_to_remote" />
+</LinearLayout>

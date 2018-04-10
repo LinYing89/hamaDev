@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.bairock.hamadev">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:name=".app.HamaApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".app.WelcomeActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".settings.SettingsActivity"
+            android:label="设置"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".settings.SearchActivity"
+            android:label="设备"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".settings.ChildElectricalActivity"
+            android:label="子设备"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".app.MainActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".app.LoginActivity"
+            android:label="登录"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".linkage.LinkageActivity"
+            android:label="连锁"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".settings.EsptouchActivity"
+            android:label="网络"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".linkage.EditChainActivity"
+            android:label="连锁"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".linkage.ConditionActivity"
+            android:label="条件"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".linkage.timing.EditTimingActivity"
+            android:label="定时"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".linkage.timing.TimerActivity"
+            android:label="定时设置"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".linkage.loop.EditLoopActivity"
+            android:label="循环"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".linkage.loop.DurationListActivity"
+            android:label="循环区间列表"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".linkage.loop.DurationActivity"
+            android:label="循环区间设置"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".linkage.guagua.EditGuaguaActivity"
+            android:label="呱呱"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".linkage.guagua.EditGuaguaEffectActivity"
+            android:label="呱呱设置"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".settings.SortActivity"
+            android:label="排序"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".communication.DeviceMsgMonitorActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".settings.ServerSetActivity"
+            android:label="服务器设置"
+            android:screenOrientation="landscape" />
+
+        <receiver
+            android:name=".receiver.NetworkConnectChangedReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
+        <activity
+            android:name=".settings.UdpLogActivity"
+            android:label="UDP收(左)发(右)信息监控"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".settings.TcpLogActivity"
+            android:label="TCP收(左)发(右)信息监控"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".settings.BridgesStateActivity"
+            android:label="连接状态(列表可点)"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".settings.BridgeMsgActivity"
+            android:label="设备网络信息"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".settings.SerialSetActivity"
+            android:label="串口设置"
+            android:screenOrientation="landscape" />
+        <activity android:name=".settings.DevCollectSettingActivity"></activity>
+    </application>
+
+</manifest>

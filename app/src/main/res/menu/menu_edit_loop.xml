@@ -1,0 +1,19 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+    <item
+        android:id="@+id/action_edit_name"
+        android:orderInCategory="90"
+        android:title="编辑名称"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_loop_count"
+        android:orderInCategory="90"
+        android:title="循环次数"
+        app:showAsAction="ifRoom" />
+    <item android:id="@+id/action_loop_duration_time"
+        android:title="循环时间"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom"/>
+</menu>

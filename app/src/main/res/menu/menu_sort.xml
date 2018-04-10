@@ -1,0 +1,17 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+    <item
+        android:id="@+id/action_up"
+        android:icon="@drawable/ic_arrow_upward_black_24dp"
+        android:orderInCategory="90"
+        android:title="@string/move_up"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_down"
+        android:icon="@drawable/ic_arrow_downward_black_24dp"
+        android:orderInCategory="90"
+        android:title="@string/move_down"
+        app:showAsAction="ifRoom" />
+</menu>

@@ -1,0 +1,81 @@
+<resources>
+    <string name="app_name">蛤蟆设备</string>
+    <string name="ensure">确定</string>
+    <string name="cancel">取消</string>
+    <string name="action_refresh">刷新</string>
+    <string name="action_reset">复位</string>
+    <string name="action_set_chain">连锁</string>
+    <string name="action_net">网络</string>
+    <string name="action_search">设备</string>
+    <string name="action_sort">排序</string>
+    <string name="action_set">设置</string>
+    <string name="action_upload">上传</string>
+    <string name="action_download">下载</string>
+    <string name="action_exit">退出</string>
+    <string name="move_up">上移</string>
+    <string name="move_down">下移</string>
+    <string name="act_add">添加</string>
+    <string name="net_add_input">手动添加网络</string>
+    <string name="net_add_auto">自动配置网络</string>
+    <string name="title_activity_net">网络</string>
+    <string name="empty_disallow">内容不能为空</string>
+    <string name="net_already_here">网点已存在</string>
+    <string name="net_name">网点名称</string>
+    <string name="ip">ip地址</string>
+    <string name="port">端口号</string>
+    <string name="title_activity_search">搜索设备</string>
+    <string name="rename">重命名</string>
+    <string name="alias">位号</string>
+    <string name="delete">删除</string>
+    <string name="set_to_remote">设为远程模式</string>
+    <string name="set_to_local">设为本地模式</string>
+    <string name="search_max_min">查询标定值</string>
+    <string name="set_max">设置最大值</string>
+    <string name="no_feedback">无反馈信息</string>
+    <string name="update_success">更新成功</string>
+    <string name="illegal_message">条非法信息</string>
+    <string name="name_repeat">名称重复</string>
+    <string name="title_activity_child_electrical">子设备</string>
+    <string name="title_activity_choose_electrical">选择子设备</string>
+    <string name="input_or_choose_name">输入名称</string>
+    <string name="title_activity_web_link">连锁</string>
+    <string name="title_activity_chain">连锁</string>
+    <string name="title_activity_login">登录</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_username">用户名</string>
+    <string name="prompt_group_id">组名</string>
+    <string name="prompt_password">密码</string>
+    <string name="action_sign_in">登录</string>
+    <string name="action_sign_in_short">登录</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="title_activity_main3">液位计</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="title_activity_sort">排序</string>
+    <string name="title_activity_child_loop">循环</string>
+    <string name="title_activity_event">子条件</string>
+    <string name="title_activity_event_handler">条件</string>
+    <string name="title_activity_child_chain">连锁</string>
+    <string name="title_activity_child_timing">定时</string>
+    <string name="title_activity_timer">定时时间</string>
+    <string name="title_activity_duration">时长设置</string>
+    <string name="title_activity_duration_list">时长</string>
+    <string name="title_activity_system_set">设置</string>
+    <string name="title_activity_esptouch">配置网络</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="error_configuration">请先设置串口参数.</string>
+    <string name="error_security">没有读写串口的权限.</string>
+    <string name="error_unknown">串口打不开.</string>
+</resources>

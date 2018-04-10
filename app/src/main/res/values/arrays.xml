@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="array_event_style">
+        <item>AND</item>
+        <item>OR</item>
+    </string-array>
+    <string-array name="array_event_symbol">
+        <item>大于</item>
+        <item>等于</item>
+        <item>小于</item>
+    </string-array>
+    <string-array name="array_event_state">
+        <item>OFF</item>
+        <item>ON</item>
+    </string-array>
+
+    <string-array name="array_signal_source">
+        <item>数字</item>
+        <item>4-20mA</item>
+        <item>a-bV</item>
+        <item>开关</item>
+    </string-array>
+
+
+</resources>
