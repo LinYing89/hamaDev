@@ -12,6 +12,7 @@ import com.bairock.hamadev.communication.MyMessageAnalysiser;
 import com.bairock.hamadev.communication.MyOnBridgesChangedListener;
 import com.bairock.hamadev.communication.MyOnCommunicationListener;
 import com.bairock.hamadev.communication.MyOnCtrlModelChangedListener;
+import com.bairock.hamadev.communication.MyOnCurrentValueChangedListener;
 import com.bairock.hamadev.communication.MyOnDevHaveChildeOnCollectionChangedListener;
 import com.bairock.hamadev.communication.MyOnGearChangedListener;
 import com.bairock.hamadev.communication.MyOnStateChangedListener;
@@ -35,6 +36,7 @@ import com.bairock.iot.intelDev.device.Device;
 import com.bairock.iot.intelDev.device.DeviceAssistent;
 import com.bairock.iot.intelDev.device.MainCodeHelper;
 import com.bairock.iot.intelDev.device.devcollect.CollectSignalSource;
+import com.bairock.iot.intelDev.device.devcollect.DevCollect;
 import com.bairock.iot.intelDev.device.devcollect.DevCollectSignal;
 import com.bairock.iot.intelDev.linkage.LinkageHelper;
 import com.bairock.iot.intelDev.linkage.LinkageTab;
@@ -138,6 +140,9 @@ public class WelcomeActivity extends AppCompatActivity {
             for(Device device1 : devHaveChild.getListDev()){
                 setDeviceListener(device1, onStateChangedListener, onGearChangedListener, onCtrlModelChangedListener);
             }
+        }
+        if(device instanceof DevCollect){
+            ((DevCollect) device).getCollectProperty().setOnCurrentValueChanged(new MyOnCurrentValueChangedListener());
         }
     }
 
@@ -247,7 +252,7 @@ public class WelcomeActivity extends AppCompatActivity {
                 GuaguaHelper.getIns().stopCheckGuaguaThread();
                 GuaguaHelper.getIns().startCheckGuaguaThread();
                 GuaguaHelper.getIns().setOnOrderSendListener((guagua, s, ctrlModel) -> DevChannelBridgeHelper.getIns().sendDevOrder(guagua.findSuperParent(), s));
-                //HamaApp.SERVER_IP = "192.168.1.103";
+                HamaApp.SERVER_IP = "192.168.1.111";
                 Thread.sleep(2000);
                 return true;
             }catch (InterruptedException e){

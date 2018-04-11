@@ -209,7 +209,7 @@ public class PadClientHandler extends ChannelInboundHandlerAdapter {
             }
             if(stateHead.equals("2")){
                 String s1 = state.substring(1,2);
-                if(s1.equals("4")){
+                if(s1.equals(DevStateHelper.getIns().getDs(DevStateHelper.DS_YI_CHANG))){
                     dev.setDevStateId(DevStateHelper.DS_YI_CHANG);
                 }
             }
@@ -227,12 +227,12 @@ public class PadClientHandler extends ChannelInboundHandlerAdapter {
             }
         }else{
             //发送异常信息
-            PadClient.getIns().send(OrderHelper.getOrderMsg(OrderHelper.FEEDBACK_HEAD + device.getCoding() + OrderHelper.SEPARATOR + "24"));
+            PadClient.getIns().send(device.createAbnormalOrder());
         }
         //发送挡位信息
         if(device instanceof DevSwitch){
             for(Device device1 : ((DevSwitch) device).getListDev()){
-                PadClient.getIns().send(OrderHelper.getOrderMsg(OrderHelper.FEEDBACK_HEAD  + device1.getCoding() + OrderHelper.SEPARATOR + "9" + device1.getGear()));
+                PadClient.getIns().send(OrderHelper.getOrderMsg(OrderHelper.FEEDBACK_HEAD  + device1.getCoding() + OrderHelper.SEPARATOR + "b" + device1.getGear()));
             }
         }
     }

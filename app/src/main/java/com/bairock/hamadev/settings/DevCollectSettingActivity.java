@@ -161,10 +161,10 @@ public class DevCollectSettingActivity extends AppCompatActivity {
         etxtWeiHao.setText(devCollectSignal.getAlias());
         etxtName.setText(devCollectSignal.getName());
         etxtUnit.setText(collectProperty.getUnitSymbol());
-        etxtAa.setText(String.valueOf(collectProperty.getCrestReferValue()));
-        etxtAb.setText(String.valueOf(collectProperty.getLeastReferValue()));
-        etxta.setText(String.valueOf(collectProperty.getCrestValue()));
-        etxtb.setText(String.valueOf(collectProperty.getLeastValue()));
+        etxtAa.setText(String.valueOf(collectProperty.getLeastReferValue()));
+        etxtAb.setText(String.valueOf(collectProperty.getCrestReferValue()));
+        etxta.setText(String.valueOf(collectProperty.getLeastValue()));
+        etxtb.setText(String.valueOf(collectProperty.getCrestValue()));
         etxtCalibration.setText(String.valueOf(collectProperty.getCalibrationValue()));
         etxtFormula.setText(collectProperty.getFormula());
         spinnerSignalSource.setSelection(collectProperty.getCollectSrc().ordinal());

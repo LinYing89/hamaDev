@@ -32,7 +32,7 @@ public class MyOnStateChangedListener implements Device.OnStateChangedListener {
         refreshSearchUi(device);
         HamaApp.addOfflineDevCoding(device);
         if(!(device instanceof SubDev)) {
-            PadClient.getIns().send(OrderHelper.getOrderMsg(OrderHelper.FEEDBACK_HEAD + device.getCoding() + OrderHelper.SEPARATOR + "24"));
+            PadClient.getIns().send(device.createAbnormalOrder());
         }
     }
 
@@ -49,7 +49,7 @@ public class MyOnStateChangedListener implements Device.OnStateChangedListener {
                 if (null != AdapterElectrical.handler) {
                     AdapterElectrical.handler.obtainMessage(AdapterElectrical.STATE, device).sendToTarget();
                 }
-            } else if (device instanceof DevCollect) {
+            }else if(device instanceof DevCollect){
                 if (null != AdapterCollect.handler) {
                     AdapterCollect.handler.obtainMessage(AdapterCollect.STATE, device).sendToTarget();
                 }
@@ -62,7 +62,6 @@ public class MyOnStateChangedListener implements Device.OnStateChangedListener {
             if(null != AdapterSearchDev.handler){
                 AdapterSearchDev.handler.obtainMessage(AdapterSearchDev.STATE, device).sendToTarget();
             }
-
         }
     }
 
