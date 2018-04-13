@@ -12,11 +12,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bairock.hamadev.R;
+import com.bairock.hamadev.app.HamaApp;
 import com.bairock.iot.intelDev.device.Device;
 import com.bairock.iot.intelDev.device.devcollect.CollectSignalSource;
 import com.bairock.iot.intelDev.device.devcollect.DevCollect;
 import com.bairock.iot.intelDev.device.devcollect.DevCollectSignal;
-import com.bairock.iot.intelDev.device.devcollect.Pressure;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -36,12 +36,10 @@ public class AdapterCollect extends BaseAdapter {
     public static MyHandler handler;
 
     private LayoutInflater vi;
-    private Context context;
     private List<DevCollect> nameList;
     private List<ViewHolder> listViewHolder;
 
     public AdapterCollect(Context context, List<DevCollect> nameList){
-        this.context = context;
         this.nameList = nameList;
         vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         listViewHolder = new ArrayList<>();
@@ -100,14 +98,13 @@ public class AdapterCollect extends BaseAdapter {
         private void init() {
             textName.setText(device.getName());
             textAlias.setText(device.getAlias());
+            rootView.setBackgroundColor(Color.TRANSPARENT);
         }
 
         private void refreshValue(){
             textState.setText(device.getCollectProperty().getValueWithSymbol());
             if(device instanceof DevCollectSignal){
-                if(device.getCollectProperty().getCollectSrc() == CollectSignalSource.SWITCH){
-                    progressValue.setVisibility(View.GONE);
-                }else{
+                if(device.getCollectProperty().getCollectSrc() != CollectSignalSource.SWITCH){
                     progressValue.setVisibility(View.VISIBLE);
                     textPer.setText(device.getCollectProperty().getPercentWithSymbol());
                     if(null != device.getCollectProperty().getPercent()) {
@@ -115,6 +112,17 @@ public class AdapterCollect extends BaseAdapter {
                         progressValue.setProgress(value);
                     }else{
                         progressValue.setProgress(0);
+                    }
+                }else{
+                    progressValue.setVisibility(View.GONE);
+                    if(device.getCollectProperty().getCurrentValue() != null) {
+                        if (device.getCollectProperty().getCurrentValue() == 1) {
+                            rootView.setBackgroundColor(HamaApp.stateKaiColorId);
+                            textPer.setText("开");
+                        } else {
+                            rootView.setBackgroundColor(Color.TRANSPARENT);
+                            textPer.setText("关");
+                        }
                     }
                 }
             }else{
@@ -124,9 +132,11 @@ public class AdapterCollect extends BaseAdapter {
 
         private void refreshState(){
             if(!device.isNormal()){
-                rootView.setBackgroundColor(Color.parseColor("#E9967A"));
+                rootView.setBackgroundColor(HamaApp.abnormalColorId);
             }else{
-                rootView.setBackgroundColor(Color.TRANSPARENT);
+                if(device.getCollectProperty().getCollectSrc() != CollectSignalSource.SWITCH) {
+                    rootView.setBackgroundColor(Color.TRANSPARENT);
+                }
             }
         }
 

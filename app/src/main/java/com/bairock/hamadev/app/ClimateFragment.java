@@ -87,7 +87,7 @@ public class ClimateFragment extends Fragment {
     private void setDeviceListener(DevCollect device){
         device.addOnNameChangedListener(onNameChangedListener);
         device.addOnAliasChangedListener(onAliasChangedListener);
-        device.getCollectProperty().setOnCurrentValueChanged(onCurrentValueChangedListener);
+        //device.getCollectProperty().setOnCurrentValueChanged(onCurrentValueChangedListener);
     }
 
     private void removeDeviceListener(DevCollect device){
@@ -107,13 +107,6 @@ public class ClimateFragment extends Fragment {
         @Override
         public void onAliasChanged(Device device, String s) {
             AdapterCollect.handler.obtainMessage(AdapterCollect.ALIAS, device).sendToTarget();
-        }
-    };
-
-    private CollectProperty.OnCurrentValueChangedListener onCurrentValueChangedListener = new CollectProperty.OnCurrentValueChangedListener() {
-        @Override
-        public void onCurrentValueChanged(DevCollect devCollect, Float aFloat) {
-            AdapterCollect.handler.obtainMessage(AdapterCollect.VALUE, devCollect).sendToTarget();
         }
     };
 

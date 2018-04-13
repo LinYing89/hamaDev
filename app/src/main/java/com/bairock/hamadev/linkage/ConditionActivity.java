@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TableRow;
 
 import com.bairock.hamadev.R;
 import com.bairock.hamadev.app.HamaApp;
@@ -19,6 +20,7 @@ import com.bairock.iot.intelDev.device.Device;
 import com.bairock.iot.intelDev.device.IStateDev;
 import com.bairock.iot.intelDev.device.devcollect.DevCollect;
 import com.bairock.iot.intelDev.linkage.LinkageCondition;
+import com.bairock.iot.intelDev.linkage.TriggerStyle;
 import com.bairock.iot.intelDev.linkage.ZLogic;
 
 import java.util.ArrayList;
@@ -33,9 +35,12 @@ public class ConditionActivity extends AppCompatActivity {
     public static LinkageCondition condition;
     public static Handler handler;
 
+    private TableRow tabrowTriggerValueSpinner;
+    private TableRow tabrowTriggerValueEdit;
     private Spinner spinnerLogic;
     private Spinner spinnerDevice;
     private Spinner spinnerSymbol;
+    private Spinner spinnerTriggerStyle;
     private Spinner spinnerValue;
     private EditText editValue;
     private Button btnSave;
@@ -54,13 +59,12 @@ public class ConditionActivity extends AppCompatActivity {
         }
 
         findViews();
-        setListener();
-
+        setSpinners();
         if(ADD){
             condition = new LinkageCondition();
         }
-
         init();
+        setListener();
     }
 
     @Override
@@ -79,19 +83,41 @@ public class ConditionActivity extends AppCompatActivity {
     }
 
     private void findViews(){
+        tabrowTriggerValueSpinner = (TableRow) findViewById(R.id.tabrowTriggerValueSpinner);
+        tabrowTriggerValueEdit = (TableRow) findViewById(R.id.tabrowTriggerValueEdit);
         spinnerLogic = (Spinner)findViewById(R.id.spinnerLogic);
         spinnerDevice = (Spinner)findViewById(R.id.spinnerDevice);
         spinnerSymbol = (Spinner)findViewById(R.id.spinnerSymbol);
+        spinnerTriggerStyle = (Spinner)findViewById(R.id.spinnerTriggerStyle);
         spinnerValue = (Spinner)findViewById(R.id.spinnerValue);
         editValue = (EditText)findViewById(R.id.etxtValue);
         btnSave = (Button)findViewById(R.id.btn_save);
         btnCancel = (Button)findViewById(R.id.btn_cancel);
     }
 
+    private void setSpinners(){
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,android.R.layout.simple_expandable_list_item_1, getResources().getStringArray(R.array.array_event_style));
+        spinnerLogic .setAdapter(adapter);
+
+        ArrayAdapter<String> adapter1 = new ArrayAdapter<>(
+                this,android.R.layout.simple_expandable_list_item_1, getResources().getStringArray(R.array.array_event_symbol));
+        spinnerSymbol .setAdapter(adapter1);
+
+        ArrayAdapter<String> adapter2 = new ArrayAdapter<>(
+                this,android.R.layout.simple_expandable_list_item_1, getResources().getStringArray(R.array.array_trigger_style));
+        spinnerTriggerStyle .setAdapter(adapter2);
+
+        ArrayAdapter<String> adapter3 = new ArrayAdapter<>(
+                this,android.R.layout.simple_expandable_list_item_1, getResources().getStringArray(R.array.array_event_state));
+        spinnerValue .setAdapter(adapter3);
+    }
+
     private void setListener(){
         spinnerLogic.setOnItemSelectedListener(styleOnItemSelectedListener);
         spinnerDevice.setOnItemSelectedListener(deviceOnItemSelectedListener);
         spinnerSymbol.setOnItemSelectedListener(symbolOnItemSelectedListener);
+        spinnerTriggerStyle.setOnItemSelectedListener(triggerStyleOnItemSelectedListener);
         spinnerValue.setOnItemSelectedListener(valueOnItemSelectedListener);
         btnSave.setOnClickListener(onClickListener);
         btnCancel.setOnClickListener(onClickListener);
@@ -125,31 +151,32 @@ public class ConditionActivity extends AppCompatActivity {
     }
 
     private void showElectricalStyle(){
-        spinnerValue.setVisibility(View.VISIBLE);
-        editValue.setVisibility(View.GONE);
+        //select '==' symbol
         spinnerSymbol.setSelection(1);
         spinnerSymbol.setEnabled(false);
-        condition.setCompareSymbol(CompareSymbol.EQUAL);
-        condition.setCompareValue(0);
+
+        //select value trigger
+        spinnerTriggerStyle.setSelection(1);
+        spinnerTriggerStyle.setEnabled(false);
+
+        tabrowTriggerValueSpinner.setVisibility(View.VISIBLE);
+        tabrowTriggerValueEdit.setVisibility(View.GONE);
+
+        //condition.setCompareValue(0f);
         spinnerValue.setSelection((int)condition.getCompareValue());
     }
 
     private void showClimateStyle(){
-        spinnerValue.setVisibility(View.GONE);
-        editValue.setVisibility(View.VISIBLE);
-        setSpinnerSymbol();
         spinnerSymbol.setEnabled(true);
-        editValue.setText(String.valueOf(condition.getCompareValue()));
-    }
+        spinnerSymbol.setSelection(condition.getCompareSymbol().ordinal());
 
-    private void setSpinnerSymbol(){
-        if(condition.getCompareSymbol() == CompareSymbol.GREAT){
-            spinnerSymbol.setSelection(0);
-        }else if(condition.getCompareSymbol() == CompareSymbol.EQUAL){
-            spinnerSymbol.setSelection(1);
-        }else {
-            spinnerSymbol.setSelection(2);
-        }
+        spinnerTriggerStyle.setEnabled(true);
+        spinnerTriggerStyle.setSelection(condition.getTriggerStyle().ordinal());
+
+        tabrowTriggerValueSpinner.setVisibility(View.GONE);
+        tabrowTriggerValueEdit.setVisibility(View.VISIBLE);
+
+        editValue.setText(String.valueOf(condition.getCompareValue()));
     }
 
     /**
@@ -199,7 +226,7 @@ public class ConditionActivity extends AppCompatActivity {
     };
 
     /**
-     * 比较符号选择事件，ADD/OR
+     * 比较符号选择事件，>/</=
      */
     private AdapterView.OnItemSelectedListener symbolOnItemSelectedListener = new AdapterView.OnItemSelectedListener() {
         @Override
@@ -207,19 +234,32 @@ public class ConditionActivity extends AppCompatActivity {
             if(null == condition || condition.getDevice() == null){
                 return;
             }
-            if(condition.getDevice() instanceof IStateDev){
-                spinnerSymbol.setSelection(1);
-                condition.setCompareSymbol(CompareSymbol.EQUAL);
-            }else{
-                if(position == 0){
-                    condition.setCompareSymbol(CompareSymbol.GREAT);
-                }else if(position == 1){
-                    condition.setCompareSymbol(CompareSymbol.EQUAL);
-                }else {
-                    condition.setCompareSymbol(CompareSymbol.LESS);
-                }
-            }
+            condition.setCompareSymbol(CompareSymbol.values()[position]);
+//            if(position == 0){
+//                condition.setCompareSymbol(CompareSymbol.GREAT);
+//            }else if(position == 1){
+//                condition.setCompareSymbol(CompareSymbol.EQUAL);
+//            }else {
+//                condition.setCompareSymbol(CompareSymbol.LESS);
+//            }
+        }
 
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
+    };
+
+    /**
+     * 触发类型选择
+     */
+    private AdapterView.OnItemSelectedListener triggerStyleOnItemSelectedListener = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            if(null == condition || condition.getDevice() == null){
+                return;
+            }
+            condition.setTriggerStyle(TriggerStyle.values()[position]);
         }
 
         @Override

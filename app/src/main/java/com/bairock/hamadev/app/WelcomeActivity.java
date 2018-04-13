@@ -174,13 +174,18 @@ public class WelcomeActivity extends AppCompatActivity {
 
         Device device = DeviceAssistent.createDeviceByMcId(MainCodeHelper.KG_3LU_2TAI, "9999");
 
+        DevCollectSignal devCollectSignal4 = (DevCollectSignal)DeviceAssistent.createDeviceByMcId(MainCodeHelper.COLLECTOR_SIGNAL, "9996");
+        devCollectSignal4.getCollectProperty().setCollectSrc(CollectSignalSource.SWITCH);
+
         devGroup.addDevice(device);
         devGroup.addDevice(coordinator);
+        devGroup.addDevice(devCollectSignal4);
 
         DeviceDao deviceDao = DeviceDao.get(HamaApp.HAMA_CONTEXT);
         deviceDao.clean();
         deviceDao.add(device);
         deviceDao.add(coordinator);
+        deviceDao.add(devCollectSignal4);
 
         SdDbHelper.replaceDbUser(user);
 

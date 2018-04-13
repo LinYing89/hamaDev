@@ -29,7 +29,7 @@ import static com.bairock.hamadev.database.DbSb.*;
 
 public class SdDbHelper extends SQLiteOpenHelper {
 
-    private static final int VERSION = 2;
+    private static final int VERSION = 3;
     private static final String DATABASE_NAME = "sd_db.db";
 
     public SdDbHelper(Context context) {
@@ -123,6 +123,7 @@ public class SdDbHelper extends SQLiteOpenHelper {
                 TabLinkageCondition.Cols.COMPARE_VALUE + ", " +
                 TabLinkageCondition.Cols.DELETED + ", " +
                 TabLinkageCondition.Cols.LOGIC + ", " +
+                TabLinkageCondition.Cols.TRIGGER_STYLE + ", " +
                 TabLinkageCondition.Cols.DEV_ID + ", " +
                 TabLinkageCondition.Cols.SUBCHAIN_ID +
                 ")"
@@ -330,7 +331,7 @@ public class SdDbHelper extends SQLiteOpenHelper {
 
     }
 
-    public static void cleanDb(){
+    private static void cleanDb(){
         CollectPropertyDao.get(HamaApp.HAMA_CONTEXT).clean();
         DevGroupDao.get(HamaApp.HAMA_CONTEXT).clean();
         DeviceDao.get(HamaApp.HAMA_CONTEXT).clean();

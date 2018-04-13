@@ -43,6 +43,7 @@ public class LinkageConditionDao {
         values.put(DbSb.TabLinkageCondition.Cols.COMPARE_SYMBOL, linkageCondition.getCompareSymbol().toString());
         values.put(DbSb.TabLinkageCondition.Cols.COMPARE_VALUE, linkageCondition.getCompareValue());
         values.put(DbSb.TabLinkageCondition.Cols.LOGIC, linkageCondition.getLogic().toString());
+        values.put(DbSb.TabLinkageCondition.Cols.TRIGGER_STYLE, linkageCondition.getTriggerStyle().toString());
         values.put(DbSb.TabLinkageCondition.Cols.DEV_ID, linkageCondition.getDevice().getId());
         values.put(DbSb.TabLinkageCondition.Cols.DELETED, linkageCondition.isDeleted());
         return values;

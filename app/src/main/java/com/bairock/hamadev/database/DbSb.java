@@ -353,6 +353,10 @@ public class DbSb {
              */
             public static final String LOGIC = "logic";
             /**
+             * 触发值类型
+             */
+            public static final String TRIGGER_STYLE = "triggerStyle";
+            /**
              * 设备id，设备表外键
              */
             public static final String DEV_ID = "dev_id";

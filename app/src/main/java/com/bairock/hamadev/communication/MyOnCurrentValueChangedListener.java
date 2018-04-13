@@ -8,7 +8,7 @@ public class MyOnCurrentValueChangedListener implements CollectProperty.OnCurren
     @Override
     public void onCurrentValueChanged(DevCollect devCollect, Float aFloat) {
         if (null != AdapterCollect.handler) {
-            AdapterCollect.handler.obtainMessage(AdapterCollect.STATE, devCollect).sendToTarget();
+            AdapterCollect.handler.obtainMessage(AdapterCollect.VALUE, devCollect).sendToTarget();
         }
     }
 }

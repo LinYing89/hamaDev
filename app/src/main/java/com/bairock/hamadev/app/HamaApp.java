@@ -6,11 +6,13 @@ import android.support.multidex.MultiDex;
 import android.util.Log;
 
 //import com.amitshekhar.DebugDB;
+import com.bairock.hamadev.R;
 import com.bairock.hamadev.communication.PadClient;
 import com.bairock.hamadev.communication.SerialPortHelper;
 import com.bairock.iot.intelDev.communication.DevChannelBridgeHelper;
 import com.bairock.iot.intelDev.communication.DevServer;
 import com.bairock.iot.intelDev.communication.FindDevHelper;
+import com.bairock.iot.intelDev.device.Coordinator;
 import com.bairock.iot.intelDev.device.DevHaveChild;
 import com.bairock.iot.intelDev.device.Device;
 import com.bairock.iot.intelDev.device.devcollect.DevCollect;
@@ -42,6 +44,9 @@ public class HamaApp extends Application {
     public static boolean NET_CONNECTED;
     public static boolean SERVER_CONNECTED;
 
+    public static int abnormalColorId;
+    public static int stateKaiColorId;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -54,6 +59,9 @@ public class HamaApp extends Application {
         //Stetho.initializeWithDefaults(this);
         //DebugDB.getAddressLog();
         HAMA_CONTEXT = this.getApplicationContext();
+
+        abnormalColorId = getResources().getColor(R.color.abnormal);
+        stateKaiColorId = getResources().getColor(R.color.state_kai);
     }
 
     public static String getLoginUrl(){
@@ -62,12 +70,16 @@ public class HamaApp extends Application {
 
     public static void addOfflineDevCoding(Device device){
         if(null != device) {
-            FindDevHelper.getIns().findDev(device.findSuperParent().getCoding());
+            if(!(device.findSuperParent() instanceof Coordinator)) {
+                FindDevHelper.getIns().findDev(device.findSuperParent().getCoding());
+            }
         }
     }
     public static void removeOfflineDevCoding(Device device){
         if(null != device) {
-            FindDevHelper.getIns().alreadFind(device.findSuperParent().getCoding());
+            if(!(device.findSuperParent() instanceof Coordinator)) {
+                FindDevHelper.getIns().alreadyFind(device.findSuperParent().getCoding());
+            }
         }
     }
 

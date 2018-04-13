@@ -5,4 +5,7 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="abnormal">#FFE9967A</color>FFE9967A
+    <color name="state_kai">#b4eeb4</color>
 </resources>

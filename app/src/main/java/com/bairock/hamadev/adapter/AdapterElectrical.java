@@ -10,19 +10,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bairock.hamadev.R;
 import com.bairock.hamadev.app.HamaApp;
-import com.bairock.hamadev.communication.PadClient;
 import com.bairock.hamadev.database.DeviceDao;
-import com.bairock.iot.intelDev.communication.DevChannelBridgeHelper;
 import com.bairock.iot.intelDev.device.CtrlModel;
 import com.bairock.iot.intelDev.device.Device;
 import com.bairock.iot.intelDev.device.Gear;
 import com.bairock.iot.intelDev.device.IStateDev;
-import com.bairock.iot.intelDev.device.OrderHelper;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -76,7 +72,7 @@ public class AdapterElectrical extends BaseAdapter {
         if (convertView == null){
             myViews = new ViewHolder();
             listViewHolder.add(myViews);
-            convertView = mInflater.inflate(R.layout.adapter_electrical, null);
+            convertView = mInflater.inflate(R.layout.adapter_electrical, parent, false);
             myViews.textAlias = (TextView) convertView.findViewById(R.id.text_gate);
             myViews.textName = (TextView) convertView.findViewById(R.id.text_name);
             myViews.textCtrlModel = (TextView) convertView.findViewById(R.id.text_ctrl_model);
@@ -119,9 +115,8 @@ public class AdapterElectrical extends BaseAdapter {
                 device.setGear(Gear.KAI);
                 HamaApp.sendOrder(device, iStateDev.getTurnOnOrder());
             });
-            btnAuto.setOnClickListener(v -> {
-                device.setGear(Gear.ZIDONG);
-            });
+            btnAuto.setOnClickListener(v -> device.setGear(Gear.ZIDONG));
+
             btnOff.setOnClickListener(v -> {
                 device.setGear(Gear.GUAN);
                 HamaApp.sendOrder(device, iStateDev.getTurnOffOrder());
@@ -158,12 +153,14 @@ public class AdapterElectrical extends BaseAdapter {
         private void refreshState(){
             if (device.isNormal()) {
                 if (device.isKaiState()) {
-                    rootView.setBackgroundColor(Color.parseColor("#B4EEB4"));
+                    rootView.setBackgroundColor(HamaApp.stateKaiColorId);
+                    //rootView.setBackgroundColor(Color.parseColor("#B4EEB4"));
                 } else {
                     rootView.setBackgroundColor(Color.TRANSPARENT);
                 }
             } else {
-                rootView.setBackgroundColor(Color.parseColor("#FFE9967A"));
+                rootView.setBackgroundColor(HamaApp.abnormalColorId);
+                //rootView.setBackgroundColor(Color.parseColor("#FFE9967A"));
             }
         }
 
