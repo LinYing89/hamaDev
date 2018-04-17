@@ -167,7 +167,7 @@ public class PadClientHandler extends ChannelInboundHandlerAdapter {
             String state = msg.substring(index + 1, index + 2);
             if(!state.equals("0")){
                 //不是自动信息
-                DevChannelBridgeHelper.getIns().sendDevOrder(dev, OrderHelper.getOrderMsg(msg));
+                DevChannelBridgeHelper.getIns().sendDevOrder(dev, OrderHelper.getOrderMsg(msg), true);
             }
 
             int gear = Integer.parseInt(Gear.getPadGearModel(state));

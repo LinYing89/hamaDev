@@ -42,13 +42,15 @@ public class EspTouchAddDevice {
     public static Device DEVICE;
     public static int RECEIVED_OK_COUNT;
     public static boolean CONFIGING;
+    //=ture表示使用udp+tcp方式配置设备，=false表示使用纯udp方式配置设备
+    private static boolean TCP_CONFIG_MODEL = true;
     private boolean configOk;
     private EspWifiAdminSimple mWifiAdmin;
     private ProgressDialog mProgressDialog;
 
     private Context context;
 
-    public boolean moniAdd = false;
+    public boolean moniAdd = true;
 
     public EspTouchAddDevice(Context context){
         this.context = context;
@@ -190,7 +192,7 @@ public class EspTouchAddDevice {
     }
 
     private String getSeekOrder(String ip, int port) {
-        String order = "S:" + ip + "," + port + ":+";
+        String order = "S0:n" + ip + "," + port + ":+";
         return OrderHelper.getOrderMsg(order);
     }
 
@@ -228,6 +230,12 @@ public class EspTouchAddDevice {
                 if(null == DEVICE){
                     return false;
                 }
+                if(TCP_CONFIG_MODEL){
+                    publishProgress(100);
+                    return true;
+                }
+
+                //下面的是纯udp方式时执行的代码
                 Log.e("EsptouchAct", "DEVICE state id " + DEVICE.getDevStateId());
                 //发送收到设备编码成功信息
                 count = 1;
@@ -293,7 +301,11 @@ public class EspTouchAddDevice {
                     //设置设备状态改变监听器
                     WelcomeActivity.setDeviceListener(device, new MyOnStateChangedListener(),
                             new MyOnGearChangedListener(), new MyOnCtrlModelChangedListener());
-                    device.setDevStateId(DevStateHelper.DS_YI_CHANG);
+                    if(TCP_CONFIG_MODEL) {
+                        device.setDevStateId(DevStateHelper.DS_ZHENG_CHANG);
+                    }else{
+                        device.setDevStateId(DevStateHelper.DS_YI_CHANG);
+                    }
 
                     //添加到连锁内存表
                     List<Device> listIStateDev = new ArrayList<>();
@@ -302,8 +314,11 @@ public class EspTouchAddDevice {
                         LinkageTab.getIns().addTabRow(device1);
                     }
                 }
-                HamaApp.addOfflineDevCoding(device);
-                theActivity.configResult(true, null);
+                if(!TCP_CONFIG_MODEL) {
+                    //UDP模式下寻找设备
+                    HamaApp.addOfflineDevCoding(device);
+                }
+                theActivity.configResult(true, device.getCoding());
             }else {
                 //设备无返回，配置失败
                 theActivity.configResult(false, "设备无响应");
@@ -317,13 +332,16 @@ public class EspTouchAddDevice {
     }
 
     private void configResult(boolean result, String message){
+        if(null == message){
+            message = "";
+        }
         CONFIGING = false;
         mProgressDialog.getButton(DialogInterface.BUTTON_POSITIVE)
                 .setEnabled(true);
         mProgressDialog.getButton(DialogInterface.BUTTON_POSITIVE).setText(
                 "确定");
         if(result) {
-            mProgressDialog.setMessage("配置成功");
+            mProgressDialog.setMessage("配置成功,设备编码:" + message);
             mProgressDialog.setIcon(R.drawable.ic_check_pink_24dp);
             configOk = true;
         }else{

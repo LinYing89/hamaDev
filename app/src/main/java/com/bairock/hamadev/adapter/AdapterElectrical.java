@@ -113,13 +113,13 @@ public class AdapterElectrical extends BaseAdapter {
 
             btnOn.setOnClickListener(v -> {
                 device.setGear(Gear.KAI);
-                HamaApp.sendOrder(device, iStateDev.getTurnOnOrder());
+                HamaApp.sendOrder(device, iStateDev.getTurnOnOrder(), true);
             });
             btnAuto.setOnClickListener(v -> device.setGear(Gear.ZIDONG));
 
             btnOff.setOnClickListener(v -> {
                 device.setGear(Gear.GUAN);
-                HamaApp.sendOrder(device, iStateDev.getTurnOffOrder());
+                HamaApp.sendOrder(device, iStateDev.getTurnOffOrder(), true);
             });
 
             refreshAutoState();

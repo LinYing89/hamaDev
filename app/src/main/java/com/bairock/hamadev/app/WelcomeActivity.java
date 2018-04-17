@@ -146,6 +146,31 @@ public class WelcomeActivity extends AppCompatActivity {
         }
     }
 
+    private static void testDeviceBx(){
+        User user = new User();
+        user.setName("test123");
+        user.setPsd("a123456");
+        UserDao userDao = UserDao.get(HamaApp.HAMA_CONTEXT);
+        userDao.clean();
+        userDao.addUser(user);
+
+        DevGroup devGroup = new DevGroup("1", "a123", "g1");
+        devGroup.setId(UUID.randomUUID().toString());
+        user.addGroup(devGroup);
+        DevGroupDao devGroupDao = DevGroupDao.get(HamaApp.HAMA_CONTEXT);
+        devGroupDao.clean();
+        devGroupDao.add(devGroup);
+
+        Device device = DeviceAssistent.createDeviceByMcId(MainCodeHelper.KG_XLU_2TAI, "0001");
+        devGroup.addDevice(device);
+
+        DeviceDao deviceDao = DeviceDao.get(HamaApp.HAMA_CONTEXT);
+        deviceDao.clean();
+        deviceDao.add(device);
+
+        SdDbHelper.replaceDbUser(user);
+    }
+
     private static void testDevice(){
         User user = new User();
         user.setName("test123");
@@ -177,6 +202,9 @@ public class WelcomeActivity extends AppCompatActivity {
         DevCollectSignal devCollectSignal4 = (DevCollectSignal)DeviceAssistent.createDeviceByMcId(MainCodeHelper.COLLECTOR_SIGNAL, "9996");
         devCollectSignal4.getCollectProperty().setCollectSrc(CollectSignalSource.SWITCH);
 
+        Device devicex = DeviceAssistent.createDeviceByMcId(MainCodeHelper.KG_XLU_2TAI, "0001");
+        devGroup.addDevice(devicex);
+
         devGroup.addDevice(device);
         devGroup.addDevice(coordinator);
         devGroup.addDevice(devCollectSignal4);
@@ -186,6 +214,7 @@ public class WelcomeActivity extends AppCompatActivity {
         deviceDao.add(device);
         deviceDao.add(coordinator);
         deviceDao.add(devCollectSignal4);
+        deviceDao.add(devicex);
 
         SdDbHelper.replaceDbUser(user);
 
@@ -210,7 +239,7 @@ public class WelcomeActivity extends AppCompatActivity {
             try {
                 //没有可搜索设备时单机测试用
                 //testDevice();
-
+                //testDeviceBx();
                 initUser();
 
                 UdpServer.getIns().setMessageAnalysiser(new UdpMessageAnalysiser());
@@ -247,7 +276,7 @@ public class WelcomeActivity extends AppCompatActivity {
                 LinkageTab.getIns().SetOnOrderSendListener((device, order, ctrlModel) -> {
                     //Log.e("WelcomeAct", "OnOrderSendListener " + "order: " + order + " cm: " + ctrlModel);
                     if(null != order) {
-                        HamaApp.sendOrder(device, order);
+                        HamaApp.sendOrder(device, order, false);
                     }
                     //DevChannelBridgeHelper.getIns().sendDevOrder(device, order);
                 });
@@ -256,7 +285,7 @@ public class WelcomeActivity extends AppCompatActivity {
                 LinkageHelper.getIns().startCheckLinkageThread();
                 GuaguaHelper.getIns().stopCheckGuaguaThread();
                 GuaguaHelper.getIns().startCheckGuaguaThread();
-                GuaguaHelper.getIns().setOnOrderSendListener((guagua, s, ctrlModel) -> DevChannelBridgeHelper.getIns().sendDevOrder(guagua.findSuperParent(), s));
+                GuaguaHelper.getIns().setOnOrderSendListener((guagua, s, ctrlModel) -> HamaApp.sendOrder(guagua.findSuperParent(), s, true));
                 HamaApp.SERVER_IP = "192.168.1.111";
                 Thread.sleep(2000);
                 return true;

@@ -83,7 +83,7 @@ public class HamaApp extends Application {
         }
     }
 
-    public static void sendOrder(Device device, String order){
+    public static void sendOrder(Device device, String order, boolean immediately){
         switch (device.getLinkType()){
             case SERIAL:
                 Device rootDev = device;
@@ -103,11 +103,11 @@ public class HamaApp extends Application {
             case NET:
                 switch (device.getCtrlModel()){
                     case UNKNOW:
-                        DevChannelBridgeHelper.getIns().sendDevOrder(device.findSuperParent(), order);
+                        DevChannelBridgeHelper.getIns().sendDevOrder(device.findSuperParent(), order, immediately);
                         PadClient.getIns().send(order);
                         break;
                     case LOCAL:
-                        DevChannelBridgeHelper.getIns().sendDevOrder(device.findSuperParent(), order);
+                        DevChannelBridgeHelper.getIns().sendDevOrder(device.findSuperParent(), order, immediately);
                         break;
                     case REMOTE:
                         PadClient.getIns().send(order);

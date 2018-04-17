@@ -591,7 +591,7 @@ public class SearchActivity extends AppCompatActivity {
                             if(deviceModelHelper.getCtrlModel() == CtrlModel.REMOTE){
                                 String oldOrder = deviceModelHelper.getOrder().substring(1, deviceModelHelper.getOrder().indexOf("#"));
                                 oldOrder += ":u" + HamaApp.USER.getName() + ":g" + HamaApp.DEV_GROUP.getName();
-                                DevChannelBridgeHelper.getIns().sendDevOrder(deviceModelHelper.getDevToSet(), OrderHelper.getOrderMsg(oldOrder));
+                                DevChannelBridgeHelper.getIns().sendDevOrder(deviceModelHelper.getDevToSet(), OrderHelper.getOrderMsg(oldOrder), true);
                                 //DevChannelBridgeHelper.getIns().sendDevOrder(deviceModelHelper.getDevToSet(), deviceModelHelper.getOrder());
                             }
                         }
@@ -673,7 +673,7 @@ public class SearchActivity extends AppCompatActivity {
                 }
                 count++;
                 DevChannelBridgeHelper.getIns().sendDevOrder(theAct.rootDevice,
-                        OrderHelper.getOrderMsg("S" + theAct.rootDevice.getCoding() + ":+"));
+                        OrderHelper.getOrderMsg("S" + theAct.rootDevice.getCoding() + ":+"), true);
                 progressDialog.setProgress(count * 10);
                 try {
                     TimeUnit.SECONDS.sleep(5);

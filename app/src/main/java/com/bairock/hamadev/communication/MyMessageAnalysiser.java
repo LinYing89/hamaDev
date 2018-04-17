@@ -2,11 +2,9 @@ package com.bairock.hamadev.communication;
 
 import android.util.Log;
 
-import com.bairock.hamadev.settings.EsptouchActivity;
+import com.bairock.hamadev.esptouch.EspTouchAddDevice;
 import com.bairock.hamadev.settings.SearchActivity;
-import com.bairock.hamadev.settings.TcpLogActivity;
 import com.bairock.iot.intelDev.communication.MessageAnalysiser;
-import com.bairock.iot.intelDev.communication.UdpServer;
 import com.bairock.iot.intelDev.device.CtrlModel;
 import com.bairock.iot.intelDev.device.Device;
 import com.bairock.iot.intelDev.device.LinkType;
@@ -45,11 +43,12 @@ public class MyMessageAnalysiser extends MessageAnalysiser {
 
     @Override
     public void unKnowDev(Device device, String s) {
-
+        //新设备，未在本系统中
+        addNewDevice(device);
     }
 
     @Override
-    public void noTheDev(String msg) {
+    public void unKnowMsg(String msg) {
 
     }
 
@@ -78,6 +77,13 @@ public class MyMessageAnalysiser extends MessageAnalysiser {
                     SearchActivity.handler.obtainMessage(SearchActivity.handler.CTRL_MODEL_PROGRESS, 2).sendToTarget();
                 }
             }
+        }
+    }
+
+    private void addNewDevice(Device device){
+        if(EspTouchAddDevice.CONFIGING){
+            EspTouchAddDevice.DEVICE = device;
+
         }
     }
 }

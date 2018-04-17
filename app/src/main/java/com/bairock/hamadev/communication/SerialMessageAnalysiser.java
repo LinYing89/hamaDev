@@ -46,7 +46,7 @@ public class SerialMessageAnalysiser extends MessageAnalysiser {
     }
 
     @Override
-    public void noTheDev(String s) {
+    public void unKnowMsg(String s) {
 
     }
 

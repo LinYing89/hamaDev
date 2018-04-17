@@ -135,7 +135,7 @@ public class ElectricalCtrlFragment extends Fragment {
     };
 
     private void addDev(Device device){
-        if(device instanceof IStateDev){
+        if(device instanceof IStateDev && device.isVisibility()){
             listIStateDev.add(device);
             setDeviceListener(device);
             handler.obtainMessage(REFRESH_ELE_STATE).sendToTarget();
@@ -145,6 +145,7 @@ public class ElectricalCtrlFragment extends Fragment {
             }
         }
     }
+
     private void removeDev(Device device){
         if(device instanceof IStateDev){
             listIStateDev.remove(device);

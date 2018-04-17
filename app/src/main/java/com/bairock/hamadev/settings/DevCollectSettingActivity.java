@@ -227,7 +227,7 @@ public class DevCollectSettingActivity extends AppCompatActivity {
         try{
             float fValue = Float.parseFloat(value);
             String order = devCollectSignal.createCalibrationOrder(fValue);
-            DevChannelBridgeHelper.getIns().sendDevOrder(devCollectSignal, order);
+            DevChannelBridgeHelper.getIns().sendDevOrder(devCollectSignal, order, true);
         }catch (Exception e){
             Snackbar.make(btnCalibration, "标定值包含非法字符!", Snackbar.LENGTH_SHORT).show();
         }
