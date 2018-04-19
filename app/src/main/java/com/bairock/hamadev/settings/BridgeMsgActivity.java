@@ -47,10 +47,25 @@ public class BridgeMsgActivity extends AppCompatActivity {
         setListener();
         myHandler = new MyHandler(this);
         isPaused = false;
-        bridgeState.setOnAddMsgListener(netMsgType -> {
-            if(!isPaused) {
-                listNetMsgType.add(netMsgType);
-                myHandler.obtainMessage(0).sendToTarget();
+        bridgeState.setOnCollectionChangedMsgListener(new BridgeState.OnCollectionChangedMsgListener() {
+            @Override
+            public void onAddMsg(NetMsgType netMsgType) {
+                if(!isPaused) {
+                    listNetMsgType.remove(netMsgType);
+                    if(null != myHandler) {
+                        myHandler.obtainMessage(0).sendToTarget();
+                    }
+                }
+            }
+
+            @Override
+            public void onRemovedMsg(NetMsgType netMsgType) {
+                if(!isPaused) {
+                    listNetMsgType.add(netMsgType);
+                    if(null != myHandler) {
+                        myHandler.obtainMessage(0).sendToTarget();
+                    }
+                }
             }
         });
         bridgeState.setOnDevCodingChangedListener(() -> myHandler.obtainMessage(1).sendToTarget());
@@ -90,7 +105,7 @@ public class BridgeMsgActivity extends AppCompatActivity {
         super.onDestroy();
         myHandler = null;
         bridgeState.setOnDevCodingChangedListener(null);
-        bridgeState.setOnAddMsgListener(null);
+        bridgeState.setOnCollectionChangedMsgListener(null);
         listNetMsgType.clear();
     }
 

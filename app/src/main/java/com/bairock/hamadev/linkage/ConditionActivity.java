@@ -294,7 +294,7 @@ public class ConditionActivity extends AppCompatActivity {
                     if(condition.getDevice() != null){
                         try {
                             if(condition.getDevice() instanceof DevCollect) {
-                                condition.setCompareValue(Integer.parseInt(editValue.getText().toString()));
+                                condition.setCompareValue(Float.parseFloat(editValue.getText().toString()));
                             }
                             if(ADD){
                                 if(null != handler){

@@ -127,7 +127,9 @@
             android:name=".settings.SerialSetActivity"
             android:label="串口设置"
             android:screenOrientation="landscape" />
-        <activity android:name=".settings.DevCollectSettingActivity"></activity>
+        <activity android:name=".settings.DevCollectSettingActivity"
+            android:label="参数设置"
+            android:screenOrientation="landscape"/>
     </application>
 
 </manifest>

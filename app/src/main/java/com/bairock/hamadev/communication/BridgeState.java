@@ -18,7 +18,7 @@ public class BridgeState {
     private int sendCount;
     private List<NetMsgType> listBridgeMsgType = new ArrayList<>();
 
-    private OnAddMsgListener onAddMsgListener;
+    private OnCollectionChangedMsgListener onCollectionChangedMsgListener;
     private OnDevCodingChangedListener onDevCodingChangedListener;
 
     public String getDevCoding() {
@@ -72,6 +72,9 @@ public class BridgeState {
     public void addMsg(int type, String msg){
         if(listBridgeMsgType.size() > 100){
             listBridgeMsgType.remove(0);
+            if(null != onCollectionChangedMsgListener){
+                onCollectionChangedMsgListener.onAddMsg(listBridgeMsgType.get(0));
+            }
         }
         NetMsgType netMsgType = new NetMsgType();
         netMsgType.setType(type);
@@ -79,17 +82,17 @@ public class BridgeState {
         SimpleDateFormat dft = new SimpleDateFormat("HH:mm:ss", Locale.CHINA );
         netMsgType.setTime(dft.format(new Date()));
         listBridgeMsgType.add(netMsgType);
-        if(null != onAddMsgListener){
-            onAddMsgListener.onAddMsg(netMsgType);
+        if(null != onCollectionChangedMsgListener){
+            onCollectionChangedMsgListener.onAddMsg(netMsgType);
         }
     }
 
-    public OnAddMsgListener getOnAddMsgListener() {
-        return onAddMsgListener;
+    public OnCollectionChangedMsgListener getOnCollectionChangedMsgListener() {
+        return onCollectionChangedMsgListener;
     }
 
-    public void setOnAddMsgListener(OnAddMsgListener onAddMsgListener) {
-        this.onAddMsgListener = onAddMsgListener;
+    public void setOnCollectionChangedMsgListener(OnCollectionChangedMsgListener onCollectionChangedMsgListener) {
+        this.onCollectionChangedMsgListener = onCollectionChangedMsgListener;
     }
 
     public OnDevCodingChangedListener getOnDevCodingChangedListener() {
@@ -100,8 +103,9 @@ public class BridgeState {
         this.onDevCodingChangedListener = onDevCodingChangedListener;
     }
 
-    public interface OnAddMsgListener{
+    public interface OnCollectionChangedMsgListener{
         void onAddMsg(NetMsgType netMsgType);
+        void onRemovedMsg(NetMsgType netMsgType);
     }
 
     public interface OnDevCodingChangedListener{

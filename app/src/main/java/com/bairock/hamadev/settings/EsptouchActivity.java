@@ -98,7 +98,7 @@ public class EsptouchActivity extends AppCompatActivity {
     private void findViews(){
         txtSsid = (TextView)findViewById(R.id.txtSsid);
         etxtPsd = (EditText)findViewById(R.id.txtPsd);
-        etxtPsd.setText("jiangwei");
+        etxtPsd.setText(RouterInfo.PSD);
         btnSave = (Button)findViewById(R.id.btnSave);
     }
 

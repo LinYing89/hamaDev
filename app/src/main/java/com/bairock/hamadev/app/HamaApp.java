@@ -5,7 +5,7 @@ import android.content.Context;
 import android.support.multidex.MultiDex;
 import android.util.Log;
 
-//import com.amitshekhar.DebugDB;
+import com.amitshekhar.DebugDB;
 import com.bairock.hamadev.R;
 import com.bairock.hamadev.communication.PadClient;
 import com.bairock.hamadev.communication.SerialPortHelper;
@@ -57,7 +57,7 @@ public class HamaApp extends Application {
         //DevServer.PORT = 8000;
 
         //Stetho.initializeWithDefaults(this);
-        //DebugDB.getAddressLog();
+        DebugDB.getAddressLog();
         HAMA_CONTEXT = this.getApplicationContext();
 
         abnormalColorId = getResources().getColor(R.color.abnormal);
@@ -77,7 +77,7 @@ public class HamaApp extends Application {
     }
     public static void removeOfflineDevCoding(Device device){
         if(null != device) {
-            if(!(device.findSuperParent() instanceof Coordinator)) {
+            if(null == device.getParent() || !(device.findSuperParent() instanceof Coordinator)) {
                 FindDevHelper.getIns().alreadyFind(device.findSuperParent().getCoding());
             }
         }

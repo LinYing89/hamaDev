@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.bairock.hamadev.R;
 import com.bairock.hamadev.app.HamaApp;
 import com.bairock.iot.intelDev.device.Device;
+import com.bairock.iot.intelDev.device.devcollect.CollectProperty;
 import com.bairock.iot.intelDev.device.devcollect.CollectSignalSource;
 import com.bairock.iot.intelDev.device.devcollect.DevCollect;
 import com.bairock.iot.intelDev.device.devcollect.DevCollectSignal;
@@ -32,6 +33,8 @@ public class AdapterCollect extends BaseAdapter {
     public static final int VALUE = 1;
     public static final int NAME = 2;
     public static final int ALIAS = 3;
+    public static final int SRC_NAME = 4;
+    public static final int SIMULATOR = 5;
 
     public static MyHandler handler;
 
@@ -66,6 +69,8 @@ public class AdapterCollect extends BaseAdapter {
             mViewHolder = new ViewHolder();
             listViewHolder.add(mViewHolder);
             convertView = vi.inflate(R.layout.adapter_collect, parent, false);
+            mViewHolder.textSrcName  = (TextView) convertView.findViewById(R.id.textSrcSignal);
+            mViewHolder.textSimulator  = (TextView) convertView.findViewById(R.id.textSimulator);
             mViewHolder.textName  = (TextView) convertView.findViewById(R.id.text_name);
             mViewHolder.textAlias  = (TextView) convertView.findViewById(R.id.text_alias);
             mViewHolder.textState  = (TextView) convertView.findViewById(R.id.text_value);
@@ -89,6 +94,8 @@ public class AdapterCollect extends BaseAdapter {
     private static class ViewHolder {
         private DevCollect device;
         private View rootView;
+        private TextView textSrcName;
+        private TextView textSimulator;
         private TextView textAlias;
         private TextView textName;
         private TextView textState;
@@ -99,6 +106,8 @@ public class AdapterCollect extends BaseAdapter {
             textName.setText(device.getName());
             textAlias.setText(device.getAlias());
             rootView.setBackgroundColor(Color.TRANSPARENT);
+            refreshSrcName();
+            refreshSimulator();
         }
 
         private void refreshValue(){
@@ -140,12 +149,40 @@ public class AdapterCollect extends BaseAdapter {
             }
         }
 
+        private void refreshSrcName(){
+            textSrcName.setText(getSrcName());
+        }
+
+        private void refreshSimulator(){
+            textSimulator.setText("  值:" + String.valueOf(device.getCollectProperty().getSimulatorValue()));
+        }
+
         private void refreshName(){
             textName.setText(device.getName());
         }
 
         private void refreshAlias(){
             textAlias.setText(device.getAlias());
+        }
+
+        private String getSrcName(){
+            String srcName = "";
+            CollectProperty cp = device.getCollectProperty();
+            switch (cp.getCollectSrc()){
+                case DIGIT:
+                    srcName = "(数字)";
+                    break;
+                case SWITCH:
+                    srcName = "(开关)";
+                    break;
+                case VOLTAGE:
+                    srcName = "(" + floatTrans1(cp.getLeastValue()) + "-" + floatTrans1(cp.getCrestValue()) + "V" + ")";
+                    break;
+                case ELECTRIC_CURRENT:
+                    srcName = "(" + floatTrans1(cp.getLeastValue()) + "-" + floatTrans1(cp.getCrestValue()) + "mA" + ")";
+                    break;
+            }
+            return srcName;
         }
     }
 
@@ -175,11 +212,24 @@ public class AdapterCollect extends BaseAdapter {
                         case ALIAS :
                             vh.refreshAlias();
                             break;
+                        case SRC_NAME :
+                            vh.refreshSrcName();
+                            break;
+                        case SIMULATOR :
+                            vh.refreshSimulator();
+                            break;
                     }
                     break;
                 }
             }
 
         }
+    }
+
+    public static String floatTrans1(float num){
+        if(num % 1.0 == 0){
+            return String.valueOf((int)num);
+        }
+        return String.valueOf(num);
     }
 }

@@ -63,9 +63,9 @@ public class MyMessageAnalysiser extends MessageAnalysiser {
 
     @Override
     public void configDevice(Device device, String s) {
-        if(null != SearchActivity.handler){
-            SearchActivity.handler.obtainMessage(SearchActivity.handler.DEV_ADD_CHILD, device).sendToTarget();
-        }
+//        if(null != SearchActivity.handler){
+//            SearchActivity.handler.obtainMessage(SearchActivity.handler.DEV_ADD_CHILD, device).sendToTarget();
+//        }
     }
 
     @Override

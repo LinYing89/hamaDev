@@ -15,9 +15,10 @@ import com.bairock.hamadev.communication.MyOnCtrlModelChangedListener;
 import com.bairock.hamadev.communication.MyOnCurrentValueChangedListener;
 import com.bairock.hamadev.communication.MyOnDevHaveChildeOnCollectionChangedListener;
 import com.bairock.hamadev.communication.MyOnGearChangedListener;
+import com.bairock.hamadev.communication.MyOnSignalSourceChangedListener;
+import com.bairock.hamadev.communication.MyOnSimulatorChangedListener;
 import com.bairock.hamadev.communication.MyOnStateChangedListener;
 import com.bairock.hamadev.communication.SerialPortHelper;
-import com.bairock.hamadev.communication.UdpMessageAnalysiser;
 import com.bairock.hamadev.database.DevGroupDao;
 import com.bairock.hamadev.database.DeviceDao;
 import com.bairock.hamadev.database.SdDbHelper;
@@ -34,10 +35,13 @@ import com.bairock.iot.intelDev.device.DevHaveChild;
 import com.bairock.iot.intelDev.device.DevStateHelper;
 import com.bairock.iot.intelDev.device.Device;
 import com.bairock.iot.intelDev.device.DeviceAssistent;
+import com.bairock.iot.intelDev.device.GuaguaMouth;
 import com.bairock.iot.intelDev.device.MainCodeHelper;
+import com.bairock.iot.intelDev.device.devcollect.CollectProperty;
 import com.bairock.iot.intelDev.device.devcollect.CollectSignalSource;
 import com.bairock.iot.intelDev.device.devcollect.DevCollect;
 import com.bairock.iot.intelDev.device.devcollect.DevCollectSignal;
+import com.bairock.iot.intelDev.device.devcollect.DevCollectSignalContainer;
 import com.bairock.iot.intelDev.linkage.LinkageHelper;
 import com.bairock.iot.intelDev.linkage.LinkageTab;
 import com.bairock.iot.intelDev.linkage.guagua.GuaguaHelper;
@@ -45,9 +49,7 @@ import com.bairock.iot.intelDev.linkage.timing.WeekHelper;
 import com.bairock.iot.intelDev.user.DevGroup;
 import com.bairock.iot.intelDev.user.User;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.UUID;
 
@@ -105,15 +107,12 @@ public class WelcomeActivity extends AppCompatActivity {
 
         DevChannelBridgeHelper.getIns().setUser(HamaApp.USER);
 
-
-
         //将状态设备添加到联动表，开始检查所有设备的联动和挡位状态
         List<Device> list = HamaApp.DEV_GROUP.findListIStateDev(true);
         LinkageTab.getIns().getListLinkageTabRow().clear();
         for(Device device : list){
             LinkageTab.getIns().addTabRow(device);
         }
-
 
         LinkageHelper.getIns().setChain(HamaApp.DEV_GROUP.getChainHolder());
         LinkageHelper.getIns().setLoop(HamaApp.DEV_GROUP.getLoopHolder());
@@ -142,7 +141,10 @@ public class WelcomeActivity extends AppCompatActivity {
             }
         }
         if(device instanceof DevCollect){
-            ((DevCollect) device).getCollectProperty().setOnCurrentValueChanged(new MyOnCurrentValueChangedListener());
+            CollectProperty cp = ((DevCollect) device).getCollectProperty();
+            cp.setOnCurrentValueChanged(new MyOnCurrentValueChangedListener());
+            cp.setOnSignalSourceChangedListener(new MyOnSignalSourceChangedListener());
+            cp.setOnSimulatorChangedListener(new MyOnSimulatorChangedListener());
         }
     }
 
@@ -186,45 +188,33 @@ public class WelcomeActivity extends AppCompatActivity {
         devGroupDao.clean();
         devGroupDao.add(devGroup);
 
-        Coordinator coordinator = (Coordinator)DeviceAssistent.createDeviceByMcId(MainCodeHelper.XIE_TIAO_QI, "9999");
-        DevCollectSignal devCollectSignal = (DevCollectSignal) DeviceAssistent.createDeviceByMcId(MainCodeHelper.COLLECTOR_SIGNAL, "9999");
-        devCollectSignal.getCollectProperty().setCollectSrc(CollectSignalSource.DIGIT);
-        DevCollectSignal devCollectSignal2 = (DevCollectSignal) DeviceAssistent.createDeviceByMcId(MainCodeHelper.COLLECTOR_SIGNAL, "9998");
-        devCollectSignal2.getCollectProperty().setCollectSrc(CollectSignalSource.ELECTRIC_CURRENT);
-        DevCollectSignal devCollectSignal3 = (DevCollectSignal) DeviceAssistent.createDeviceByMcId(MainCodeHelper.COLLECTOR_SIGNAL, "9997");
-        devCollectSignal3.getCollectProperty().setCollectSrc(CollectSignalSource.VOLTAGE);
-        coordinator.addChildDev(devCollectSignal);
-        coordinator.addChildDev(devCollectSignal2);
-        coordinator.addChildDev(devCollectSignal3);
+//        Coordinator coordinator = (Coordinator)DeviceAssistent.createDeviceByMcId(MainCodeHelper.XIE_TIAO_QI, "9999");
+//        DevCollectSignal devCollectSignal = (DevCollectSignal) DeviceAssistent.createDeviceByMcId(MainCodeHelper.COLLECTOR_SIGNAL, "9999");
+//        devCollectSignal.getCollectProperty().setCollectSrc(CollectSignalSource.DIGIT);
+//        DevCollectSignal devCollectSignal2 = (DevCollectSignal) DeviceAssistent.createDeviceByMcId(MainCodeHelper.COLLECTOR_SIGNAL, "9998");
+//        devCollectSignal2.getCollectProperty().setCollectSrc(CollectSignalSource.ELECTRIC_CURRENT);
+//        DevCollectSignal devCollectSignal3 = (DevCollectSignal) DeviceAssistent.createDeviceByMcId(MainCodeHelper.COLLECTOR_SIGNAL, "9997");
+//        devCollectSignal3.getCollectProperty().setCollectSrc(CollectSignalSource.VOLTAGE);
+//        coordinator.addChildDev(devCollectSignal);
+//        coordinator.addChildDev(devCollectSignal2);
+//        coordinator.addChildDev(devCollectSignal3);
 
         Device device = DeviceAssistent.createDeviceByMcId(MainCodeHelper.KG_3LU_2TAI, "9999");
+        devGroup.addDevice(device);
 
-        DevCollectSignal devCollectSignal4 = (DevCollectSignal)DeviceAssistent.createDeviceByMcId(MainCodeHelper.COLLECTOR_SIGNAL, "9996");
-        devCollectSignal4.getCollectProperty().setCollectSrc(CollectSignalSource.SWITCH);
+        DevCollectSignalContainer devCollectSignalContainer = (DevCollectSignalContainer)DeviceAssistent.createDeviceByMcId(MainCodeHelper.COLLECTOR_SIGNAL_CONTAINER, "9996");
+        devGroup.addDevice(devCollectSignalContainer);
+
+        GuaguaMouth guaguaMouth = (GuaguaMouth)DeviceAssistent.createDeviceByMcId(MainCodeHelper.GUAGUA_MOUTH, "9999");
+        devGroup.addDevice(guaguaMouth);
+//        DevCollectSignal devCollectSignal4 = (DevCollectSignal)DeviceAssistent.createDeviceByMcId(MainCodeHelper.COLLECTOR_SIGNAL, "9996");
+//        devCollectSignal4.getCollectProperty().setCollectSrc(CollectSignalSource.SWITCH);
+//        devGroup.addDevice(devCollectSignal4);
 
         Device devicex = DeviceAssistent.createDeviceByMcId(MainCodeHelper.KG_XLU_2TAI, "0001");
         devGroup.addDevice(devicex);
 
-        devGroup.addDevice(device);
-        devGroup.addDevice(coordinator);
-        devGroup.addDevice(devCollectSignal4);
-
-        DeviceDao deviceDao = DeviceDao.get(HamaApp.HAMA_CONTEXT);
-        deviceDao.clean();
-        deviceDao.add(device);
-        deviceDao.add(coordinator);
-        deviceDao.add(devCollectSignal4);
-        deviceDao.add(devicex);
-
         SdDbHelper.replaceDbUser(user);
-
-//        Device device1 = DeviceAssistent.createDeviceByMcId(MainCodeHelper.KG_3LU_2TAI, "9998");
-//        devGroup.addDevice(device1);
-//        deviceDao.add(device1);
-//
-//        Device device2 = DeviceAssistent.createDeviceByMcId(MainCodeHelper.YE_WEI, "9999");
-//        devGroup.addDevice(device2);
-//        deviceDao.add(device2);
     }
 
     private static class ToMainTask extends AsyncTask<Void, Void, Boolean> {
@@ -242,7 +232,7 @@ public class WelcomeActivity extends AppCompatActivity {
                 //testDeviceBx();
                 initUser();
 
-                UdpServer.getIns().setMessageAnalysiser(new UdpMessageAnalysiser());
+                //UdpServer.getIns().setMessageAnalysiser(new UdpMessageAnalysiser());
                 UdpServer.getIns().setUser(HamaApp.USER);
                 UdpServer.getIns().run();
 

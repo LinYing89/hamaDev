@@ -182,18 +182,7 @@ public class DeviceDao {
             cursor.moveToFirst();
             while (!cursor.isAfterLast()){
                 Device device = cursor.getDevice();
-                if(device instanceof DevHaveChild){
-                    DevHaveChild devHaveChild = (DevHaveChild)device;
-                    List<Device> listChildDevice = findChildDevice(devHaveChild);
-                    devHaveChild.getListDev().clear();
-                    for(Device device1 : listChildDevice){
-                        devHaveChild.addChildDev(device1);
-                    }
-                }else if(device instanceof DevCollect){
-                    DevCollect devCollect = (DevCollect)device;
-                    CollectPropertyDao collectPropertyDao = CollectPropertyDao.get(mContext);
-                    devCollect.setCollectProperty(collectPropertyDao.find(devCollect));
-                }
+                initDevice(device);
                 listDevice.add(device);
                 cursor.moveToNext();
             }
@@ -201,6 +190,28 @@ public class DeviceDao {
             cursor.close();
         }
         return listDevice;
+    }
+
+    private void initDevice(Device device){
+        if(device instanceof DevHaveChild){
+            DevHaveChild devHaveChild = (DevHaveChild)device;
+            List<Device> listChildDevice = findChildDevice(devHaveChild);
+            devHaveChild.getListDev().clear();
+            for(Device device1 : listChildDevice){
+                initDevice(device1);
+                initDevCollect(device1);
+                devHaveChild.addChildDev(device1);
+            }
+        }
+        initDevCollect(device);
+    }
+
+    private void initDevCollect(Device device){
+        if(device instanceof DevCollect){
+            DevCollect devCollect = (DevCollect)device;
+            CollectPropertyDao collectPropertyDao = CollectPropertyDao.get(mContext);
+            devCollect.setCollectProperty(collectPropertyDao.find(devCollect));
+        }
     }
 
     private DeviceCursorWrapper query(String whereClause, String[] whereArgs) {

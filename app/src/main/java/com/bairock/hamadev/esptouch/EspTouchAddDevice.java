@@ -50,7 +50,7 @@ public class EspTouchAddDevice {
 
     private Context context;
 
-    public boolean moniAdd = true;
+    public boolean moniAdd = false;
 
     public EspTouchAddDevice(Context context){
         this.context = context;
@@ -338,8 +338,7 @@ public class EspTouchAddDevice {
         CONFIGING = false;
         mProgressDialog.getButton(DialogInterface.BUTTON_POSITIVE)
                 .setEnabled(true);
-        mProgressDialog.getButton(DialogInterface.BUTTON_POSITIVE).setText(
-                "确定");
+        mProgressDialog.getButton(DialogInterface.BUTTON_POSITIVE).setText("确定");
         if(result) {
             mProgressDialog.setMessage("配置成功,设备编码:" + message);
             mProgressDialog.setIcon(R.drawable.ic_check_pink_24dp);

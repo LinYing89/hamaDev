@@ -87,12 +87,27 @@ public class DevCollectSettingActivity extends AppCompatActivity {
         }
 
         String unit = etxtUnit.getText().toString();
-        float Aa = Float.parseFloat(etxtAa.getText().toString());
-        float Ab = Float.parseFloat(etxtAb.getText().toString());
-        float a = Float.parseFloat(etxta.getText().toString());
-        float b = Float.parseFloat(etxtb.getText().toString());
+        float Aa = 0;
+        try {
+            Aa = Float.parseFloat(etxtAa.getText().toString());
+        }catch (Exception e){e.printStackTrace();}
+        float Ab = 0;
+        try {
+            Ab = Float.parseFloat(etxtAb.getText().toString());
+        }catch (Exception e){e.printStackTrace();}
+        float a = 0;
+        try {
+            a = Float.parseFloat(etxta.getText().toString());
+        }catch (Exception e){e.printStackTrace();}
+        float b = 0;
+        try {
+            b = Float.parseFloat(etxtb.getText().toString());
+        }catch (Exception e){e.printStackTrace();}
         String formula = etxtFormula.getText().toString();
-        float calibration = Float.parseFloat(etxtCalibration.getText().toString());
+        float calibration = 0;
+        try {
+            calibration = Float.parseFloat(etxtCalibration.getText().toString());
+        }catch (Exception e){e.printStackTrace();}
         if(!unit.equals(collectProperty.getUnitSymbol())){
             updatePropety = true;
             collectProperty.setUnitSymbol(unit);
@@ -202,6 +217,8 @@ public class DevCollectSettingActivity extends AppCompatActivity {
                     break;
                 case 1:
                     collectProperty.setCollectSrc(CollectSignalSource.ELECTRIC_CURRENT);
+                    etxta.setText("4");
+                    etxtb.setText("20");
                     break;
                 case 2:
                     collectProperty.setCollectSrc(CollectSignalSource.VOLTAGE);
@@ -210,6 +227,8 @@ public class DevCollectSettingActivity extends AppCompatActivity {
                     collectProperty.setCollectSrc(CollectSignalSource.SWITCH);
                     break;
             }
+            CollectPropertyDao collectPropertyDao = CollectPropertyDao.get(DevCollectSettingActivity.this);
+            collectPropertyDao.update(collectProperty);
             initSourceLayout();
         }
 

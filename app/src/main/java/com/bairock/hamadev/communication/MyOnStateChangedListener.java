@@ -4,12 +4,13 @@ import com.bairock.hamadev.adapter.AdapterCollect;
 import com.bairock.hamadev.adapter.AdapterElectrical;
 import com.bairock.hamadev.adapter.AdapterSearchDev;
 import com.bairock.hamadev.app.HamaApp;
+import com.bairock.iot.intelDev.communication.RefreshCollectorValueHelper;
 import com.bairock.iot.intelDev.device.DevStateHelper;
 import com.bairock.iot.intelDev.device.Device;
 import com.bairock.iot.intelDev.device.IStateDev;
 import com.bairock.iot.intelDev.device.LinkType;
-import com.bairock.iot.intelDev.device.OrderHelper;
 import com.bairock.iot.intelDev.device.devcollect.DevCollect;
+import com.bairock.iot.intelDev.device.devcollect.DevCollectSignalContainer;
 import com.bairock.iot.intelDev.device.devswitch.SubDev;
 
 /**
@@ -34,6 +35,9 @@ public class MyOnStateChangedListener implements Device.OnStateChangedListener {
         if(!(device instanceof SubDev)) {
             PadClient.getIns().send(device.createAbnormalOrder());
         }
+        if(device instanceof DevCollect || device instanceof DevCollectSignalContainer){
+            RefreshCollectorValueHelper.getIns().endRefresh(device);
+        }
     }
 
     @Override
@@ -41,6 +45,20 @@ public class MyOnStateChangedListener implements Device.OnStateChangedListener {
         //Log.e(TAG, "onAbnormalToNormal " + device.getCoding());
         refreshSearchUi(device);
         HamaApp.removeOfflineDevCoding(device);
+
+        boolean canAdd = false;
+        if(device instanceof DevCollectSignalContainer){
+            canAdd = true;
+        }else if(device instanceof DevCollect){
+            if(device.getParent() == null){
+                canAdd = true;
+            }else if(!(device.getParent() instanceof DevCollectSignalContainer)){
+                canAdd = true;
+            }
+        }
+        if(canAdd){
+            RefreshCollectorValueHelper.getIns().RefreshDev(device);
+        }
     }
 
     private void refreshUi(Device device){

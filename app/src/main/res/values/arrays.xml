@@ -5,9 +5,9 @@
         <item>OR</item>
     </string-array>
     <string-array name="array_event_symbol">
-        <item>大于</item>
-        <item>等于</item>
         <item>小于</item>
+        <item>等于</item>
+        <item>大于</item>
     </string-array>
     <string-array name="array_event_state">
         <item>OFF</item>
