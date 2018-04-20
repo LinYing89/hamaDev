@@ -112,7 +112,7 @@ public class EditGuaguaEffectActivity extends AppCompatActivity {
      * @return
      */
     public List<Device> getListOtherGuanguanMouth(){
-        List<GuaguaMouth> listEleAll = HamaApp.DEV_GROUP.findListGuaguaMouth();
+        List<GuaguaMouth> listEleAll = HamaApp.DEV_GROUP.findListGuaguaMouth(true);
         List<Device> listOther = new ArrayList<>();
         List<Effect> listEle = EditGuaguaActivity.subChain.getListEffect();
         for (Device device : listEleAll) {

@@ -52,7 +52,7 @@ dependencies {
     implementation 'com.android.support:support-v4:25.4.0'
     implementation 'com.android.support:recyclerview-v7:25.4.0'
     testImplementation 'junit:junit:4.12'
-    debugApi 'com.amitshekhar.android:debug-db:1.0.0'
+//    debugApi 'com.amitshekhar.android:debug-db:1.0.0'
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.0.pr4'
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core

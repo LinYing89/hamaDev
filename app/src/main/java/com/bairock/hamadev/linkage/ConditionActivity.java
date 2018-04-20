@@ -126,7 +126,7 @@ public class ConditionActivity extends AppCompatActivity {
     private void init(){
         listDevice = new ArrayList<>();
         listDevice.addAll(HamaApp.DEV_GROUP.findListIStateDev(true));
-        listDevice.addAll(HamaApp.DEV_GROUP.findListCollectDev());
+        listDevice.addAll(HamaApp.DEV_GROUP.findListCollectDev(true));
         List<String> listDeviceName = new ArrayList<>();
         for(Device device : listDevice){
             listDeviceName.add(device.getName());

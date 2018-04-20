@@ -41,7 +41,7 @@ public class SortActivity extends AppCompatActivity {
 
         listDevice = new ArrayList<>();
         listDevice.addAll(HamaApp.DEV_GROUP.findListIStateDev(false));
-        listDevice.addAll(HamaApp.DEV_GROUP.findListCollectDev());
+        listDevice.addAll(HamaApp.DEV_GROUP.findListCollectDev(false));
         Collections.sort(listDevice);
         for(int i = 0; i < listDevice.size(); i++){
             listDevice.get(i).setSortIndex(i);

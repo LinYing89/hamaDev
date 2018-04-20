@@ -87,16 +87,8 @@ public class BridgeState {
         }
     }
 
-    public OnCollectionChangedMsgListener getOnCollectionChangedMsgListener() {
-        return onCollectionChangedMsgListener;
-    }
-
     public void setOnCollectionChangedMsgListener(OnCollectionChangedMsgListener onCollectionChangedMsgListener) {
         this.onCollectionChangedMsgListener = onCollectionChangedMsgListener;
-    }
-
-    public OnDevCodingChangedListener getOnDevCodingChangedListener() {
-        return onDevCodingChangedListener;
     }
 
     public void setOnDevCodingChangedListener(OnDevCodingChangedListener onDevCodingChangedListener) {

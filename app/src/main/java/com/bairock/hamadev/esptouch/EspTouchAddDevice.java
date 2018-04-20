@@ -218,7 +218,7 @@ public class EspTouchAddDevice {
                 int count = 1;
                 publishProgress(0, 0);
                 do {
-                    if(count >= 6){
+                    if(count >= 10){
                         return false;
                     }
                     UdpServer.getIns().send(seekOrder);

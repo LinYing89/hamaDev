@@ -38,9 +38,7 @@ import com.bairock.iot.intelDev.device.DeviceAssistent;
 import com.bairock.iot.intelDev.device.GuaguaMouth;
 import com.bairock.iot.intelDev.device.MainCodeHelper;
 import com.bairock.iot.intelDev.device.devcollect.CollectProperty;
-import com.bairock.iot.intelDev.device.devcollect.CollectSignalSource;
 import com.bairock.iot.intelDev.device.devcollect.DevCollect;
-import com.bairock.iot.intelDev.device.devcollect.DevCollectSignal;
 import com.bairock.iot.intelDev.device.devcollect.DevCollectSignalContainer;
 import com.bairock.iot.intelDev.linkage.LinkageHelper;
 import com.bairock.iot.intelDev.linkage.LinkageTab;
@@ -276,7 +274,7 @@ public class WelcomeActivity extends AppCompatActivity {
                 GuaguaHelper.getIns().stopCheckGuaguaThread();
                 GuaguaHelper.getIns().startCheckGuaguaThread();
                 GuaguaHelper.getIns().setOnOrderSendListener((guagua, s, ctrlModel) -> HamaApp.sendOrder(guagua.findSuperParent(), s, true));
-                HamaApp.SERVER_IP = "192.168.1.111";
+                //HamaApp.SERVER_IP = "192.168.1.111";
                 Thread.sleep(2000);
                 return true;
             }catch (InterruptedException e){

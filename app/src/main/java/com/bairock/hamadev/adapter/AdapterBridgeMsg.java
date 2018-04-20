@@ -5,10 +5,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.bairock.hamadev.R;
+import com.bairock.hamadev.app.HamaApp;
 import com.bairock.hamadev.communication.NetMsgType;
+import com.bairock.hamadev.database.LinkageDao;
+import com.bairock.iot.intelDev.linkage.Linkage;
 
 import java.util.List;
 

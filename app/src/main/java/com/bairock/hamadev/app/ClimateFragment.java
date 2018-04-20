@@ -75,7 +75,7 @@ public class ClimateFragment extends Fragment {
     }
 
     private void setPressueList(){
-        listDevCollect = HamaApp.DEV_GROUP.findListCollectDev();
+        listDevCollect = HamaApp.DEV_GROUP.findListCollectDev(true);
         Collections.sort(listDevCollect);
         adapterCollect = new AdapterCollect(this.getContext(), listDevCollect);
         listViewPressure.setAdapter(adapterCollect);

@@ -7,12 +7,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bairock.hamadev.R;
+import com.bairock.hamadev.app.ClimateFragment;
+import com.bairock.hamadev.app.ElectricalCtrlFragment;
+import com.bairock.hamadev.app.HamaApp;
+import com.bairock.hamadev.database.DeviceDao;
 import com.bairock.iot.intelDev.device.CtrlModel;
 import com.bairock.iot.intelDev.device.Device;
+import com.bairock.iot.intelDev.device.IStateDev;
+import com.bairock.iot.intelDev.device.devcollect.DevCollect;
+import com.bairock.iot.intelDev.device.devcollect.DevCollectSignalContainer;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -68,6 +76,7 @@ public class AdapterSearchDev extends BaseAdapter {
             mViewHolder.textCoding  = (TextView) convertView.findViewById(R.id.text_coding);
             mViewHolder.redGreen  = (ImageView) convertView.findViewById(R.id.red_green);
             mViewHolder.textCtrlModel  = (TextView) convertView.findViewById(R.id.txtCtrlModel);
+            mViewHolder.cbVisibility  = (CheckBox) convertView.findViewById(R.id.cbVisibility);
             convertView.setTag(mViewHolder);
         }else{
             mViewHolder = (ViewHolder) convertView.getTag();
@@ -84,12 +93,28 @@ public class AdapterSearchDev extends BaseAdapter {
         private TextView textCoding;
         private ImageView redGreen;
         private TextView textCtrlModel;
+        private CheckBox cbVisibility;
 
         void init(){
             refreshName();
             textCoding.setText(device.getCoding());
             refreshState();
             refreshCtrlModel();
+            cbVisibility.setChecked(device.isVisibility());
+            cbVisibility.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                device.setVisibility(isChecked);
+                DeviceDao deviceDao = DeviceDao.get(HamaApp.HAMA_CONTEXT);
+                deviceDao.update(device);
+                if(device instanceof IStateDev){
+                    if(null != ElectricalCtrlFragment.handler) {
+                        ElectricalCtrlFragment.handler.obtainMessage(ElectricalCtrlFragment.REFRESH_ELE).sendToTarget();
+                    }
+                }else if(device instanceof DevCollect || device instanceof DevCollectSignalContainer){
+                    if(null != ClimateFragment.handler) {
+                        ClimateFragment.handler.obtainMessage(ClimateFragment.REFRESH_DEVICE).sendToTarget();
+                    }
+                }
+            });
         }
 
         private void refreshName(){
