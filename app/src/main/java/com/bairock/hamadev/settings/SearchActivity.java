@@ -395,31 +395,33 @@ public class SearchActivity extends AppCompatActivity {
                     }
                     break;
                 case DEV_ADD_CHILD:
-                    Log.e("SearchAct", msg.obj + "");
-                    Device device = (Device) msg.obj;
-                    if(theActivity.childDevAdding) {
-                        Device device2 = HamaApp.DEV_GROUP.findDeviceWithCoding(device.getCoding());
-                        if(null != device2){
-                            if(null != theActivity.addDeviceTask) {
-                                theActivity.addDeviceTask.setDialogMessage("与已有设备编码重复,编码:" + device.getCoding());
-                                theActivity.addDeviceTask.cancel(true);
-                            }
-                            return;
-                        }
-                        ((DevHaveChild) theActivity.rootDevice).addChildDev(device);
-                        theActivity.childDevAdding = false;
-                        WelcomeActivity.setDeviceListener(device, new MyOnStateChangedListener(),
-                                new MyOnGearChangedListener(), new MyOnCtrlModelChangedListener());
-                        device.setDevStateId(DevStateHelper.DS_YI_CHANG);
+                    theActivity.childDevAdding = false;
 
-                        //添加到连锁内存表
-                        List<Device> listIStateDev = new ArrayList<>();
-                        DevGroup.findListIStateDev(listIStateDev, device, false);
-                        for (Device device1 : listIStateDev) {
-                            LinkageTab.getIns().addTabRow(device1);
-                        }
-                        DeviceDao.get(HamaApp.HAMA_CONTEXT).add(device);
-                    }
+//                    Log.e("SearchAct", msg.obj + "");
+//                    Device device = (Device) msg.obj;
+//                    if(theActivity.childDevAdding) {
+//                        Device device2 = HamaApp.DEV_GROUP.findDeviceWithCoding(device.getCoding());
+//                        if(null != device2){
+//                            if(null != theActivity.addDeviceTask) {
+//                                theActivity.addDeviceTask.setDialogMessage("与已有设备编码重复,编码:" + device.getCoding());
+//                                theActivity.addDeviceTask.cancel(true);
+//                            }
+//                            return;
+//                        }
+//                        ((DevHaveChild) theActivity.rootDevice).addChildDev(device);
+//                        theActivity.childDevAdding = false;
+//                        WelcomeActivity.setDeviceListener(device, new MyOnStateChangedListener(),
+//                                new MyOnGearChangedListener(), new MyOnCtrlModelChangedListener());
+//                        device.setDevStateId(DevStateHelper.DS_YI_CHANG);
+//
+//                        //添加到连锁内存表
+//                        List<Device> listIStateDev = new ArrayList<>();
+//                        DevGroup.findListIStateDev(listIStateDev, device, false);
+//                        for (Device device1 : listIStateDev) {
+//                            LinkageTab.getIns().addTabRow(device1);
+//                        }
+//                        DeviceDao.get(HamaApp.HAMA_CONTEXT).add(device);
+//                    }
 
                     break;
             }
@@ -447,10 +449,17 @@ public class SearchActivity extends AppCompatActivity {
         //popupWindow.showAsDropDown(v);
         popupWindow.showAtLocation(v, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
 
-        if(device.getCtrlModel() == CtrlModel.REMOTE){
-            btnCtrlModel.setText("设为本地模式");
-        }else{
-            btnCtrlModel.setText("设为远程模式");
+        if(device instanceof DevHaveChild){
+            btnAlias.setVisibility(View.GONE);
+        }
+        if(device.getParent() != null){
+            btnCtrlModel.setVisibility(View.GONE);
+        }else {
+            if (device.getCtrlModel() == CtrlModel.REMOTE) {
+                btnCtrlModel.setText("设为本地模式");
+            } else {
+                btnCtrlModel.setText("设为远程模式");
+            }
         }
 
         layoutRename.setOnClickListener(v1 -> {
@@ -672,8 +681,10 @@ public class SearchActivity extends AppCompatActivity {
                     return true;
                 }
                 count++;
+//                DevChannelBridgeHelper.getIns().sendDevOrder(theAct.rootDevice,
+//                        OrderHelper.getOrderMsg("S" + theAct.rootDevice.getCoding() + ":+"), true);
                 DevChannelBridgeHelper.getIns().sendDevOrder(theAct.rootDevice,
-                        OrderHelper.getOrderMsg("S" + theAct.rootDevice.getCoding() + ":+"), true);
+                        OrderHelper.getOrderMsg("?"), true);
                 progressDialog.setProgress(count * 10);
                 try {
                     TimeUnit.SECONDS.sleep(5);

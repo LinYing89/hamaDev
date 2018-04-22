@@ -95,23 +95,24 @@ public class ChildElectricalActivity extends AppCompatActivity {
     public void showElectricalPopUp(View v, Device device) {
         View layout = this.getLayoutInflater()
                 .inflate(R.layout.pop_device_long_click, null);
-        Button layoutRename = (Button) layout
-                .findViewById(R.id.text_rename);
-        Button btnAlias = (Button) layout
-                .findViewById(R.id.text_alias);
+        Button layoutRename = (Button) layout.findViewById(R.id.text_rename);
+        Button btnAlias = (Button) layout.findViewById(R.id.text_alias);
+        Button btnCtrlModel = (Button) layout.findViewById(R.id.text_ctrl_model);
         layout.findViewById(R.id.text_delete).setVisibility(View.GONE);
         final PopupWindow popupWindow = new PopupWindow(layout, LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
+
+        btnCtrlModel.setVisibility(View.GONE);
 
         popupWindow.setFocusable(true);
         popupWindow.setOutsideTouchable(true);
         popupWindow.setBackgroundDrawable(new BitmapDrawable());
 
-        int[] location = new int[2];
-        v.getLocationOnScreen(location);
-
-        popupWindow.showAsDropDown(v);
-       // popupWindow.showAtLocation(v, Gravity.NO_GRAVITY, 0, Constant.displayHeight - Constant.getEleHeight());
+//        int[] location = new int[2];
+//        v.getLocationOnScreen(location);
+//
+//        popupWindow.showAsDropDown(v);
+        popupWindow.showAtLocation(v, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
         layoutRename.setOnClickListener(v12 -> {
             popupWindow.dismiss();
             showRenameDialog(device);

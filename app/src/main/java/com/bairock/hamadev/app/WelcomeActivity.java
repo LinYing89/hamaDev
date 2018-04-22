@@ -215,6 +215,28 @@ public class WelcomeActivity extends AppCompatActivity {
         SdDbHelper.replaceDbUser(user);
     }
 
+    private static void testCoordinator(){
+        User user = new User();
+        user.setName("test123");
+        user.setPsd("a123456");
+        UserDao userDao = UserDao.get(HamaApp.HAMA_CONTEXT);
+        userDao.clean();
+        userDao.addUser(user);
+
+        DevGroup devGroup = new DevGroup("1", "a123", "g1");
+        devGroup.setId(UUID.randomUUID().toString());
+        user.addGroup(devGroup);
+        DevGroupDao devGroupDao = DevGroupDao.get(HamaApp.HAMA_CONTEXT);
+        devGroupDao.clean();
+        devGroupDao.add(devGroup);
+
+        Coordinator coordinator = (Coordinator)DeviceAssistent.createDeviceByMcId(MainCodeHelper.XIE_TIAO_QI, "9999");
+
+        devGroup.addDevice(coordinator);
+
+        SdDbHelper.replaceDbUser(user);
+    }
+
     private static class ToMainTask extends AsyncTask<Void, Void, Boolean> {
 
         WeakReference<WelcomeActivity> mActivity;
@@ -228,6 +250,7 @@ public class WelcomeActivity extends AppCompatActivity {
                 //没有可搜索设备时单机测试用
                 //testDevice();
                 //testDeviceBx();
+                //testCoordinator();
                 initUser();
 
                 //UdpServer.getIns().setMessageAnalysiser(new UdpMessageAnalysiser());
