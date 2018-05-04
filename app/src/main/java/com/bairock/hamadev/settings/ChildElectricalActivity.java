@@ -1,32 +1,39 @@
 package com.bairock.hamadev.settings;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.graphics.drawable.BitmapDrawable;
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Gravity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.Button;
+import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.bairock.hamadev.R;
-import com.bairock.hamadev.adapter.MainSecondTitleAdapter;
+import com.bairock.hamadev.adapter.RecyclerAdapterChildDevice;
 import com.bairock.hamadev.app.HamaApp;
 import com.bairock.hamadev.app.MainActivity;
 import com.bairock.hamadev.database.DeviceDao;
-import com.bairock.iot.intelDev.communication.SearchDeviceHelper;
 import com.bairock.iot.intelDev.device.DevHaveChild;
 import com.bairock.iot.intelDev.device.Device;
+import com.bairock.iot.intelDev.device.devcollect.DevCollect;
+import com.bairock.iot.intelDev.device.devcollect.DevCollectSignal;
+import com.bairock.iot.intelDev.device.devcollect.DevCollectSignalContainer;
+import com.bairock.iot.intelDev.device.devswitch.DevSwitch;
 import com.bairock.iot.intelDev.user.ErrorCodes;
+import com.bairock.iot.intelDev.user.IntelDevHelper;
+import com.yanzhenjie.recyclerview.swipe.SwipeItemClickListener;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuBridge;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuCreator;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuItem;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuItemClickListener;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
+import com.yanzhenjie.recyclerview.swipe.widget.DefaultItemDecoration;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -37,10 +44,11 @@ public class ChildElectricalActivity extends AppCompatActivity {
     public static int REFRESH_ELE_LIST = 3;
 
     public static DevHaveChild controller;
+    private List<Device> listShowDevices;
     public static MyHandler handler;
 
-    private ListView listviewElectrical;
-    private MainSecondTitleAdapter adapterEle;
+    private SwipeMenuRecyclerView swipeMenuRecyclerViewDevice;
+    private RecyclerAdapterChildDevice adapterEle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,8 +61,15 @@ public class ChildElectricalActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         handler = new MyHandler(this);
-        listviewElectrical = (ListView)findViewById(R.id.listElectrical);
-        listviewElectrical.setOnItemLongClickListener(remoteOnItemLongClickListener);
+
+        swipeMenuRecyclerViewDevice = findViewById(R.id.swipeMenuRecyclerViewDevice);
+        swipeMenuRecyclerViewDevice.setLayoutManager(new LinearLayoutManager(this));
+        swipeMenuRecyclerViewDevice.addItemDecoration(new DefaultItemDecoration(Color.LTGRAY));
+        swipeMenuRecyclerViewDevice.setSwipeMenuCreator(swipeMenuConditionCreator);
+
+        swipeMenuRecyclerViewDevice.setSwipeItemClickListener(deviceSwipeItemClickListener);
+        swipeMenuRecyclerViewDevice.setSwipeMenuItemClickListener(deviceSwipeMenuItemClickListener);
+
         setChildDeviceList();
     }
 
@@ -71,57 +86,67 @@ public class ChildElectricalActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         controller = null;
+        handler = null;
         super.onDestroy();
     }
 
+    private SwipeMenuCreator swipeMenuConditionCreator = (swipeLeftMenu, swipeRightMenu, viewType) -> {
+        int width = getResources().getDimensionPixelSize(R.dimen.dp_70);
+
+        // 1. MATCH_PARENT 自适应高度，保持和Item一样高;
+        // 2. 指定具体的高，比如80;
+        // 3. WRAP_CONTENT，自身高度，不推荐;
+        int height = ViewGroup.LayoutParams.MATCH_PARENT;
+        // 添加右侧的，如果不添加，则右侧不会出现菜单。
+        SwipeMenuItem renameItem = new SwipeMenuItem(this)
+                .setBackgroundColor(getResources().getColor(R.color.green_normal))
+                .setText("重命名")
+                .setTextColor(Color.WHITE)
+                .setWidth(width)
+                .setHeight(height);
+        swipeRightMenu.addMenuItem(renameItem);// 添加菜单到右侧。
+        SwipeMenuItem aliasItem = new SwipeMenuItem(this)
+                .setBackgroundColor(getResources().getColor(R.color.orange))
+                .setText("位号")
+                .setTextColor(Color.WHITE)
+                .setWidth(width)
+                .setHeight(height);
+        swipeRightMenu.addMenuItem(aliasItem);// 添加菜单到右侧。
+    };
+
     private void setChildDeviceList() {
-        List<Device> list = new ArrayList<>();
-        list.addAll(controller.getListDev());
-        adapterEle = new MainSecondTitleAdapter(this,list);
-        listviewElectrical.setAdapter(adapterEle);
+        listShowDevices = new ArrayList<>(controller.getListDev());
+        adapterEle = new RecyclerAdapterChildDevice(this, listShowDevices);
+        swipeMenuRecyclerViewDevice.setAdapter(adapterEle);
     }
 
-    private AdapterView.OnItemLongClickListener remoteOnItemLongClickListener = new AdapterView.OnItemLongClickListener() {
-
-        public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
-                                       int arg2, long arg3) {
-            Device device = controller.getListDev().get(arg2);
-            //controller.setSelectedElectrical(arg2);
-            showElectricalPopUp(arg1, device);
-            return true;
+    private SwipeItemClickListener deviceSwipeItemClickListener = new SwipeItemClickListener() {
+        @Override
+        public void onItemClick(View itemView, int position) {
+            Device device = listShowDevices.get(position);
+            if(device instanceof DevCollect){
+                DevCollectSettingActivity.devCollectSignal = (DevCollectSignal) device;
+                ChildElectricalActivity.this.startActivity(new Intent(ChildElectricalActivity.this, DevCollectSettingActivity.class));
+            }
         }
     };
 
-    public void showElectricalPopUp(View v, Device device) {
-        View layout = this.getLayoutInflater()
-                .inflate(R.layout.pop_device_long_click, null);
-        Button layoutRename = (Button) layout.findViewById(R.id.text_rename);
-        Button btnAlias = (Button) layout.findViewById(R.id.text_alias);
-        Button btnCtrlModel = (Button) layout.findViewById(R.id.text_ctrl_model);
-        layout.findViewById(R.id.text_delete).setVisibility(View.GONE);
-        final PopupWindow popupWindow = new PopupWindow(layout, LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-
-        btnCtrlModel.setVisibility(View.GONE);
-
-        popupWindow.setFocusable(true);
-        popupWindow.setOutsideTouchable(true);
-        popupWindow.setBackgroundDrawable(new BitmapDrawable());
-
-//        int[] location = new int[2];
-//        v.getLocationOnScreen(location);
-//
-//        popupWindow.showAsDropDown(v);
-        popupWindow.showAtLocation(v, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
-        layoutRename.setOnClickListener(v12 -> {
-            popupWindow.dismiss();
-            showRenameDialog(device);
-        });
-        btnAlias.setOnClickListener(v1 -> {
-            popupWindow.dismiss();
-            showAliasDialog(device);
-        });
-    }
+    private SwipeMenuItemClickListener deviceSwipeMenuItemClickListener = new SwipeMenuItemClickListener() {
+        @Override
+        public void onItemClick(SwipeMenuBridge menuBridge) {
+            menuBridge.closeMenu();
+            int adapterPosition = menuBridge.getAdapterPosition(); // RecyclerView的Item的position。
+            Device device = controller.getListDev().get(adapterPosition);
+            switch (menuBridge.getPosition()){
+                case 0:
+                    showRenameDialog(device);
+                    break;
+                case 1:
+                    showAliasDialog(device);
+                    break;
+            }
+        }
+    };
 
     private void showRenameDialog(final Device device) {
         final EditText edit_newName = new EditText(ChildElectricalActivity.this);
@@ -155,6 +180,7 @@ public class ChildElectricalActivity extends AppCompatActivity {
                             device.setAlias(value);
                             DeviceDao deviceDao = DeviceDao.get(ChildElectricalActivity.this);
                             deviceDao.update(device);
+                            adapterEle.notifyDataSetChanged();
                         }).setNegativeButton(MainActivity.strCancel, null).create().show();
     }
 

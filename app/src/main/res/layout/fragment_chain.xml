@@ -26,9 +26,9 @@
             android:text="添加" />
     </RelativeLayout>
 
-    <ListView
-        android:id="@+id/listViewChain"
+    <com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView
+        android:id="@+id/swipeMenuRecyclerViewChain"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"/>
 
 </LinearLayout>

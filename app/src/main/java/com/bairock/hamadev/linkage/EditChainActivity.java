@@ -1,26 +1,24 @@
 package com.bairock.hamadev.linkage;
 
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.PopupWindow;
 
 import com.bairock.hamadev.R;
-import com.bairock.hamadev.adapter.AdapterCondition;
-import com.bairock.hamadev.adapter.AdapterEffect;
+import com.bairock.hamadev.adapter.RecyclerAdapterCondition;
+import com.bairock.hamadev.adapter.RecylerAdapterEffect;
 import com.bairock.hamadev.app.HamaApp;
 import com.bairock.hamadev.app.MainActivity;
 import com.bairock.hamadev.database.EffectDao;
@@ -32,6 +30,13 @@ import com.bairock.iot.intelDev.linkage.Effect;
 import com.bairock.iot.intelDev.linkage.Linkage;
 import com.bairock.iot.intelDev.linkage.LinkageCondition;
 import com.bairock.iot.intelDev.linkage.SubChain;
+import com.yanzhenjie.recyclerview.swipe.SwipeItemClickListener;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuBridge;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuCreator;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuItem;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuItemClickListener;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
+import com.yanzhenjie.recyclerview.swipe.widget.DefaultItemDecoration;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -44,18 +49,19 @@ public class EditChainActivity extends AppCompatActivity {
     public static final int REFRESH_EVENT_HANDLER_LIST = 2;
 
     private SubChain subChain;
-    private LinkageCondition linkageCondition;
+    //private LinkageCondition linkageCondition;
     public static Effect effect;
     public static boolean ADD;
 
     private ActionBar actionBar;
     private Button btnAddCondition;
     private Button btnAddEffect;
-    private ListView listViewCondition;
-    private ListView listViewEffect;
 
-    private AdapterCondition adapterCondition;
-    private AdapterEffect adapterEffect;
+    private SwipeMenuRecyclerView swipeMenuRecyclerViewCondition;
+    private SwipeMenuRecyclerView swipeMenuRecyclerViewEffect;
+
+    private RecyclerAdapterCondition adapterCondition;
+    private RecylerAdapterEffect adapterEffect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,20 +134,45 @@ public class EditChainActivity extends AppCompatActivity {
     }
 
     private void findViews(){
-        btnAddCondition = (Button)findViewById(R.id.btnAddCondition);
-        btnAddEffect = (Button)findViewById(R.id.btnAddEffect);
-        listViewCondition = (ListView)findViewById(R.id.listViewCondition);
-        listViewEffect = (ListView)findViewById(R.id.listViewEffect);
+        btnAddCondition = findViewById(R.id.btnAddCondition);
+        btnAddEffect = findViewById(R.id.btnAddEffect);
+        swipeMenuRecyclerViewCondition = findViewById(R.id.swipeMenuRecyclerViewCondition);
+        swipeMenuRecyclerViewCondition.setLayoutManager(new LinearLayoutManager(this));
+        swipeMenuRecyclerViewCondition.addItemDecoration(new DefaultItemDecoration(Color.LTGRAY));
+        swipeMenuRecyclerViewCondition.setSwipeMenuCreator(swipeMenuConditionCreator);
+
+        swipeMenuRecyclerViewEffect = findViewById(R.id.swipeMenuRecyclerViewEffect);
+        swipeMenuRecyclerViewEffect.setLayoutManager(new LinearLayoutManager(this));
+        swipeMenuRecyclerViewEffect.addItemDecoration(new DefaultItemDecoration(Color.LTGRAY));
+        swipeMenuRecyclerViewEffect.setSwipeMenuCreator(swipeMenuConditionCreator);
     }
 
     private void setListener(){
         btnAddCondition.setOnClickListener(onClickListener);
         btnAddEffect.setOnClickListener(onClickListener);
 
-        listViewCondition.setOnItemClickListener(eventOnItemClickListener);
-        listViewCondition.setOnItemLongClickListener(eventOnItemLongClickListener);
-        listViewEffect.setOnItemLongClickListener(deviceOnItemLongClickListener);
+        swipeMenuRecyclerViewCondition.setSwipeItemClickListener(conditionSwipeItemClickListener);
+        swipeMenuRecyclerViewCondition.setSwipeMenuItemClickListener(conditionSwipeMenuItemClickListener);
+
+        swipeMenuRecyclerViewEffect.setSwipeMenuItemClickListener(effectSwipeMenuItemClickListener);
     }
+
+    private SwipeMenuCreator swipeMenuConditionCreator = (swipeLeftMenu, swipeRightMenu, viewType) -> {
+        int width = getResources().getDimensionPixelSize(R.dimen.dp_70);
+
+        // 1. MATCH_PARENT 自适应高度，保持和Item一样高;
+        // 2. 指定具体的高，比如80;
+        // 3. WRAP_CONTENT，自身高度，不推荐;
+        int height = ViewGroup.LayoutParams.MATCH_PARENT;
+        // 添加右侧的，如果不添加，则右侧不会出现菜单。
+        SwipeMenuItem deleteItem = new SwipeMenuItem(EditChainActivity.this)
+                .setBackgroundColor(Color.RED)
+                .setText("删除")
+                .setTextColor(Color.WHITE)
+                .setWidth(width)
+                .setHeight(height);
+        swipeRightMenu.addMenuItem(deleteItem);// 添加菜单到右侧。
+    };
 
     private String getDefaultName(){
         String name = "连锁";
@@ -184,13 +215,14 @@ public class EditChainActivity extends AppCompatActivity {
     }
 
     private void setListViewCondition(){
-        adapterCondition = new AdapterCondition(this, subChain.getListCondition());
-        listViewCondition.setAdapter(adapterCondition);
+        adapterCondition = new RecyclerAdapterCondition(this, subChain.getListCondition());
+        //adapterCondition.notifyDataSetChanged();
+        swipeMenuRecyclerViewCondition.setAdapter(adapterCondition);
     }
 
     private void setListViewEffect(){
-        adapterEffect = new AdapterEffect(this, subChain.getListEffect(), true);
-        listViewEffect.setAdapter(adapterEffect);
+        adapterEffect = new RecylerAdapterEffect(this, subChain.getListEffect(), true);
+        swipeMenuRecyclerViewEffect.setAdapter(adapterEffect);
     }
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
@@ -210,33 +242,42 @@ public class EditChainActivity extends AppCompatActivity {
     };
 
     //条件列表点击事件
-    private AdapterView.OnItemClickListener eventOnItemClickListener = new AdapterView.OnItemClickListener() {
+    private SwipeItemClickListener conditionSwipeItemClickListener = new SwipeItemClickListener() {
         @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        public void onItemClick(View itemView, int position) {
             LinkageCondition condition = subChain.getListCondition().get(position);
             ConditionActivity.ADD = false;
             ConditionActivity.handler = handler;
             ConditionActivity.condition = condition;
-            //linkageCondition = condition;
             startActivity(new Intent(EditChainActivity.this, ConditionActivity.class));
         }
     };
 
-    private AdapterView.OnItemLongClickListener eventOnItemLongClickListener = new AdapterView.OnItemLongClickListener() {
+    private SwipeMenuItemClickListener conditionSwipeMenuItemClickListener = new SwipeMenuItemClickListener() {
         @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            linkageCondition = subChain.getListCondition().get(position);
-            showItemPopup(view, 0);
-            return true;
+        public void onItemClick(SwipeMenuBridge menuBridge) {
+            menuBridge.closeMenu();
+            int adapterPosition = menuBridge.getAdapterPosition(); // RecyclerView的Item的position。
+            LinkageCondition lc = subChain.getListCondition().get(adapterPosition);
+
+            LinkageConditionDao linkageConditionDao = LinkageConditionDao.get(EditChainActivity.this);
+            linkageConditionDao.delete(lc);
+            subChain.removeCondition(lc);
+            adapterCondition.notifyDataSetChanged();
         }
     };
 
-    private AdapterView.OnItemLongClickListener deviceOnItemLongClickListener = new AdapterView.OnItemLongClickListener() {
+    private SwipeMenuItemClickListener effectSwipeMenuItemClickListener = new SwipeMenuItemClickListener() {
         @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            effect = subChain.getListEffect().get(position);
-            showItemPopup(view, 1);
-            return true;
+        public void onItemClick(SwipeMenuBridge menuBridge) {
+            menuBridge.closeMenu();
+            int adapterPosition = menuBridge.getAdapterPosition(); // RecyclerView的Item的position。
+            effect = subChain.getListEffect().get(adapterPosition);
+
+            EffectDao effectDao = EffectDao.get(EditChainActivity.this);
+            effectDao.delete(effect);
+            subChain.removeEffect(effect);
+            adapterEffect.notifyDataSetChanged();
         }
     };
 
@@ -271,38 +312,6 @@ public class EditChainActivity extends AppCompatActivity {
             adapterEffect.notifyDataSetChanged();
         });
         listDialog.show();
-    }
-
-    private void showItemPopup(View view, int which){
-        Button btnDel = new Button(this);
-        btnDel.setText("删除");
-//        btnDel.setBackgroundColor(Color.BLUE);
-//        ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//        btnDel.setLayoutParams(layoutParams);
-//        final PopupWindow popupWindow = new PopupWindow(btnDel, 100, 100);
-        final PopupWindow popupWindow = new PopupWindow(btnDel, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        popupWindow.setFocusable(true);
-        popupWindow.setOutsideTouchable(true);
-        popupWindow.setBackgroundDrawable(new ColorDrawable(0x00000000));
-        popupWindow.showAsDropDown(view);
-        btnDel.setOnClickListener(v -> {
-         popupWindow.dismiss();
-            if(which == 0){
-                subChain.removeCondition(linkageCondition);
-                linkageCondition.setDeleted(true);
-                LinkageConditionDao linkageConditionDao = LinkageConditionDao.get(EditChainActivity.this);
-                //linkageConditionDao.update(linkageCondition, subChain.getId());
-                linkageConditionDao.delete(linkageCondition);
-                adapterCondition.notifyDataSetChanged();
-            }else{
-                subChain.removeEffect(effect);
-                effect.setDeleted(true);
-                EffectDao effectDao = EffectDao.get(EditChainActivity.this);
-                //effectDao.update(effect,subChain.getId());
-                effectDao.delete(effect);
-                adapterEffect.notifyDataSetChanged();
-            }
-        });
     }
 
     public static class MyHandler extends Handler {

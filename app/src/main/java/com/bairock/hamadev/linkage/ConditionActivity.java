@@ -20,7 +20,6 @@ import com.bairock.iot.intelDev.device.Device;
 import com.bairock.iot.intelDev.device.IStateDev;
 import com.bairock.iot.intelDev.device.devcollect.DevCollect;
 import com.bairock.iot.intelDev.linkage.LinkageCondition;
-import com.bairock.iot.intelDev.linkage.TriggerStyle;
 import com.bairock.iot.intelDev.linkage.ZLogic;
 
 import java.util.ArrayList;
@@ -40,7 +39,7 @@ public class ConditionActivity extends AppCompatActivity {
     private Spinner spinnerLogic;
     private Spinner spinnerDevice;
     private Spinner spinnerSymbol;
-    private Spinner spinnerTriggerStyle;
+    //private Spinner spinnerTriggerStyle;
     private Spinner spinnerValue;
     private EditText editValue;
     private Button btnSave;
@@ -88,7 +87,7 @@ public class ConditionActivity extends AppCompatActivity {
         spinnerLogic = (Spinner)findViewById(R.id.spinnerLogic);
         spinnerDevice = (Spinner)findViewById(R.id.spinnerDevice);
         spinnerSymbol = (Spinner)findViewById(R.id.spinnerSymbol);
-        spinnerTriggerStyle = (Spinner)findViewById(R.id.spinnerTriggerStyle);
+        //spinnerTriggerStyle = (Spinner)findViewById(R.id.spinnerTriggerStyle);
         spinnerValue = (Spinner)findViewById(R.id.spinnerValue);
         editValue = (EditText)findViewById(R.id.etxtValue);
         btnSave = (Button)findViewById(R.id.btn_save);
@@ -104,9 +103,9 @@ public class ConditionActivity extends AppCompatActivity {
                 this,android.R.layout.simple_expandable_list_item_1, getResources().getStringArray(R.array.array_event_symbol));
         spinnerSymbol .setAdapter(adapter1);
 
-        ArrayAdapter<String> adapter2 = new ArrayAdapter<>(
-                this,android.R.layout.simple_expandable_list_item_1, getResources().getStringArray(R.array.array_trigger_style));
-        spinnerTriggerStyle .setAdapter(adapter2);
+//        ArrayAdapter<String> adapter2 = new ArrayAdapter<>(
+//                this,android.R.layout.simple_expandable_list_item_1, getResources().getStringArray(R.array.array_trigger_style));
+//        spinnerTriggerStyle .setAdapter(adapter2);
 
         ArrayAdapter<String> adapter3 = new ArrayAdapter<>(
                 this,android.R.layout.simple_expandable_list_item_1, getResources().getStringArray(R.array.array_event_state));
@@ -117,7 +116,7 @@ public class ConditionActivity extends AppCompatActivity {
         spinnerLogic.setOnItemSelectedListener(styleOnItemSelectedListener);
         spinnerDevice.setOnItemSelectedListener(deviceOnItemSelectedListener);
         spinnerSymbol.setOnItemSelectedListener(symbolOnItemSelectedListener);
-        spinnerTriggerStyle.setOnItemSelectedListener(triggerStyleOnItemSelectedListener);
+        //spinnerTriggerStyle.setOnItemSelectedListener(triggerStyleOnItemSelectedListener);
         spinnerValue.setOnItemSelectedListener(valueOnItemSelectedListener);
         btnSave.setOnClickListener(onClickListener);
         btnCancel.setOnClickListener(onClickListener);
@@ -156,8 +155,8 @@ public class ConditionActivity extends AppCompatActivity {
         spinnerSymbol.setEnabled(false);
 
         //select value trigger
-        spinnerTriggerStyle.setSelection(1);
-        spinnerTriggerStyle.setEnabled(false);
+//        spinnerTriggerStyle.setSelection(1);
+//        spinnerTriggerStyle.setEnabled(false);
 
         tabrowTriggerValueSpinner.setVisibility(View.VISIBLE);
         tabrowTriggerValueEdit.setVisibility(View.GONE);
@@ -170,8 +169,8 @@ public class ConditionActivity extends AppCompatActivity {
         spinnerSymbol.setEnabled(true);
         spinnerSymbol.setSelection(condition.getCompareSymbol().ordinal());
 
-        spinnerTriggerStyle.setEnabled(true);
-        spinnerTriggerStyle.setSelection(condition.getTriggerStyle().ordinal());
+//        spinnerTriggerStyle.setEnabled(true);
+//        spinnerTriggerStyle.setSelection(condition.getTriggerStyle().ordinal());
 
         tabrowTriggerValueSpinner.setVisibility(View.GONE);
         tabrowTriggerValueEdit.setVisibility(View.VISIBLE);
@@ -253,20 +252,20 @@ public class ConditionActivity extends AppCompatActivity {
     /**
      * 触发类型选择
      */
-    private AdapterView.OnItemSelectedListener triggerStyleOnItemSelectedListener = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            if(null == condition || condition.getDevice() == null){
-                return;
-            }
-            condition.setTriggerStyle(TriggerStyle.values()[position]);
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-
-        }
-    };
+//    private AdapterView.OnItemSelectedListener triggerStyleOnItemSelectedListener = new AdapterView.OnItemSelectedListener() {
+//        @Override
+//        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//            if(null == condition || condition.getDevice() == null){
+//                return;
+//            }
+//            condition.setTriggerStyle(TriggerStyle.values()[position]);
+//        }
+//
+//        @Override
+//        public void onNothingSelected(AdapterView<?> parent) {
+//
+//        }
+//    };
 
     /**
      * 值选择事件，ADD/OR

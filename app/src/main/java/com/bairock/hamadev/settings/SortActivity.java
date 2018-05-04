@@ -27,6 +27,7 @@ public class SortActivity extends AppCompatActivity {
     private ListView listViewElectrical;
     private List<Device> listDevice;
     private AdapterSortDevice adapterSortElectrical;
+    private boolean updated = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +41,8 @@ public class SortActivity extends AppCompatActivity {
         }
 
         listDevice = new ArrayList<>();
-        listDevice.addAll(HamaApp.DEV_GROUP.findListIStateDev(false));
-        listDevice.addAll(HamaApp.DEV_GROUP.findListCollectDev(false));
+        listDevice.addAll(HamaApp.DEV_GROUP.findListIStateDev(true));
+        listDevice.addAll(HamaApp.DEV_GROUP.findListCollectDev(true));
         Collections.sort(listDevice);
         for(int i = 0; i < listDevice.size(); i++){
             listDevice.get(i).setSortIndex(i);
@@ -67,9 +68,11 @@ public class SortActivity extends AppCompatActivity {
                 break;
             case R.id.action_up:
                 move(0);
+                updated = true;
                 break;
             case R.id.action_down:
                 move(1);
+                updated = true;
                 break;
         }
 
@@ -147,15 +150,17 @@ public class SortActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        DeviceDao deviceDao = DeviceDao.get(SortActivity.this);
-        for(Device device : listDevice){
-            deviceDao.update(device);
-        }
-        if(null != ElectricalCtrlFragment.handler){
-            ElectricalCtrlFragment.handler.obtainMessage(ElectricalCtrlFragment.REFRESH_ELE).sendToTarget();
-        }
-        if(null != ClimateFragment.handler){
-            ClimateFragment.handler.obtainMessage(ClimateFragment.REFRESH_DEVICE).sendToTarget();
+        if(updated){
+            DeviceDao deviceDao = DeviceDao.get(SortActivity.this);
+            for(Device device : listDevice){
+                deviceDao.update(device);
+            }
+            if(null != ElectricalCtrlFragment.handler){
+                ElectricalCtrlFragment.handler.obtainMessage(ElectricalCtrlFragment.REFRESH_ELE).sendToTarget();
+            }
+            if(null != ClimateFragment.handler){
+                ClimateFragment.handler.obtainMessage(ClimateFragment.REFRESH_DEVICE).sendToTarget();
+            }
         }
     }
 }

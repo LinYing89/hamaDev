@@ -4,17 +4,20 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,6 +29,7 @@ import android.widget.Toast;
 import com.bairock.hamadev.R;
 import com.bairock.hamadev.adapter.AdapterElectrical;
 import com.bairock.hamadev.adapter.AdapterSearchDev;
+import com.bairock.hamadev.adapter.RecyclerAdapterDevice;
 import com.bairock.hamadev.app.HamaApp;
 import com.bairock.hamadev.app.MainActivity;
 import com.bairock.hamadev.app.RouterInfo;
@@ -36,6 +40,8 @@ import com.bairock.hamadev.communication.MyOnStateChangedListener;
 import com.bairock.hamadev.communication.PadClient;
 import com.bairock.hamadev.database.DeviceDao;
 import com.bairock.hamadev.esptouch.EspTouchAddDevice;
+import com.bairock.hamadev.linkage.ChainFragment;
+import com.bairock.hamadev.linkage.EditChainActivity;
 import com.bairock.iot.intelDev.communication.DevChannelBridgeHelper;
 import com.bairock.iot.intelDev.communication.DevServer;
 import com.bairock.iot.intelDev.communication.SearchDeviceHelper;
@@ -48,6 +54,7 @@ import com.bairock.iot.intelDev.device.DeviceAssistent;
 import com.bairock.iot.intelDev.device.OrderHelper;
 import com.bairock.iot.intelDev.device.devcollect.DevCollect;
 import com.bairock.iot.intelDev.device.devcollect.DevCollectSignal;
+import com.bairock.iot.intelDev.device.devcollect.DevCollectSignalContainer;
 import com.bairock.iot.intelDev.device.devswitch.DevSwitch;
 import com.bairock.iot.intelDev.device.devswitch.SubDev;
 import com.bairock.iot.intelDev.linkage.LinkageTab;
@@ -55,6 +62,13 @@ import com.bairock.iot.intelDev.user.DevGroup;
 import com.bairock.iot.intelDev.user.ErrorCodes;
 import com.bairock.iot.intelDev.user.IntelDevHelper;
 import com.bairock.iot.intelDev.user.User;
+import com.yanzhenjie.recyclerview.swipe.SwipeItemClickListener;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuBridge;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuCreator;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuItem;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuItemClickListener;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
+import com.yanzhenjie.recyclerview.swipe.widget.DefaultItemDecoration;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -66,14 +80,15 @@ public class SearchActivity extends AppCompatActivity {
     /** update UI handler */
     public static MyHandler handler;
 
-    private ListView listviewDevice;
-    private AdapterSearchDev adapterEleHolder;
+    private SwipeMenuRecyclerView swipeMenuRecyclerViewDevice;
+    private RecyclerAdapterDevice adapterEleHolder;
     private ProgressDialog progressDialog;
 
     public static DeviceModelHelper deviceModelHelper;
     public SetDevModelTask tSendModel;
 
     private Device rootDevice;
+    private List<Device> listShowDevices;
     private boolean childDevAdding;
     private AddDeviceTask addDeviceTask;
 
@@ -138,18 +153,79 @@ public class SearchActivity extends AppCompatActivity {
         super.onDestroy();
         HamaApp.DEV_GROUP.removeOnDeviceCollectionChangedListener(onDeviceCollectionChangedListener);
         AdapterSearchDev.handler = null;
+        for(Device device : listShowDevices){
+            removeDeviceListener(device);
+        }
+        adapterEleHolder = null;
         tSendModel = null;
     }
 
     private void findViews() {
-        listviewDevice = (ListView) findViewById(R.id.list_device);
+        swipeMenuRecyclerViewDevice = findViewById(R.id.swipeMenuRecyclerViewDevice);
+        swipeMenuRecyclerViewDevice.setLayoutManager(new LinearLayoutManager(this));
+        swipeMenuRecyclerViewDevice.addItemDecoration(new DefaultItemDecoration(Color.LTGRAY));
+        swipeMenuRecyclerViewDevice.setSwipeMenuCreator(swipeMenuConditionCreator);
+
     }
 
     private void setListener() {
-        listviewDevice.setOnItemClickListener(deviceOnItemClickListener);
-        listviewDevice
-                .setOnItemLongClickListener(deviceOnItemLongClickListener);
+        swipeMenuRecyclerViewDevice.setSwipeMenuItemClickListener(deviceSwipeMenuItemClickListener);
+        swipeMenuRecyclerViewDevice.setSwipeItemClickListener(deviceSwipeItemClickListener);
     }
+
+    private SwipeMenuCreator swipeMenuConditionCreator = (swipeLeftMenu, swipeRightMenu, viewType) -> {
+        int width = getResources().getDimensionPixelSize(R.dimen.dp_70);
+        // 1. MATCH_PARENT 自适应高度，保持和Item一样高;
+        // 2. 指定具体的高，比如80;
+        // 3. WRAP_CONTENT，自身高度，不推荐;
+        int height = ViewGroup.LayoutParams.MATCH_PARENT;
+
+        if(viewType >> 2 == 1){
+            //显示位号菜单
+            SwipeMenuItem aliasItem = new SwipeMenuItem(this)
+                    .setBackgroundColor(getResources().getColor(R.color.orange))
+                    .setText("位号")
+                    .setTextColor(Color.WHITE)
+                    .setWidth(width)
+                    .setHeight(height);
+            swipeRightMenu.addMenuItem(aliasItem);
+        }
+
+        if((viewType & 2) == 2){
+            //显示模式菜单
+            String model;
+            if((viewType & 1) == 1){
+                //远程模式
+                model = "设为远程";
+            }else{
+                //本地模式
+                model = "设为本地";
+            }
+            SwipeMenuItem modelItem = new SwipeMenuItem(this)
+                    .setBackgroundColor(getResources().getColor(R.color.menu_blue))
+                    .setText(model)
+                    .setTextColor(Color.WHITE)
+                    .setWidth(width + 20)
+                    .setHeight(height);
+            swipeRightMenu.addMenuItem(modelItem);
+        }
+
+        SwipeMenuItem renameItem = new SwipeMenuItem(this)
+                .setBackgroundColor(getResources().getColor(R.color.green_normal))
+                .setText("重命名")
+                .setTextColor(Color.WHITE)
+                .setWidth(width + 10)
+                .setHeight(height);
+        swipeRightMenu.addMenuItem(renameItem);
+
+        SwipeMenuItem deleteItem = new SwipeMenuItem(this)
+                .setBackgroundColor(getResources().getColor(R.color.red_normal))
+                .setText("删除")
+                .setTextColor(Color.WHITE)
+                .setWidth(width)
+                .setHeight(height);
+        swipeRightMenu.addMenuItem(deleteItem);
+    };
 
     /** set device list adapter */
 //    public void setDeviceList() {
@@ -158,8 +234,17 @@ public class SearchActivity extends AppCompatActivity {
 //        listviewDevice.setAdapter(adapterEleHolder);
 //    }
     public void setDeviceList(List<Device> list) {
-        adapterEleHolder = new AdapterSearchDev(this, list);
-        listviewDevice.setAdapter(adapterEleHolder);
+        if(null != listShowDevices) {
+            for (Device device : listShowDevices) {
+                removeDeviceListener(device);
+            }
+        }
+        listShowDevices = list;
+        for(Device device : list){
+            setDeviceListener(device);
+        }
+        adapterEleHolder = new RecyclerAdapterDevice(this, list);
+        swipeMenuRecyclerViewDevice.setAdapter(adapterEleHolder);
     }
 
     private void showMessageDialog(){
@@ -217,15 +302,23 @@ public class SearchActivity extends AppCompatActivity {
 
     private void setDeviceListener(Device device){
         device.addOnNameChangedListener(onNameChangedListener);
+        device.addOnAliasChangedListener(onAliasChangedListener);
     }
 
     private void removeDeviceListener(Device device){
         device.removeOnNameChangedListener(onNameChangedListener);
+        device.removeOnAliasChangedListener(onAliasChangedListener);
     }
 
     private Device.OnNameChangedListener onNameChangedListener = (device, s) -> {
-        if(null != AdapterElectrical.handler){
-            AdapterSearchDev.handler.obtainMessage(AdapterSearchDev.NAME, device).sendToTarget();
+        if(null != RecyclerAdapterDevice.handler){
+            RecyclerAdapterDevice.handler.obtainMessage(RecyclerAdapterDevice.NAME, device).sendToTarget();
+        }
+    };
+
+    private Device.OnAliasChangedListener onAliasChangedListener = (device, s) -> {
+        if(null != RecyclerAdapterDevice.handler){
+            RecyclerAdapterDevice.handler.obtainMessage(RecyclerAdapterDevice.ALIAS, device).sendToTarget();
         }
     };
 
@@ -313,7 +406,7 @@ public class SearchActivity extends AppCompatActivity {
         edit_newName.setText(device.getAlias());
         new AlertDialog.Builder(SearchActivity.this)
                 .setTitle(
-                        SearchActivity.this.getString(R.string.rename))
+                        SearchActivity.this.getString(R.string.alias))
                 .setView(edit_newName)
                 .setPositiveButton(MainActivity.strEnsure,
                         (dialog, which) -> {
@@ -324,27 +417,91 @@ public class SearchActivity extends AppCompatActivity {
                         }).setNegativeButton(MainActivity.strCancel, null).create().show();
     }
 
-    /** list click event listener */
-    private AdapterView.OnItemClickListener deviceOnItemClickListener = (arg0, arg1, arg2, arg3) -> {
-        //IntelDevHelper.OPERATE_DEVICE = listSearchDev.get(arg2);
-        IntelDevHelper.OPERATE_DEVICE = (Device) adapterEleHolder.getItem(arg2);
-        if(IntelDevHelper.OPERATE_DEVICE instanceof DevSwitch) {
-            ChildElectricalActivity.controller = (DevHaveChild) IntelDevHelper.OPERATE_DEVICE;
-            SearchActivity.this.startActivity(new Intent(SearchActivity.this, ChildElectricalActivity.class));
-        }else if (IntelDevHelper.OPERATE_DEVICE instanceof DevHaveChild){
-            rootDevice = IntelDevHelper.OPERATE_DEVICE;
-            setDeviceList(((DevHaveChild)rootDevice).getListDev());
-        }else if(IntelDevHelper.OPERATE_DEVICE instanceof DevCollect){
-            DevCollectSettingActivity.devCollectSignal = (DevCollectSignal) IntelDevHelper.OPERATE_DEVICE;
-            SearchActivity.this.startActivity(new Intent(SearchActivity.this, DevCollectSettingActivity.class));
+    private SwipeItemClickListener deviceSwipeItemClickListener = new SwipeItemClickListener() {
+        @Override
+        public void onItemClick(View itemView, int position) {
+            IntelDevHelper.OPERATE_DEVICE = listShowDevices.get(position);
+            if(IntelDevHelper.OPERATE_DEVICE instanceof DevSwitch || IntelDevHelper.OPERATE_DEVICE instanceof DevCollectSignalContainer) {
+                ChildElectricalActivity.controller = (DevHaveChild) IntelDevHelper.OPERATE_DEVICE;
+                SearchActivity.this.startActivity(new Intent(SearchActivity.this, ChildElectricalActivity.class));
+            }else if (IntelDevHelper.OPERATE_DEVICE instanceof DevHaveChild){
+                rootDevice = IntelDevHelper.OPERATE_DEVICE;
+                setDeviceList(((DevHaveChild)rootDevice).getListDev());
+            }else if(IntelDevHelper.OPERATE_DEVICE instanceof DevCollect){
+                DevCollectSettingActivity.devCollectSignal = (DevCollectSignal) IntelDevHelper.OPERATE_DEVICE;
+                SearchActivity.this.startActivity(new Intent(SearchActivity.this, DevCollectSettingActivity.class));
+            }
         }
     };
 
-    private AdapterView.OnItemLongClickListener deviceOnItemLongClickListener = (arg0, arg1, arg2, arg3) -> {
-        //IntelDevHelper.OPERATE_DEVICE = listSearchDev.get(arg2);
-        IntelDevHelper.OPERATE_DEVICE = (Device) adapterEleHolder.getItem(arg2);
-        showDevicePopUp(arg1, IntelDevHelper.OPERATE_DEVICE);
-        return true;
+    private SwipeMenuItemClickListener deviceSwipeMenuItemClickListener = new SwipeMenuItemClickListener() {
+        @Override
+        public void onItemClick(SwipeMenuBridge menuBridge) {
+            menuBridge.closeMenu();
+            int adapterPosition = menuBridge.getAdapterPosition();
+            Device device = listShowDevices.get(adapterPosition);
+            IntelDevHelper.OPERATE_DEVICE = device;
+            switch (menuBridge.getPosition()){
+                case 0:
+                    if(device instanceof DevHaveChild){
+                        //不是位号菜单，是父设备的不设置位号
+                        if(device.getParent() == null){
+                            //是模式菜单，没有父设备则为根节点设备，可以设置模式
+                            showSetModel(device);
+                        }else{
+                            //是重命名菜单，有父设备，自己又是父设备的，没有位号和模式菜单
+                            showRenameDialog(device);
+                        }
+                    }else{
+                        //是位号菜单
+                        //不是父设备，则为根节点设备
+                        showAliasDialog(device);
+                    }
+                    break;
+                case 1:
+                    if(device instanceof DevHaveChild){
+                        //没有位号菜单，是父设备的不设置位号
+                        if(device.getParent() == null){
+                            //是重命名菜单，没有父设备则为根节点设备，0为设置模式，1为重命名
+                            showRenameDialog(device);
+                        }else{
+                            //是删除菜单，有父设备，自己又是父设备的，没有位号和模式菜单，0为重命名，1为删除
+                            deleteDevice(device);
+                        }
+                    }else{
+                        //是模式菜单
+                        //不是父设备，则为根节点设备
+                        if(device.getParent() == null) {
+                            //o为位号，1为模式
+                            showSetModel(device);
+                        }else{
+                            //o为位号，1为重命名
+                            showRenameDialog(device);
+                        }
+                    }
+                    break;
+                case 2:
+                    if(device instanceof DevHaveChild){
+                        //不是位号菜单，是父设备的不设置位号
+                        if(device.getParent() == null){
+                            //是重命名菜单，没有父设备则为根节点设备，0为设置模式，1为重命名,2为删除
+                            deleteDevice(device);
+                        }
+                        //有父设备，自己又是父设备的，没有位号和模式菜单，0为重命名，1为删除
+                    }else{
+                        //是模式菜单
+                        //不是父设备，则为根节点设备，o为位号，1为模式，2为重命名
+                        if(device.getParent() == null) {
+                            //o为位号，1为模式，2为重命名
+                            showRenameDialog(device);
+                        }else{
+                            //o为位号，1为重命名,2为删除
+                            deleteDevice(device);
+                        }
+                    }
+                    break;
+            }
+        }
     };
 
     private void closeProgressDialog(){
@@ -473,26 +630,34 @@ public class SearchActivity extends AppCompatActivity {
         });
         layoutDelete.setOnClickListener(v13 -> {
             popupWindow.dismiss();
-            device.setDeleted(true);
-            DeviceDao deviceDao = DeviceDao.get(SearchActivity.this);
-            //deviceDao.update(device);
-            deviceDao.delete(device);
-            HamaApp.DEV_GROUP.removeDevice(device);
-            HamaApp.removeOfflineDevCoding(device);
-            adapterEleHolder.notifyDataSetChanged();
+            deleteDevice(device);
         });
 
         btnCtrlModel.setOnClickListener(v14 -> {
             popupWindow.dismiss();
-            deviceModelHelper = new DeviceModelHelper();
-            deviceModelHelper.setDevToSet(device);
-            if(device.getCtrlModel() == CtrlModel.REMOTE){
-                deviceModelHelper.setCtrlModel(CtrlModel.LOCAL);
-            }else{
-                deviceModelHelper.setCtrlModel(CtrlModel.REMOTE);
-            }
-            showSetModelWaitDialog(deviceModelHelper.getCtrlModel(), device);
+            showSetModel(device);
         });
+    }
+
+    private void deleteDevice(Device device){
+        device.setDeleted(true);
+        DeviceDao deviceDao = DeviceDao.get(SearchActivity.this);
+        //deviceDao.update(device);
+        deviceDao.delete(device);
+        HamaApp.DEV_GROUP.removeDevice(device);
+        HamaApp.removeOfflineDevCoding(device);
+        adapterEleHolder.notifyDataSetChanged();
+    }
+
+    private void showSetModel(Device device){
+        deviceModelHelper = new DeviceModelHelper();
+        deviceModelHelper.setDevToSet(device);
+        if(device.getCtrlModel() == CtrlModel.REMOTE){
+            deviceModelHelper.setCtrlModel(CtrlModel.LOCAL);
+        }else{
+            deviceModelHelper.setCtrlModel(CtrlModel.REMOTE);
+        }
+        showSetModelWaitDialog(deviceModelHelper.getCtrlModel(), device);
     }
 
     //显示等待进度对话框

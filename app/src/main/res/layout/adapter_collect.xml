@@ -48,6 +48,7 @@
                 android:gravity="end"
                 android:paddingEnd="6dp"
                 android:paddingRight="6dp"
+                android:visibility="gone"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@android:color/black" />
         </LinearLayout>
@@ -65,7 +66,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="信号源"
-                android:textAppearance="@android:style/TextAppearance.Material.Small"
                 android:textSize="10sp" />
 
             <TextView
@@ -84,6 +84,7 @@
             android:layout_below="@id/llayoutSrc"
             android:max="100"
             android:progress="50"
+            android:visibility="gone"
             android:progressDrawable="@drawable/bar_color" />
     </RelativeLayout>
 </RelativeLayout>

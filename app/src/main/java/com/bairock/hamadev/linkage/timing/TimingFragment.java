@@ -1,11 +1,13 @@
 package com.bairock.hamadev.linkage.timing;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,10 +21,21 @@ import android.widget.PopupWindow;
 
 import com.bairock.hamadev.R;
 import com.bairock.hamadev.adapter.AdapterTiming;
+import com.bairock.hamadev.adapter.RecyclerAdapterTiming;
 import com.bairock.hamadev.app.HamaApp;
 import com.bairock.hamadev.database.LinkageDao;
 import com.bairock.hamadev.database.LinkageHolderDao;
+import com.bairock.hamadev.linkage.ChainFragment;
+import com.bairock.hamadev.linkage.EditChainActivity;
+import com.bairock.iot.intelDev.linkage.Linkage;
 import com.bairock.iot.intelDev.linkage.timing.Timing;
+import com.yanzhenjie.recyclerview.swipe.SwipeItemClickListener;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuBridge;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuCreator;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuItem;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuItemClickListener;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
+import com.yanzhenjie.recyclerview.swipe.widget.DefaultItemDecoration;
 
 import java.lang.ref.WeakReference;
 
@@ -36,9 +49,9 @@ public class TimingFragment extends Fragment {
 
     private CheckBox checkBoxEnable;
     private Button btnAdd;
-    private ListView listViewTiming;
+    private SwipeMenuRecyclerView swipeMenuRecyclerViewChain;
 
-    private AdapterTiming adapterTiming;
+    private RecyclerAdapterTiming adapterTiming;
 
     public static TimingFragment newInstance(int param1) {
         TimingFragment fragment = new TimingFragment();
@@ -52,9 +65,13 @@ public class TimingFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chain, container, false);
-        checkBoxEnable = (CheckBox)view.findViewById(R.id.cbEnable);
-        btnAdd = (Button)view.findViewById(R.id.btnAdd);
-        listViewTiming = (ListView)view.findViewById(R.id.listViewChain);
+        checkBoxEnable = view.findViewById(R.id.cbEnable);
+        btnAdd = view.findViewById(R.id.btnAdd);
+        swipeMenuRecyclerViewChain = view.findViewById(R.id.swipeMenuRecyclerViewChain);
+        swipeMenuRecyclerViewChain.setLayoutManager(new LinearLayoutManager(this.getContext()));
+        swipeMenuRecyclerViewChain.addItemDecoration(new DefaultItemDecoration(Color.LTGRAY));
+        swipeMenuRecyclerViewChain.setSwipeMenuCreator(swipeMenuConditionCreator);
+
         checkBoxEnable.setChecked(HamaApp.DEV_GROUP.getTimingHolder().isEnable());
         setListener();
         setListChain();
@@ -62,16 +79,33 @@ public class TimingFragment extends Fragment {
         return view;
     }
 
+    private SwipeMenuCreator swipeMenuConditionCreator = (swipeLeftMenu, swipeRightMenu, viewType) -> {
+        int width = getResources().getDimensionPixelSize(R.dimen.dp_70);
+
+        // 1. MATCH_PARENT 自适应高度，保持和Item一样高;
+        // 2. 指定具体的高，比如80;
+        // 3. WRAP_CONTENT，自身高度，不推荐;
+        int height = ViewGroup.LayoutParams.MATCH_PARENT;
+        // 添加右侧的，如果不添加，则右侧不会出现菜单。
+        SwipeMenuItem deleteItem = new SwipeMenuItem(TimingFragment.this.getContext())
+                .setBackgroundColor(Color.RED)
+                .setText("删除")
+                .setTextColor(Color.WHITE)
+                .setWidth(width)
+                .setHeight(height);
+        swipeRightMenu.addMenuItem(deleteItem);// 添加菜单到右侧。
+    };
+
     private void setListener(){
         checkBoxEnable.setOnCheckedChangeListener(onCheckedChangeListener);
         btnAdd.setOnClickListener(onClickListener);
-        listViewTiming.setOnItemClickListener(onItemClickListener);
-        listViewTiming.setOnItemLongClickListener(onItemLongClickListener);
+        swipeMenuRecyclerViewChain.setSwipeItemClickListener(linkageSwipeItemClickListener);
+        swipeMenuRecyclerViewChain.setSwipeMenuItemClickListener(linkageSwipeMenuItemClickListener);
     }
 
     private void setListChain(){
-        adapterTiming = new AdapterTiming(TimingFragment.this.getContext());
-        listViewTiming.setAdapter(adapterTiming);
+        adapterTiming = new RecyclerAdapterTiming(TimingFragment.this.getContext());
+        swipeMenuRecyclerViewChain.setAdapter(adapterTiming);
     }
 
     private CompoundButton.OnCheckedChangeListener onCheckedChangeListener = new CompoundButton.OnCheckedChangeListener() {
@@ -90,46 +124,30 @@ public class TimingFragment extends Fragment {
         }
     };
 
-    private AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
+    //条件列表点击事件
+    private SwipeItemClickListener linkageSwipeItemClickListener = new SwipeItemClickListener() {
         @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        public void onItemClick(View itemView, int position) {
             TIMING = (Timing) HamaApp.DEV_GROUP.getTimingHolder().getListLinkage().get(position);
             EditTimingActivity.ADD = false;
             TimingFragment.this.startActivity(new Intent(TimingFragment.this.getContext(), EditTimingActivity.class));
         }
     };
 
-    private AdapterView.OnItemLongClickListener onItemLongClickListener = new AdapterView.OnItemLongClickListener() {
+    private SwipeMenuItemClickListener linkageSwipeMenuItemClickListener = new SwipeMenuItemClickListener() {
         @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            Timing timing = (Timing)HamaApp.DEV_GROUP.getTimingHolder().getListLinkage().get(position);
-            showElectricalPopUp(view, timing);
-            return true;
+        public void onItemClick(SwipeMenuBridge menuBridge) {
+            menuBridge.closeMenu();
+            int adapterPosition = menuBridge.getAdapterPosition(); // RecyclerView的Item的position。
+            Linkage linkage = HamaApp.DEV_GROUP.getTimingHolder().getListLinkage().get(adapterPosition);
+
+            HamaApp.DEV_GROUP.getChainHolder().removeLinkage(linkage);
+            linkage.setDeleted(true);
+            LinkageDao linkageDevValueDao = LinkageDao.get(TimingFragment.this.getActivity());
+            linkageDevValueDao.delete(linkage);
+            adapterTiming.notifyDataSetChanged();
         }
     };
-
-    public void showElectricalPopUp(View v, Timing timing) {
-        Button layoutDelete = new Button(this.getContext());
-        layoutDelete.setText("删除");
-        final PopupWindow popupWindow = new PopupWindow(layoutDelete, LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-
-        popupWindow.setFocusable(true);
-        popupWindow.setOutsideTouchable(true);
-        popupWindow.setBackgroundDrawable(new BitmapDrawable());
-
-        int[] location = new int[2];
-        v.getLocationOnScreen(location);
-
-        popupWindow.showAsDropDown(v);
-        layoutDelete.setOnClickListener(v1 -> {
-            popupWindow.dismiss();
-            HamaApp.DEV_GROUP.getTimingHolder().removeTiming(timing);
-            timing.setDeleted(true);
-            LinkageDao.get(TimingFragment.this.getContext()).delete(timing);
-            adapterTiming.notifyDataSetChanged();
-        });
-    }
 
     public static class MyHandler extends Handler {
         WeakReference<TimingFragment> mActivity;

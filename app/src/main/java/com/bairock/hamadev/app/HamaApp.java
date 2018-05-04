@@ -1,5 +1,6 @@
 package com.bairock.hamadev.app;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDex;
@@ -38,6 +39,7 @@ public class HamaApp extends Application {
     public static int SERVER_PAD_PORT = 4045;
     public static int SERVER_DEV_PORT = 4049;
 
+    @SuppressLint("StaticFieldLeak")
     public static Context HAMA_CONTEXT;
 
     public static boolean NET_CONNECTED;
@@ -102,11 +104,11 @@ public class HamaApp extends Application {
             case NET:
                 switch (device.getCtrlModel()){
                     case UNKNOW:
-                        DevChannelBridgeHelper.getIns().sendDevOrder(device.findSuperParent(), order, immediately);
+                        DevChannelBridgeHelper.getIns().sendDevOrder(device, order, immediately);
                         PadClient.getIns().send(order);
                         break;
                     case LOCAL:
-                        DevChannelBridgeHelper.getIns().sendDevOrder(device.findSuperParent(), order, immediately);
+                        DevChannelBridgeHelper.getIns().sendDevOrder(device, order, immediately);
                         break;
                     case REMOTE:
                         PadClient.getIns().send(order);
@@ -184,19 +186,6 @@ public class HamaApp extends Application {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 json = mapper.writeValueAsString(user);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-        return json;
-    }
-
-    public static String getDeviceJson(Device device){
-        String json = null;
-        if(device != null){
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                json = mapper.writeValueAsString(device);
             }catch (Exception e){
                 e.printStackTrace();
             }

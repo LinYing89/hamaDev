@@ -70,10 +70,10 @@ public class BridgeState {
     }
 
     public void addMsg(int type, String msg){
-        if(listBridgeMsgType.size() > 100){
-            listBridgeMsgType.remove(0);
+        if(listBridgeMsgType.size() > 50){
+            NetMsgType nmt = listBridgeMsgType.remove(0);
             if(null != onCollectionChangedMsgListener){
-                onCollectionChangedMsgListener.onAddMsg(listBridgeMsgType.get(0));
+                onCollectionChangedMsgListener.onRemovedMsg(nmt);
             }
         }
         NetMsgType netMsgType = new NetMsgType();

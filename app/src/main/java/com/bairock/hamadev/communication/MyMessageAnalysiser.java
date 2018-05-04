@@ -81,7 +81,7 @@ public class MyMessageAnalysiser extends MessageAnalysiser {
             Coordinator coordinator = (Coordinator)device;
             for(int i = 2; i< codings.length; i++){
                 String coding = codings[i];
-                Device device1 = coordinator.getDevByCoding(coding);
+                Device device1 = coordinator.findDevByCoding(coding);
                 if(null == device1){
                     device1 = DeviceAssistent.createDeviceByCoding(coding);
                     if(device1 != null){

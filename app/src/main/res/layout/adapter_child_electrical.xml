@@ -1,19 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
                 android:minHeight="?android:attr/listPreferredItemHeight"
                 android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/text_name"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
-        android:gravity="center_vertical"
-        android:layout_weight="1"
-        android:text="name"
-        android:textAppearance="?android:attr/textAppearanceListItem" />
+        android:layout_weight="1">
+        <TextView
+            android:id="@+id/text_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="name"
+            android:textAppearance="?android:attr/textAppearanceListItem" />
+
+        <TextView
+            android:id="@+id/textAlias"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="name"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="4dp"
+            tools:text="位号" />
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/text_num"

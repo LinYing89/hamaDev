@@ -91,8 +91,11 @@ public class BridgesStateActivity extends AppCompatActivity {
 
     private void setListener(){
         lvBridge.setOnItemClickListener((parent, view, position, id) -> {
-            BridgeMsgActivity.bridgeState = listBridgeState.get(position);
-            startActivity(new Intent(BridgesStateActivity.this, BridgeMsgActivity.class));
+//            BridgeMsgActivity.bridgeState = listBridgeState.get(position);
+//            startActivity(new Intent(BridgesStateActivity.this, BridgeMsgActivity.class));
+
+            BridgeMsgTestActivity.bridgeState = listBridgeState.get(position);
+            startActivity(new Intent(BridgesStateActivity.this, BridgeMsgTestActivity.class));
         });
     }
 

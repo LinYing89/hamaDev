@@ -111,32 +111,47 @@ public class AdapterCollect extends BaseAdapter {
         }
 
         private void refreshValue(){
-            textState.setText(device.getCollectProperty().getValueWithSymbol());
-            if(device instanceof DevCollectSignal){
-                if(device.getCollectProperty().getCollectSrc() != CollectSignalSource.SWITCH){
-                    progressValue.setVisibility(View.VISIBLE);
-                    textPer.setText(device.getCollectProperty().getPercentWithSymbol());
-                    if(null != device.getCollectProperty().getPercent()) {
-                        int value = device.getCollectProperty().getPercent().intValue();
-                        progressValue.setProgress(value);
-                    }else{
-                        progressValue.setProgress(0);
-                    }
-                }else{
-                    progressValue.setVisibility(View.GONE);
-                    if(device.getCollectProperty().getCurrentValue() != null) {
-                        if (device.getCollectProperty().getCurrentValue() == 1) {
-                            rootView.setBackgroundColor(HamaApp.stateKaiColorId);
-                            textPer.setText("开");
-                        } else {
-                            rootView.setBackgroundColor(Color.TRANSPARENT);
-                            textPer.setText("关");
-                        }
+            if(device.getCollectProperty().getCollectSrc() == CollectSignalSource.SWITCH){
+                if(device.getCollectProperty().getCurrentValue() != null) {
+                    if (device.getCollectProperty().getCurrentValue() == 1) {
+                        rootView.setBackgroundColor(HamaApp.stateKaiColorId);
+                        textState.setText("开");
+                    } else {
+                        rootView.setBackgroundColor(Color.TRANSPARENT);
+                        textState.setText("关");
                     }
                 }
-            }else{
-                progressValue.setVisibility(View.GONE);
+                //textState.setText(device.getCollectProperty().getValueWithSymbol());
+            }else {
+                textState.setText(device.getCollectProperty().getValueWithSymbol());
             }
+
+//            if(device instanceof DevCollectSignal){
+//                if(device.getCollectProperty().getCollectSrc() != CollectSignalSource.SWITCH){
+//                    progressValue.setVisibility(View.VISIBLE);
+//                    textPer.setText(device.getCollectProperty().getPercentWithSymbol());
+//                    if(null != device.getCollectProperty().getPercent()) {
+//                        int value = device.getCollectProperty().getPercent().intValue();
+//                        progressValue.setProgress(value);
+//                    }else{
+//                        progressValue.setProgress(0);
+//                    }
+//                }else{
+//                    textPer.setText("");
+//                    progressValue.setVisibility(View.GONE);
+//                    if(device.getCollectProperty().getCurrentValue() != null) {
+//                        if (device.getCollectProperty().getCurrentValue() == 1) {
+//                            rootView.setBackgroundColor(HamaApp.stateKaiColorId);
+//                            textPer.setText("开");
+//                        } else {
+//                            rootView.setBackgroundColor(Color.TRANSPARENT);
+//                            textPer.setText("关");
+//                        }
+//                    }
+//                }
+//            }else{
+//                progressValue.setVisibility(View.GONE);
+//            }
         }
 
         private void refreshState(){

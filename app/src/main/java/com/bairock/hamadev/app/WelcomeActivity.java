@@ -17,6 +17,7 @@ import com.bairock.hamadev.communication.MyOnDevHaveChildeOnCollectionChangedLis
 import com.bairock.hamadev.communication.MyOnGearChangedListener;
 import com.bairock.hamadev.communication.MyOnSignalSourceChangedListener;
 import com.bairock.hamadev.communication.MyOnSimulatorChangedListener;
+import com.bairock.hamadev.communication.MyOnSortIndexChangedListener;
 import com.bairock.hamadev.communication.MyOnStateChangedListener;
 import com.bairock.hamadev.communication.SerialPortHelper;
 import com.bairock.hamadev.database.DevGroupDao;
@@ -128,6 +129,7 @@ public class WelcomeActivity extends AppCompatActivity {
         device.setOnStateChanged(onStateChangedListener);
         device.setOnGearChanged(onGearChangedListener);
         device.setOnCtrlModelChanged(onCtrlModelChangedListener);
+        device.setOnSortIndexChangedListener(new MyOnSortIndexChangedListener());
         if(device instanceof DevHaveChild){
             DevHaveChild devHaveChild = (DevHaveChild)device;
             //协调器添加子设备集合改变监听器
@@ -297,7 +299,7 @@ public class WelcomeActivity extends AppCompatActivity {
                 GuaguaHelper.getIns().stopCheckGuaguaThread();
                 GuaguaHelper.getIns().startCheckGuaguaThread();
                 GuaguaHelper.getIns().setOnOrderSendListener((guagua, s, ctrlModel) -> HamaApp.sendOrder(guagua.findSuperParent(), s, true));
-                //HamaApp.SERVER_IP = "192.168.1.111";
+//                HamaApp.SERVER_IP = "192.168.1.111";
                 Thread.sleep(2000);
                 return true;
             }catch (InterruptedException e){

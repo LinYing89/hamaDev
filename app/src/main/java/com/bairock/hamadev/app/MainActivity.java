@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity
 
     public static boolean IS_ADMIN;
     //public static boolean FIRST_LOGIN;
-    public static String subTitle = "大发科技:智能物联网控制器";
+    public static String subTitle = "呱呱物联:智能物联网控制器";
     /**
      * 本地连接是否可用
      */

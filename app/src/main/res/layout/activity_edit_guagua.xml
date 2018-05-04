@@ -17,6 +17,8 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        android:background="@color/back_ground"
+        style="?android:attr/buttonBarStyle"
         android:id="@+id/linearLayout">
 
         <Button
@@ -24,6 +26,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            style="?android:attr/buttonBarButtonStyle"
+            android:textColor="@color/back"
             android:text="添加条件" />
 
         <Button
@@ -31,6 +35,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            style="?android:attr/buttonBarButtonStyle"
+            android:textColor="@color/back"
             android:text="添加受控设备" />
     </LinearLayout>
 
@@ -47,18 +53,20 @@
         android:layout_marginRight="8dp"
         app:layout_constraintRight_toRightOf="parent">
 
-        <ListView
-            android:id="@+id/listViewCondition"
+        <com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView
+            android:id="@+id/swipeMenuRecyclerViewCondition"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginEnd="4dp"
             android:layout_marginRight="4dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"/>
 
-        <ListView
-            android:id="@+id/listViewEffect"
+        <com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView
+            android:id="@+id/swipeMenuRecyclerViewEffect"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginStart="4dp"
             android:layout_marginLeft="4dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"/>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
