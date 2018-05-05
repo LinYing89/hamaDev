@@ -15,7 +15,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import com.bairock.hamadev.R;
-import com.bairock.hamadev.adapter.AdapterElectrical;
 import com.bairock.hamadev.adapter.RecyclerAdapterElectrical;
 import com.bairock.iot.intelDev.device.DevHaveChild;
 import com.bairock.iot.intelDev.device.Device;
@@ -118,21 +117,18 @@ public class ElectricalCtrlFragment extends Fragment {
     /**
      * Item的拖拽/侧滑删除时，手指状态发生变化监听。
      */
-    private OnItemStateChangedListener mOnItemStateChangedListener = new OnItemStateChangedListener() {
-        @Override
-        public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
-            if (actionState == OnItemStateChangedListener.ACTION_STATE_DRAG) {
-                // 拖拽的时候背景就透明了，这里我们可以添加一个特殊背景。
-                //viewHolder.itemView.setBackgroundColor(ContextCompat.getColor(Objects.requireNonNull(ElectricalCtrlFragment.this.getContext()), R.color.drag_background));
-                Animation animation= AnimationUtils.loadAnimation(ElectricalCtrlFragment.this.getContext(),R.anim.drag_zoomout);
-                viewHolder.itemView.startAnimation(animation);
-            } else if (actionState == OnItemStateChangedListener.ACTION_STATE_IDLE) {
-                // 在手松开的时候还原背景。
-                //ViewCompat.setBackground(viewHolder.itemView, ContextCompat.getDrawable(BaseDragActivity.this, R.drawable.select_white));
-                Animation animation= AnimationUtils.loadAnimation(ElectricalCtrlFragment.this.getContext(),R.anim.drag_zoomin);
-                viewHolder.itemView.startAnimation(animation);
+    private OnItemStateChangedListener mOnItemStateChangedListener = (viewHolder, actionState) -> {
+        if (actionState == OnItemStateChangedListener.ACTION_STATE_DRAG) {
+            // 拖拽的时候背景就透明了，这里我们可以添加一个特殊背景。
+            //viewHolder.itemView.setBackgroundColor(ContextCompat.getColor(Objects.requireNonNull(ElectricalCtrlFragment.this.getContext()), R.color.drag_background));
+            Animation animation= AnimationUtils.loadAnimation(ElectricalCtrlFragment.this.getContext(),R.anim.drag_zoomout);
+            viewHolder.itemView.startAnimation(animation);
+        } else if (actionState == OnItemStateChangedListener.ACTION_STATE_IDLE) {
+            // 在手松开的时候还原背景。
+            //ViewCompat.setBackground(viewHolder.itemView, ContextCompat.getDrawable(BaseDragActivity.this, R.drawable.select_white));
+            Animation animation= AnimationUtils.loadAnimation(ElectricalCtrlFragment.this.getContext(),R.anim.drag_zoomin);
+            viewHolder.itemView.startAnimation(animation);
 
-            }
         }
     };
 
@@ -158,13 +154,13 @@ public class ElectricalCtrlFragment extends Fragment {
 
     private Device.OnNameChangedListener onNameChangedListener = (device, s) -> {
         if(null != RecyclerAdapterElectrical.handler){
-            RecyclerAdapterElectrical.handler.obtainMessage(AdapterElectrical.NAME, device).sendToTarget();
+            RecyclerAdapterElectrical.handler.obtainMessage(RecyclerAdapterElectrical.NAME, device).sendToTarget();
         }
     };
 
     private Device.OnAliasChangedListener onAliasChangedListener = (device, s) -> {
         if(null != RecyclerAdapterElectrical.handler){
-            RecyclerAdapterElectrical.handler.obtainMessage(AdapterElectrical.ALIAS, device).sendToTarget();
+            RecyclerAdapterElectrical.handler.obtainMessage(RecyclerAdapterElectrical.ALIAS, device).sendToTarget();
         }
     };
 

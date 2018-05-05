@@ -1,25 +1,28 @@
 package com.bairock.hamadev.linkage.loop;
 
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
+import android.view.ViewGroup;
 
 import com.bairock.hamadev.R;
-import com.bairock.hamadev.adapter.AdapterDurationList;
-import com.bairock.hamadev.app.MainActivity;
+import com.bairock.hamadev.adapter.RecyclerAdapterLoopDuration;
 import com.bairock.hamadev.database.LoopDurationDao;
 import com.bairock.iot.intelDev.linkage.loop.LoopDuration;
+import com.yanzhenjie.recyclerview.swipe.SwipeItemClickListener;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuBridge;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuCreator;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuItem;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuItemClickListener;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
+import com.yanzhenjie.recyclerview.swipe.widget.DefaultItemDecoration;
 
 import java.lang.ref.WeakReference;
 
@@ -27,8 +30,8 @@ public class DurationListActivity extends AppCompatActivity {
 
     public static final int REFRESH_DURATION_LIST = 1;
     public static MyHandler handler;
-    private ListView listViewDuration;
-    private AdapterDurationList adapterDurationList;
+    private SwipeMenuRecyclerView swipeMenuRecyclerViewDuration;
+    private RecyclerAdapterLoopDuration adapterDurationList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,47 +75,52 @@ public class DurationListActivity extends AppCompatActivity {
     }
 
     private void findViews(){
-        listViewDuration = (ListView)findViewById(R.id.list_duration);
+        swipeMenuRecyclerViewDuration = findViewById(R.id.swipeMenuRecyclerViewDuration);
+        swipeMenuRecyclerViewDuration.setLayoutManager(new LinearLayoutManager(this));
+        swipeMenuRecyclerViewDuration.addItemDecoration(new DefaultItemDecoration(Color.LTGRAY));
+        swipeMenuRecyclerViewDuration.setSwipeMenuCreator(swipeMenuConditionCreator);
     }
 
     private void setListener(){
-        listViewDuration.setOnItemClickListener(onItemClickListener);
-        listViewDuration.setOnItemLongClickListener(onItemLongClickListener);
+        swipeMenuRecyclerViewDuration.setSwipeItemClickListener(conditionSwipeItemClickListener);
+        swipeMenuRecyclerViewDuration.setSwipeMenuItemClickListener(conditionSwipeMenuItemClickListener);
     }
 
-    private void setListViewDuration(){
-        adapterDurationList = new AdapterDurationList(this, EditLoopActivity.zLoop.getListLoopDuration());
-        listViewDuration.setAdapter(adapterDurationList);
-    }
+    private SwipeMenuCreator swipeMenuConditionCreator = (swipeLeftMenu, swipeRightMenu, viewType) -> {
+        int width = getResources().getDimensionPixelSize(R.dimen.dp_70);
 
-    private AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            DurationActivity.duration = EditLoopActivity.zLoop.getListLoopDuration().get(position);
-            startActivity(new Intent(DurationListActivity.this, DurationActivity.class));
-        }
+        int height = ViewGroup.LayoutParams.MATCH_PARENT;
+        // 添加右侧的，如果不添加，则右侧不会出现菜单。
+        SwipeMenuItem deleteItem = new SwipeMenuItem(DurationListActivity.this)
+                .setBackgroundColor(Color.RED)
+                .setText("删除")
+                .setTextColor(Color.WHITE)
+                .setWidth(width)
+                .setHeight(height);
+        swipeRightMenu.addMenuItem(deleteItem);// 添加菜单到右侧。
     };
 
-    private AdapterView.OnItemLongClickListener onItemLongClickListener = new AdapterView.OnItemLongClickListener() {
+    private void setListViewDuration(){
+        adapterDurationList = new RecyclerAdapterLoopDuration(this, EditLoopActivity.zLoop.getListLoopDuration());
+        swipeMenuRecyclerViewDuration.setAdapter(adapterDurationList);
+    }
+
+    //条件列表点击事件
+    private SwipeItemClickListener conditionSwipeItemClickListener = (itemView, position) -> {
+        DurationActivity.duration = EditLoopActivity.zLoop.getListLoopDuration().get(position);
+        startActivity(new Intent(DurationListActivity.this, DurationActivity.class));
+    };
+
+    private SwipeMenuItemClickListener conditionSwipeMenuItemClickListener = new SwipeMenuItemClickListener() {
         @Override
-        public boolean onItemLongClick(AdapterView<?> adapterView, View view, final int position, long l) {
-            new AlertDialog.Builder(DurationListActivity.this).setTitle("警告")
-                    .setMessage("确定删除该循环时间吗？")
-                    .setPositiveButton(MainActivity.strEnsure, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            LoopDuration loopDuration = EditLoopActivity.zLoop.getListLoopDuration().get(position);
-                            loopDuration.setDeleted(true);
-                            EditLoopActivity.zLoop.removeLoopDuration(position);
-                            LoopDurationDao loopDurationDao = LoopDurationDao.get(DurationListActivity.this);
-                            //loopDurationDao.update(loopDuration, null);
-                            loopDurationDao.delete(loopDuration);
-                            adapterDurationList.notifyDataSetChanged();
-                        }
-                    })
-                    .setNegativeButton(MainActivity.strCancel, null)
-                    .show();
-            return true;
+        public void onItemClick(SwipeMenuBridge menuBridge) {
+            menuBridge.closeMenu();
+            LoopDuration loopDuration = EditLoopActivity.zLoop.getListLoopDuration().get(menuBridge.getAdapterPosition());
+            loopDuration.setDeleted(true);
+            EditLoopActivity.zLoop.removeLoopDuration(loopDuration);
+            LoopDurationDao loopDurationDao = LoopDurationDao.get(DurationListActivity.this);
+            loopDurationDao.delete(loopDuration);
+            adapterDurationList.notifyDataSetChanged();
         }
     };
 

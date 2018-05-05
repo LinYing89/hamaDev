@@ -1,8 +1,7 @@
 package com.bairock.hamadev.linkage.loop;
 
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.Snackbar;
@@ -10,28 +9,24 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.PopupWindow;
 
 import com.bairock.hamadev.R;
-import com.bairock.hamadev.adapter.AdapterCondition;
-import com.bairock.hamadev.adapter.AdapterEffect;
+import com.bairock.hamadev.adapter.RecyclerAdapterCondition;
+import com.bairock.hamadev.adapter.RecyclerAdapterEffect;
 import com.bairock.hamadev.app.HamaApp;
 import com.bairock.hamadev.app.MainActivity;
 import com.bairock.hamadev.database.EffectDao;
 import com.bairock.hamadev.database.LinkageConditionDao;
 import com.bairock.hamadev.database.LinkageDao;
 import com.bairock.hamadev.linkage.ConditionActivity;
-import com.bairock.hamadev.linkage.EditChainActivity;
 import com.bairock.hamadev.linkage.timing.EditTimingActivity;
 import com.bairock.iot.intelDev.device.DevStateHelper;
 import com.bairock.iot.intelDev.device.Device;
@@ -39,6 +34,13 @@ import com.bairock.iot.intelDev.linkage.Effect;
 import com.bairock.iot.intelDev.linkage.Linkage;
 import com.bairock.iot.intelDev.linkage.LinkageCondition;
 import com.bairock.iot.intelDev.linkage.loop.ZLoop;
+import com.yanzhenjie.recyclerview.swipe.SwipeItemClickListener;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuBridge;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuCreator;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuItem;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuItemClickListener;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
+import com.yanzhenjie.recyclerview.swipe.widget.DefaultItemDecoration;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -49,18 +51,17 @@ public class EditLoopActivity extends AppCompatActivity {
     public static MyHandler handler;
 
     public static ZLoop zLoop;
-    private LinkageCondition linkageCondition;
     public static Effect effect;
     public static boolean ADD;
 
     private ActionBar actionBar;
     private Button btnAddConditionHandler;
     private Button btnAddEffect;
-    private ListView listViewConditionHandler;
-    private ListView listViewEffect;
+    private SwipeMenuRecyclerView swipeMenuRecyclerViewCondition;
+    private SwipeMenuRecyclerView swipeMenuRecyclerViewEffect;
 
-    private AdapterCondition adapterCondition;
-    private AdapterEffect adapterEffect;
+    private RecyclerAdapterCondition adapterCondition;
+    private RecyclerAdapterEffect adapterEffect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,20 +134,40 @@ public class EditLoopActivity extends AppCompatActivity {
     }
 
     private void findViews(){
-        btnAddConditionHandler = (Button)findViewById(R.id.btnAddConditionHandler);
-        btnAddEffect = (Button)findViewById(R.id.btnAddEffect);
-        listViewConditionHandler = (ListView)findViewById(R.id.listViewConditionHandler);
-        listViewEffect = (ListView)findViewById(R.id.listViewEffect);
+        btnAddConditionHandler = findViewById(R.id.btnAddConditionHandler);
+        btnAddEffect = findViewById(R.id.btnAddEffect);
+        swipeMenuRecyclerViewCondition = findViewById(R.id.swipeMenuRecyclerViewCondition);
+        swipeMenuRecyclerViewCondition.setLayoutManager(new LinearLayoutManager(this));
+        swipeMenuRecyclerViewCondition.addItemDecoration(new DefaultItemDecoration(Color.LTGRAY));
+        swipeMenuRecyclerViewCondition.setSwipeMenuCreator(swipeMenuConditionCreator);
+
+        swipeMenuRecyclerViewEffect = findViewById(R.id.swipeMenuRecyclerViewEffect);
+        swipeMenuRecyclerViewEffect.setLayoutManager(new LinearLayoutManager(this));
+        swipeMenuRecyclerViewEffect.addItemDecoration(new DefaultItemDecoration(Color.LTGRAY));
+        swipeMenuRecyclerViewEffect.setSwipeMenuCreator(swipeMenuConditionCreator);
     }
 
     private void setListener(){
         btnAddConditionHandler.setOnClickListener(onClickListener);
         btnAddEffect.setOnClickListener(onClickListener);
 
-        listViewConditionHandler.setOnItemClickListener(eventOnItemClickListener);
-        listViewConditionHandler.setOnItemLongClickListener(eventOnItemLongClickListener);
-        listViewEffect.setOnItemLongClickListener(deviceOnItemLongClickListener);
+        swipeMenuRecyclerViewCondition.setSwipeItemClickListener(conditionSwipeItemClickListener);
+        swipeMenuRecyclerViewCondition.setSwipeMenuItemClickListener(conditionSwipeMenuItemClickListener);
+        swipeMenuRecyclerViewEffect.setSwipeMenuItemClickListener(effectSwipeMenuItemClickListener);
     }
+
+    private SwipeMenuCreator swipeMenuConditionCreator = (swipeLeftMenu, swipeRightMenu, viewType) -> {
+        int width = getResources().getDimensionPixelSize(R.dimen.dp_70);
+        int height = ViewGroup.LayoutParams.MATCH_PARENT;
+        // 添加右侧的，如果不添加，则右侧不会出现菜单。
+        SwipeMenuItem deleteItem = new SwipeMenuItem(EditLoopActivity.this)
+                .setBackgroundColor(Color.RED)
+                .setText("删除")
+                .setTextColor(Color.WHITE)
+                .setWidth(width)
+                .setHeight(height);
+        swipeRightMenu.addMenuItem(deleteItem);// 添加菜单到右侧。
+    };
 
     private String getDefaultName(){
         String name = "循环";
@@ -195,7 +216,7 @@ public class EditLoopActivity extends AppCompatActivity {
                 R.layout.dialog_loop_count, null);
         final EditText editLoopCount = (EditText) convertView
                 .findViewById(R.id.edit_loop_count);
-        final CheckBox checkBoxLoopInfinite = (CheckBox)convertView
+        final CheckBox checkBoxLoopInfinite = convertView
                 .findViewById(R.id.check_loop_infinite);
         if(zLoop.getLoopCount() == -1){
             editLoopCount.setEnabled(false);
@@ -204,16 +225,13 @@ public class EditLoopActivity extends AppCompatActivity {
             editLoopCount.setText(String.valueOf(zLoop.getLoopCount()));
             checkBoxLoopInfinite.setChecked(false);
         }
-        checkBoxLoopInfinite.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                    editLoopCount.setEnabled(false);
-                    zLoop.setLoopCount(-1);
-                    LinkageDao.get(EditLoopActivity.this).update(zLoop, null);
-                }else{
-                    editLoopCount.setEnabled(true);
-                }
+        checkBoxLoopInfinite.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if(isChecked){
+                editLoopCount.setEnabled(false);
+                zLoop.setLoopCount(-1);
+                LinkageDao.get(EditLoopActivity.this).update(zLoop, null);
+            }else{
+                editLoopCount.setEnabled(true);
             }
         });
 
@@ -222,22 +240,18 @@ public class EditLoopActivity extends AppCompatActivity {
         dialog.setView(convertView)
                 .setPositiveButton(
                         MainActivity.strEnsure,
-                        new DialogInterface.OnClickListener() {
-
-                            public void onClick(DialogInterface dialog,
-                                                int which) {
-                                if(!checkBoxLoopInfinite.isChecked()){
-                                    String strHour = String.valueOf(editLoopCount.getText());
-                                    try{
-                                        zLoop.setLoopCount(Integer.parseInt(strHour));
-                                        LinkageDao.get(EditLoopActivity.this).update(zLoop, null);
-                                    }catch (Exception e){
-                                        e.printStackTrace();
-                                        Snackbar.make(editLoopCount, "格式错误", Snackbar.LENGTH_SHORT).show();
-                                    }
+                        (dialog1, which) -> {
+                            if(!checkBoxLoopInfinite.isChecked()){
+                                String strHour = String.valueOf(editLoopCount.getText());
+                                try{
+                                    zLoop.setLoopCount(Integer.parseInt(strHour));
+                                    LinkageDao.get(EditLoopActivity.this).update(zLoop, null);
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                    Snackbar.make(editLoopCount, "格式错误", Snackbar.LENGTH_SHORT).show();
                                 }
-                                setActionbarSubtitle();
                             }
+                            setActionbarSubtitle();
                         })
                 .setNegativeButton(
                         MainActivity.strCancel,
@@ -254,13 +268,13 @@ public class EditLoopActivity extends AppCompatActivity {
     }
 
     private void setListViewCondition(){
-        adapterCondition = new AdapterCondition(this, zLoop.getListCondition());
-        listViewConditionHandler.setAdapter(adapterCondition);
+        adapterCondition = new RecyclerAdapterCondition(this, zLoop.getListCondition());
+        swipeMenuRecyclerViewCondition.setAdapter(adapterCondition);
     }
 
     private void setListViewEffect() {
-        adapterEffect = new AdapterEffect(this, zLoop.getListEffect(), false);
-        listViewEffect.setAdapter(adapterEffect);
+        adapterEffect = new RecyclerAdapterEffect(this, zLoop.getListEffect(), false);
+        swipeMenuRecyclerViewEffect.setAdapter(adapterEffect);
     }
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
@@ -280,9 +294,9 @@ public class EditLoopActivity extends AppCompatActivity {
     };
 
     //条件列表点击事件
-    private AdapterView.OnItemClickListener eventOnItemClickListener = new AdapterView.OnItemClickListener() {
+    private SwipeItemClickListener conditionSwipeItemClickListener = new SwipeItemClickListener() {
         @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        public void onItemClick(View itemView, int position) {
             LinkageCondition condition = zLoop.getListCondition().get(position);
             ConditionActivity.ADD = false;
             ConditionActivity.handler = handler;
@@ -292,21 +306,34 @@ public class EditLoopActivity extends AppCompatActivity {
         }
     };
 
-    private AdapterView.OnItemLongClickListener eventOnItemLongClickListener = new AdapterView.OnItemLongClickListener() {
+    private SwipeMenuItemClickListener conditionSwipeMenuItemClickListener = new SwipeMenuItemClickListener() {
         @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            linkageCondition = zLoop.getListCondition().get(position);
-            showItemPopup(view, 0);
-            return true;
+        public void onItemClick(SwipeMenuBridge menuBridge) {
+            menuBridge.closeMenu();
+            int adapterPosition = menuBridge.getAdapterPosition(); // RecyclerView的Item的position。
+
+            LinkageCondition linkageCondition = zLoop.getListCondition().get(adapterPosition);
+            zLoop.removeCondition(linkageCondition);
+            linkageCondition.setDeleted(true);
+            LinkageConditionDao linkageConditionDao = LinkageConditionDao.get(EditLoopActivity.this);
+            linkageConditionDao.delete(linkageCondition);
+            adapterCondition.notifyDataSetChanged();
+
         }
     };
 
-    private AdapterView.OnItemLongClickListener deviceOnItemLongClickListener = new AdapterView.OnItemLongClickListener() {
+    private SwipeMenuItemClickListener effectSwipeMenuItemClickListener = new SwipeMenuItemClickListener() {
         @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            effect = zLoop.getListEffect().get(position);
-            showItemPopup(view, 1);
-            return true;
+        public void onItemClick(SwipeMenuBridge menuBridge) {
+            menuBridge.closeMenu();
+            int adapterPosition = menuBridge.getAdapterPosition(); // RecyclerView的Item的position。
+            effect = zLoop.getListEffect().get(adapterPosition);
+            zLoop.removeEffect(effect);
+            effect.setDeleted(true);
+            EffectDao effectDao = EffectDao.get(EditLoopActivity.this);
+            //effectDao.update(effect,null);
+            effectDao.delete(effect);
+            adapterEffect.notifyDataSetChanged();
         }
     };
 
@@ -331,46 +358,16 @@ public class EditLoopActivity extends AppCompatActivity {
         }
         AlertDialog.Builder listDialog = new AlertDialog.Builder(this);
         listDialog.setTitle("选择设备");
-        listDialog.setItems(names, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Effect effect = new Effect();
-                effect.setDevice(list.get(which));
-                effect.setDsId(DevStateHelper.DS_GUAN);
-                zLoop.getListEffect().add(effect);
-                EffectDao effectDao = EffectDao.get(EditLoopActivity.this);
-                effectDao.add(effect, zLoop.getId());
-                adapterEffect.notifyDataSetChanged();
-            }
+        listDialog.setItems(names, (dialog, which) -> {
+            Effect effect = new Effect();
+            effect.setDevice(list.get(which));
+            effect.setDsId(DevStateHelper.DS_GUAN);
+            zLoop.getListEffect().add(effect);
+            EffectDao effectDao = EffectDao.get(EditLoopActivity.this);
+            effectDao.add(effect, zLoop.getId());
+            adapterEffect.notifyDataSetChanged();
         });
         listDialog.show();
-    }
-
-    private void showItemPopup(View view, int which){
-        Button btnDel = new Button(this);
-        btnDel.setText("删除");
-        final PopupWindow popupWindow = new PopupWindow(btnDel, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        popupWindow.setFocusable(true);
-        popupWindow.setOutsideTouchable(true);
-        popupWindow.setBackgroundDrawable(new ColorDrawable(0x00000000));
-        popupWindow.showAsDropDown(view);
-        btnDel.setOnClickListener(v -> {
-            popupWindow.dismiss();
-            if(which == 0){
-                zLoop.removeCondition(linkageCondition);
-                linkageCondition.setDeleted(true);
-                LinkageConditionDao linkageConditionDao = LinkageConditionDao.get(EditLoopActivity.this);
-                linkageConditionDao.delete(linkageCondition);
-                adapterCondition.notifyDataSetChanged();
-            }else{
-                zLoop.removeEffect(effect);
-                effect.setDeleted(true);
-                EffectDao effectDao = EffectDao.get(EditLoopActivity.this);
-                //effectDao.update(effect,null);
-                effectDao.delete(effect);
-                adapterEffect.notifyDataSetChanged();
-            }
-        });
     }
 
         public static class MyHandler extends Handler {

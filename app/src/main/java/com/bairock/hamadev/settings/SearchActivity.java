@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
@@ -13,51 +12,33 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.bairock.hamadev.R;
-import com.bairock.hamadev.adapter.AdapterElectrical;
-import com.bairock.hamadev.adapter.AdapterSearchDev;
 import com.bairock.hamadev.adapter.RecyclerAdapterDevice;
 import com.bairock.hamadev.app.HamaApp;
 import com.bairock.hamadev.app.MainActivity;
 import com.bairock.hamadev.app.RouterInfo;
-import com.bairock.hamadev.app.WelcomeActivity;
-import com.bairock.hamadev.communication.MyOnCtrlModelChangedListener;
-import com.bairock.hamadev.communication.MyOnGearChangedListener;
-import com.bairock.hamadev.communication.MyOnStateChangedListener;
 import com.bairock.hamadev.communication.PadClient;
 import com.bairock.hamadev.database.DeviceDao;
 import com.bairock.hamadev.esptouch.EspTouchAddDevice;
-import com.bairock.hamadev.linkage.ChainFragment;
-import com.bairock.hamadev.linkage.EditChainActivity;
 import com.bairock.iot.intelDev.communication.DevChannelBridgeHelper;
 import com.bairock.iot.intelDev.communication.DevServer;
 import com.bairock.iot.intelDev.communication.SearchDeviceHelper;
 import com.bairock.iot.intelDev.device.Coordinator;
 import com.bairock.iot.intelDev.device.CtrlModel;
 import com.bairock.iot.intelDev.device.DevHaveChild;
-import com.bairock.iot.intelDev.device.DevStateHelper;
 import com.bairock.iot.intelDev.device.Device;
-import com.bairock.iot.intelDev.device.DeviceAssistent;
 import com.bairock.iot.intelDev.device.OrderHelper;
 import com.bairock.iot.intelDev.device.devcollect.DevCollect;
 import com.bairock.iot.intelDev.device.devcollect.DevCollectSignal;
 import com.bairock.iot.intelDev.device.devcollect.DevCollectSignalContainer;
 import com.bairock.iot.intelDev.device.devswitch.DevSwitch;
-import com.bairock.iot.intelDev.device.devswitch.SubDev;
-import com.bairock.iot.intelDev.linkage.LinkageTab;
 import com.bairock.iot.intelDev.user.DevGroup;
 import com.bairock.iot.intelDev.user.ErrorCodes;
 import com.bairock.iot.intelDev.user.IntelDevHelper;
@@ -71,7 +52,6 @@ import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
 import com.yanzhenjie.recyclerview.swipe.widget.DefaultItemDecoration;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -90,7 +70,6 @@ public class SearchActivity extends AppCompatActivity {
     private Device rootDevice;
     private List<Device> listShowDevices;
     private boolean childDevAdding;
-    private AddDeviceTask addDeviceTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,7 +109,7 @@ public class SearchActivity extends AppCompatActivity {
                 break;
             case R.id.action_add_device :
                 if(rootDevice != null && rootDevice instanceof Coordinator){
-                    addDeviceTask = new AddDeviceTask(this);
+                    AddDeviceTask addDeviceTask = new AddDeviceTask(this);
                     addDeviceTask.execute();
                 }else {
                     EspTouchAddDevice espTouchAddDevice = new EspTouchAddDevice(this);
@@ -152,7 +131,7 @@ public class SearchActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         HamaApp.DEV_GROUP.removeOnDeviceCollectionChangedListener(onDeviceCollectionChangedListener);
-        AdapterSearchDev.handler = null;
+        RecyclerAdapterDevice.handler = null;
         for(Device device : listShowDevices){
             removeDeviceListener(device);
         }
@@ -253,14 +232,6 @@ public class SearchActivity extends AppCompatActivity {
                 .setPositiveButton("确定",null).show();
     }
 
-    private List<Device> getSubDevices(Device rootDevice){
-        List<Device> list = new ArrayList<>();
-        if(null != rootDevice && rootDevice instanceof DevHaveChild){
-            list = ((DevHaveChild) rootDevice).getListDev();
-        }
-        return list;
-    }
-
     private List<Device> getRootDevices(Device rootDevice){
         if(null == rootDevice){
             return HamaApp.DEV_GROUP.getListDevice();
@@ -278,25 +249,6 @@ public class SearchActivity extends AppCompatActivity {
             setDeviceList(HamaApp.DEV_GROUP.getListDevice());
         }else{
             setDeviceList(((DevHaveChild)rootDevice).getListDev());
-        }
-    }
-
-    private List<Device> getSearchedDev(){
-        List<Device> listDev = new ArrayList<>();
-        for(Device device : HamaApp.DEV_GROUP.getListDevice()){
-            initSearchDev(listDev, device);
-        }
-        return listDev;
-    }
-
-    private void initSearchDev(List<Device> list, Device device){
-        if(!(device instanceof SubDev)){
-            list.add(device);
-        }
-        if(device instanceof DevHaveChild){
-            for (Device device1 : ((DevHaveChild)device).getListDev()){
-                initSearchDev(list, device1);
-            }
         }
     }
 
@@ -585,60 +537,6 @@ public class SearchActivity extends AppCompatActivity {
         }
     }
 
-    public void showDevicePopUp(View v, Device device) {
-        View layout = this.getLayoutInflater()
-                .inflate(R.layout.pop_device_long_click, null);
-        Button layoutRename = (Button) layout.findViewById(R.id.text_rename);
-        Button btnAlias = (Button) layout.findViewById(R.id.text_alias);
-        Button layoutDelete = (Button) layout.findViewById(R.id.text_delete);
-        Button btnCtrlModel = (Button) layout.findViewById(R.id.text_ctrl_model);
-
-        final PopupWindow popupWindow = new PopupWindow(layout, LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-
-        popupWindow.setFocusable(true);
-        popupWindow.setOutsideTouchable(true);
-        popupWindow.setBackgroundDrawable(new BitmapDrawable());
-
-//        int[] location = new int[2];
-//        v.getLocationOnScreen(location);
-
-        //popupWindow.showAsDropDown(v);
-        popupWindow.showAtLocation(v, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
-
-        if(device instanceof DevHaveChild){
-            btnAlias.setVisibility(View.GONE);
-        }
-        if(device.getParent() != null){
-            btnCtrlModel.setVisibility(View.GONE);
-        }else {
-            if (device.getCtrlModel() == CtrlModel.REMOTE) {
-                btnCtrlModel.setText("设为本地模式");
-            } else {
-                btnCtrlModel.setText("设为远程模式");
-            }
-        }
-
-        layoutRename.setOnClickListener(v1 -> {
-            popupWindow.dismiss();
-            showRenameDialog(device);
-        });
-
-        btnAlias.setOnClickListener(v12 -> {
-            popupWindow.dismiss();
-            showAliasDialog(device);
-        });
-        layoutDelete.setOnClickListener(v13 -> {
-            popupWindow.dismiss();
-            deleteDevice(device);
-        });
-
-        btnCtrlModel.setOnClickListener(v14 -> {
-            popupWindow.dismiss();
-            showSetModel(device);
-        });
-    }
-
     private void deleteDevice(Device device){
         device.setDeleted(true);
         DeviceDao deviceDao = DeviceDao.get(SearchActivity.this);
@@ -688,12 +586,7 @@ public class SearchActivity extends AppCompatActivity {
             progressDialog.setMax(100);
 
             progressDialog.setButton(DialogInterface.BUTTON_POSITIVE,
-                    "稍等...", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            progressDialog.dismiss();
-                        }
-                    });
+                    "稍等...", (dialog, which) -> progressDialog.dismiss());
             progressDialog.show();
             progressDialog.getButton(DialogInterface.BUTTON_POSITIVE)
                     .setEnabled(false);
@@ -712,7 +605,7 @@ public class SearchActivity extends AppCompatActivity {
          * 0:向服务器发送
          * 1:向设备发送
          */
-        public static int setModelProgressValue = 0;
+        static int setModelProgressValue = 0;
         private int count;
 
         private SetDevModelTask(SearchActivity activity){
@@ -804,7 +697,7 @@ public class SearchActivity extends AppCompatActivity {
                 }
             }else {
                 //设置失败
-                String errMsg = "";
+                String errMsg;
                 if(SetDevModelTask.setModelProgressValue == 0){
                     errMsg = "服务器无响应";
                 }else{
@@ -894,9 +787,7 @@ public class SearchActivity extends AppCompatActivity {
             progressDialog.setMax(70);
             progressDialog.setIcon(R.drawable.ic_zoom_in_pink_24dp);
             progressDialog.setButton(DialogInterface.BUTTON_POSITIVE, "确定",
-                    (dialog, which) -> {
-                        progressDialog.dismiss();
-                    });
+                    (dialog, which) -> progressDialog.dismiss());
             //设置取消按钮
             progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "取消",
                     (dialog, which) -> {

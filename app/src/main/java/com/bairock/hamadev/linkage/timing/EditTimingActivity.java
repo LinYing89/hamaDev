@@ -1,26 +1,24 @@
 package com.bairock.hamadev.linkage.timing;
 
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.PopupWindow;
 
 import com.bairock.hamadev.R;
-import com.bairock.hamadev.adapter.AdapterEffect;
-import com.bairock.hamadev.adapter.AdapterTimer;
+import com.bairock.hamadev.adapter.RecyclerAdapterTimer;
+import com.bairock.hamadev.adapter.RecyclerAdapterEffect;
 import com.bairock.hamadev.app.HamaApp;
 import com.bairock.hamadev.app.MainActivity;
 import com.bairock.hamadev.database.EffectDao;
@@ -32,6 +30,13 @@ import com.bairock.iot.intelDev.linkage.Effect;
 import com.bairock.iot.intelDev.linkage.Linkage;
 import com.bairock.iot.intelDev.linkage.timing.Timing;
 import com.bairock.iot.intelDev.linkage.timing.ZTimer;
+import com.yanzhenjie.recyclerview.swipe.SwipeItemClickListener;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuBridge;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuCreator;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuItem;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuItemClickListener;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
+import com.yanzhenjie.recyclerview.swipe.widget.DefaultItemDecoration;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -51,11 +56,11 @@ public class EditTimingActivity extends AppCompatActivity {
     private ActionBar actionBar;
     private Button btnAddTimer;
     private Button btnAddEffect;
-    private ListView listViewTimer;
-    private ListView listViewEffect;
+    private SwipeMenuRecyclerView swipeMenuRecyclerViewCondition;
+    private SwipeMenuRecyclerView swipeMenuRecyclerViewEffect;
 
-    private AdapterTimer adapterTimer;
-    private AdapterEffect adapterEffect;
+    private RecyclerAdapterTimer adapterTimer;
+    private RecyclerAdapterEffect adapterEffect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,20 +126,44 @@ public class EditTimingActivity extends AppCompatActivity {
     }
 
     private void findViews(){
-        btnAddTimer = (Button)findViewById(R.id.btnAddTimer);
-        btnAddEffect = (Button)findViewById(R.id.btnAddEffect);
-        listViewTimer = (ListView)findViewById(R.id.listViewTimer);
-        listViewEffect = (ListView)findViewById(R.id.listViewEffect);
+        btnAddTimer = findViewById(R.id.btnAddTimer);
+        btnAddEffect = findViewById(R.id.btnAddEffect);
+        swipeMenuRecyclerViewCondition = findViewById(R.id.swipeMenuRecyclerViewCondition);
+        swipeMenuRecyclerViewCondition.setLayoutManager(new LinearLayoutManager(this));
+        swipeMenuRecyclerViewCondition.addItemDecoration(new DefaultItemDecoration(Color.LTGRAY));
+        swipeMenuRecyclerViewCondition.setSwipeMenuCreator(swipeMenuConditionCreator);
+
+        swipeMenuRecyclerViewEffect = findViewById(R.id.swipeMenuRecyclerViewEffect);
+        swipeMenuRecyclerViewEffect.setLayoutManager(new LinearLayoutManager(this));
+        swipeMenuRecyclerViewEffect.addItemDecoration(new DefaultItemDecoration(Color.LTGRAY));
+        swipeMenuRecyclerViewEffect.setSwipeMenuCreator(swipeMenuConditionCreator);
     }
 
     private void setListener(){
         btnAddTimer.setOnClickListener(onClickListener);
         btnAddEffect.setOnClickListener(onClickListener);
 
-        listViewTimer.setOnItemClickListener(eventOnItemClickListener);
-        listViewTimer.setOnItemLongClickListener(eventOnItemLongClickListener);
-        listViewEffect.setOnItemLongClickListener(deviceOnItemLongClickListener);
+        swipeMenuRecyclerViewCondition.setSwipeItemClickListener(conditionSwipeItemClickListener);
+        swipeMenuRecyclerViewCondition.setSwipeMenuItemClickListener(conditionSwipeMenuItemClickListener);
+        swipeMenuRecyclerViewEffect.setSwipeMenuItemClickListener(effectSwipeMenuItemClickListener);
     }
+
+    private SwipeMenuCreator swipeMenuConditionCreator = (swipeLeftMenu, swipeRightMenu, viewType) -> {
+        int width = getResources().getDimensionPixelSize(R.dimen.dp_70);
+
+        // 1. MATCH_PARENT 自适应高度，保持和Item一样高;
+        // 2. 指定具体的高，比如80;
+        // 3. WRAP_CONTENT，自身高度，不推荐;
+        int height = ViewGroup.LayoutParams.MATCH_PARENT;
+        // 添加右侧的，如果不添加，则右侧不会出现菜单。
+        SwipeMenuItem deleteItem = new SwipeMenuItem(EditTimingActivity.this)
+                .setBackgroundColor(Color.RED)
+                .setText("删除")
+                .setTextColor(Color.WHITE)
+                .setWidth(width)
+                .setHeight(height);
+        swipeRightMenu.addMenuItem(deleteItem);// 添加菜单到右侧。
+    };
 
     private String getDefaultName(){
         String name = "定时";
@@ -176,35 +205,31 @@ public class EditTimingActivity extends AppCompatActivity {
     }
 
     private void setListViewCondition(){
-        adapterTimer = new AdapterTimer(this, timing.getListZTimer());
-        listViewTimer.setAdapter(adapterTimer);
+        adapterTimer = new RecyclerAdapterTimer(this, timing.getListZTimer());
+        swipeMenuRecyclerViewCondition.setAdapter(adapterTimer);
     }
 
     private void setListViewEffect(){
-        adapterEffect = new AdapterEffect(this, timing.getListEffect(), false);
-        listViewEffect.setAdapter(adapterEffect);
+        adapterEffect = new RecyclerAdapterEffect(this, timing.getListEffect(), false);
+        swipeMenuRecyclerViewEffect.setAdapter(adapterEffect);
     }
 
-    private View.OnClickListener onClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()){
-                case R.id.btnAddTimer:
-//                    TimerActivity.isAdd = true;
-//                    TimerActivity.handler = handler;
-                    startActivity(new Intent(EditTimingActivity.this, TimerActivity.class));
-                    break;
-                case R.id.btnAddEffect:
-                    showDeviceList();
-                    break;
-            }
+    private View.OnClickListener onClickListener = v -> {
+        switch (v.getId()){
+            case R.id.btnAddTimer:
+                startActivity(new Intent(EditTimingActivity.this, TimerActivity.class));
+                break;
+            case R.id.btnAddEffect:
+                showDeviceList();
+                break;
         }
     };
 
     //条件列表点击事件
-    private AdapterView.OnItemClickListener eventOnItemClickListener = new AdapterView.OnItemClickListener() {
+    private SwipeItemClickListener conditionSwipeItemClickListener = new SwipeItemClickListener() {
         @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        public void onItemClick(View itemView, int position) {
+
             ZTimer condition = timing.getListZTimer().get(position);
             TimerActivity.timer = condition;
             zTimer = condition;
@@ -212,21 +237,32 @@ public class EditTimingActivity extends AppCompatActivity {
         }
     };
 
-    private AdapterView.OnItemLongClickListener eventOnItemLongClickListener = new AdapterView.OnItemLongClickListener() {
+    private SwipeMenuItemClickListener conditionSwipeMenuItemClickListener = new SwipeMenuItemClickListener() {
         @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            zTimer = timing.getListZTimer().get(position);
-            showItemPopup(view, 0);
-            return true;
+        public void onItemClick(SwipeMenuBridge menuBridge) {
+            menuBridge.closeMenu();
+            int adapterPosition = menuBridge.getAdapterPosition(); // RecyclerView的Item的position。
+            zTimer = timing.getListZTimer().get(adapterPosition);
+            timing.removeZTimer(zTimer);
+            zTimer.setDeleted(true);
+            ZTimerDao zTimerDao = ZTimerDao.get(EditTimingActivity.this);
+            zTimerDao.delete(zTimer);
+            adapterTimer.notifyDataSetChanged();
         }
     };
 
-    private AdapterView.OnItemLongClickListener deviceOnItemLongClickListener = new AdapterView.OnItemLongClickListener() {
+    private SwipeMenuItemClickListener effectSwipeMenuItemClickListener = new SwipeMenuItemClickListener() {
         @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            effect = timing.getListEffect().get(position);
-            showItemPopup(view, 1);
-            return true;
+        public void onItemClick(SwipeMenuBridge menuBridge) {
+            menuBridge.closeMenu();
+            int adapterPosition = menuBridge.getAdapterPosition(); // RecyclerView的Item的position。
+            effect = timing.getListEffect().get(adapterPosition);
+            timing.removeEffect(effect);
+            effect.setDeleted(true);
+            EffectDao effectDao = EffectDao.get(EditTimingActivity.this);
+            //effectDao.update(effect,null);
+            effectDao.delete(effect);
+            adapterEffect.notifyDataSetChanged();
         }
     };
 
@@ -261,34 +297,6 @@ public class EditTimingActivity extends AppCompatActivity {
             adapterEffect.notifyDataSetChanged();
         });
         listDialog.show();
-    }
-
-    private void showItemPopup(View view, int which){
-        Button btnDel = new Button(this);
-        btnDel.setText("删除");
-        final PopupWindow popupWindow = new PopupWindow(btnDel, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        popupWindow.setFocusable(true);
-        popupWindow.setOutsideTouchable(true);
-        popupWindow.setBackgroundDrawable(new ColorDrawable(0x00000000));
-        popupWindow.showAsDropDown(view);
-        btnDel.setOnClickListener(v -> {
-            popupWindow.dismiss();
-            if(which == 0){
-                timing.removeZTimer(zTimer);
-                zTimer.setDeleted(true);
-                ZTimerDao zTimerDao = ZTimerDao.get(EditTimingActivity.this);
-                //zTimerDao.update(zTimer, null);
-                zTimerDao.delete(zTimer);
-                adapterTimer.notifyDataSetChanged();
-            }else{
-                timing.removeEffect(effect);
-                effect.setDeleted(true);
-                EffectDao effectDao = EffectDao.get(EditTimingActivity.this);
-                //effectDao.update(effect,null);
-                effectDao.delete(effect);
-                adapterEffect.notifyDataSetChanged();
-            }
-        });
     }
 
     public static class MyHandler extends Handler {

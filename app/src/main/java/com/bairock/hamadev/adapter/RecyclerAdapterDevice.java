@@ -63,38 +63,6 @@ public class RecyclerAdapterDevice extends RecyclerView.Adapter<RecyclerAdapterD
     }
 
     @Override
-    public int getItemViewType(int position) {
-        Device device = listDevice.get(position);
-        int i;
-        if(device instanceof DevHaveChild){
-            //不显示位号菜单
-            i = 0;
-        }else {
-            //显示位号菜单
-            i = 1;
-        }
-        i <<= 1;
-
-        if(device.getParent() != null){
-            //不显示模式菜单
-            i |= 0;
-            i<<=1;
-        }else {
-            //显示模式菜单
-            i |= 1;
-            i<<=1;
-            if (device.getCtrlModel() == CtrlModel.REMOTE) {
-                //设为本地模式为0
-                i |= 0;
-            } else {
-                //设为远程模式为1
-                i |= 1;
-            }
-        }
-        return i;
-    }
-
-    @Override
     public void onBindViewHolder(@NonNull RecyclerAdapterDevice.ViewHolder holder, int position) {
         holder.setData(listDevice.get(position));
     }
@@ -152,7 +120,7 @@ public class RecyclerAdapterDevice extends RecyclerView.Adapter<RecyclerAdapterD
             if(device instanceof DevHaveChild){
                 textCoding.setText(device.getCoding());
             }else{
-                textCoding.setText(device.getCoding() + " : " + device.getAlias());
+                textCoding.setText(String.format("%s : %s", device.getCoding(), device.getAlias()));
             }
         }
 

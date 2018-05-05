@@ -37,6 +37,11 @@ public class DevCollectSettingActivity extends AppCompatActivity {
     private EditText etxtFormula;
     private EditText etxtCalibration;
     private Button btnCalibration;
+    private Button btnSave;
+    private Button btnCancel;
+
+    private String strFour;
+    private String strTwenty;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +53,9 @@ public class DevCollectSettingActivity extends AppCompatActivity {
             actionBar.setHomeButtonEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+        strFour = getResources().getString(R.string.four);
+        strTwenty = getResources().getString(R.string.twenty);
+
         findViews();
         if(null == devCollectSignal){
             finish();
@@ -72,6 +80,71 @@ public class DevCollectSettingActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    private void findViews(){
+        etxtWeiHao = findViewById(R.id.etxtWeiHao);
+        etxtName = findViewById(R.id.etxtName);
+        etxtUnit = findViewById(R.id.etxtUnit);
+        etxtAa = findViewById(R.id.etxtAa);
+        etxtAb = findViewById(R.id.etxtAb);
+        etxta = findViewById(R.id.etxta);
+        etxtb = findViewById(R.id.etxtb);
+        etxtFormula = findViewById(R.id.etxtFormula);
+        etxtCalibration = findViewById(R.id.etxtCalibration);
+        spinnerSignalSource = findViewById(R.id.spinnerSignalSource);
+        btnCalibration = findViewById(R.id.btnCalibration);
+        btnSave = findViewById(R.id.btnSave);
+        btnCancel = findViewById(R.id.btnCancel);
+
+        tabrow_Aa_Ab = findViewById(R.id.tabrow_Aa_Ab);
+        tabrow_a_b = findViewById(R.id.tabrow_a_b);
+    }
+
+    private void setListener(){
+        spinnerSignalSource.setOnItemSelectedListener(onItemSelectedListener);
+        btnCalibration.setOnClickListener(onClickListener);
+        btnSave.setOnClickListener(onClickListener);
+        btnCancel.setOnClickListener(onClickListener);
+    }
+
+    private void init(){
+        etxtWeiHao.setText(devCollectSignal.getAlias());
+        etxtName.setText(devCollectSignal.getName());
+        etxtUnit.setText(collectProperty.getUnitSymbol());
+        etxtAa.setText(String.valueOf(collectProperty.getLeastReferValue()));
+        etxtAb.setText(String.valueOf(collectProperty.getCrestReferValue()));
+        etxta.setText(String.valueOf(collectProperty.getLeastValue()));
+        etxtb.setText(String.valueOf(collectProperty.getCrestValue()));
+        etxtCalibration.setText(String.valueOf(collectProperty.getCalibrationValue()));
+        etxtFormula.setText(collectProperty.getFormula());
+        spinnerSignalSource.setSelection(collectProperty.getCollectSrc().ordinal());
+
+        initSourceLayout(collectProperty.getCollectSrc().ordinal());
+    }
+
+    private void initSourceLayout(int position){
+        switch (position){
+            case 0:
+                tabrow_Aa_Ab.setVisibility(View.VISIBLE);
+                tabrow_a_b.setVisibility(View.GONE);
+                break;
+            case 1:
+                tabrow_Aa_Ab.setVisibility(View.VISIBLE);
+                tabrow_a_b.setVisibility(View.GONE);
+                break;
+            case 2:
+                tabrow_Aa_Ab.setVisibility(View.VISIBLE);
+                tabrow_a_b.setVisibility(View.VISIBLE);
+                break;
+            case 3:
+                tabrow_Aa_Ab.setVisibility(View.GONE);
+                tabrow_a_b.setVisibility(View.GONE);
+                break;
+        }
+    }
+
+    private void save(){
         boolean updateDev = false;
         boolean updatePropety = false;
 
@@ -108,6 +181,13 @@ public class DevCollectSettingActivity extends AppCompatActivity {
         try {
             calibration = Float.parseFloat(etxtCalibration.getText().toString());
         }catch (Exception e){e.printStackTrace();}
+
+        int collectSrc = spinnerSignalSource.getSelectedItemPosition();
+        if(collectProperty.getCollectSrc().ordinal() != spinnerSignalSource.getSelectedItemPosition()){
+            updatePropety = true;
+            collectProperty.setCollectSrc(CollectSignalSource.values()[collectSrc]);
+        }
+
         if(!unit.equals(collectProperty.getUnitSymbol())){
             updatePropety = true;
             collectProperty.setUnitSymbol(unit);
@@ -150,86 +230,14 @@ public class DevCollectSettingActivity extends AppCompatActivity {
         devCollectSignal = null;
     }
 
-    private void findViews(){
-        etxtWeiHao = (EditText)findViewById(R.id.etxtWeiHao);
-        etxtName = (EditText)findViewById(R.id.etxtName);
-        etxtUnit = (EditText)findViewById(R.id.etxtUnit);
-        etxtAa = (EditText)findViewById(R.id.etxtAa);
-        etxtAb = (EditText)findViewById(R.id.etxtAb);
-        etxta = (EditText)findViewById(R.id.etxta);
-        etxtb = (EditText)findViewById(R.id.etxtb);
-        etxtFormula = (EditText)findViewById(R.id.etxtFormula);
-        etxtCalibration = (EditText)findViewById(R.id.etxtCalibration);
-        spinnerSignalSource = (Spinner) findViewById(R.id.spinnerSignalSource);
-        btnCalibration = (Button) findViewById(R.id.btnCalibration);
-
-        tabrow_Aa_Ab = (TableRow)findViewById(R.id.tabrow_Aa_Ab);
-        tabrow_a_b = (TableRow)findViewById(R.id.tabrow_a_b);
-    }
-
-    private void setListener(){
-        spinnerSignalSource.setOnItemSelectedListener(onItemSelectedListener);
-        btnCalibration.setOnClickListener(onClickListener);
-    }
-
-    private void init(){
-        etxtWeiHao.setText(devCollectSignal.getAlias());
-        etxtName.setText(devCollectSignal.getName());
-        etxtUnit.setText(collectProperty.getUnitSymbol());
-        etxtAa.setText(String.valueOf(collectProperty.getLeastReferValue()));
-        etxtAb.setText(String.valueOf(collectProperty.getCrestReferValue()));
-        etxta.setText(String.valueOf(collectProperty.getLeastValue()));
-        etxtb.setText(String.valueOf(collectProperty.getCrestValue()));
-        etxtCalibration.setText(String.valueOf(collectProperty.getCalibrationValue()));
-        etxtFormula.setText(collectProperty.getFormula());
-        spinnerSignalSource.setSelection(collectProperty.getCollectSrc().ordinal());
-
-        initSourceLayout();
-    }
-
-    private void initSourceLayout(){
-        switch (collectProperty.getCollectSrc()){
-            case DIGIT:
-                tabrow_Aa_Ab.setVisibility(View.VISIBLE);
-                tabrow_a_b.setVisibility(View.GONE);
-                break;
-            case ELECTRIC_CURRENT:
-                tabrow_Aa_Ab.setVisibility(View.VISIBLE);
-                tabrow_a_b.setVisibility(View.GONE);
-                break;
-            case VOLTAGE:
-                tabrow_Aa_Ab.setVisibility(View.VISIBLE);
-                tabrow_a_b.setVisibility(View.VISIBLE);
-                break;
-            case SWITCH:
-                tabrow_Aa_Ab.setVisibility(View.GONE);
-                tabrow_a_b.setVisibility(View.GONE);
-                break;
-        }
-    }
-
     private AdapterView.OnItemSelectedListener onItemSelectedListener = new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            switch (position){
-                case 0:
-                    collectProperty.setCollectSrc(CollectSignalSource.DIGIT);
-                    break;
-                case 1:
-                    collectProperty.setCollectSrc(CollectSignalSource.ELECTRIC_CURRENT);
-                    etxta.setText("4");
-                    etxtb.setText("20");
-                    break;
-                case 2:
-                    collectProperty.setCollectSrc(CollectSignalSource.VOLTAGE);
-                    break;
-                case 3:
-                    collectProperty.setCollectSrc(CollectSignalSource.SWITCH);
-                    break;
+            if(position == 1){
+                etxta.setText(strFour);
+                etxtb.setText(strTwenty);
             }
-            CollectPropertyDao collectPropertyDao = CollectPropertyDao.get(DevCollectSettingActivity.this);
-            collectPropertyDao.update(collectProperty);
-            initSourceLayout();
+            initSourceLayout(position);
         }
 
         @Override
@@ -239,17 +247,27 @@ public class DevCollectSettingActivity extends AppCompatActivity {
     };
 
     private View.OnClickListener onClickListener = v -> {
-        String value = etxtCalibration.getText().toString();
-        if(value.isEmpty()){
-            Snackbar.make(btnCalibration, "标定值不可为空!", Snackbar.LENGTH_SHORT).show();
+        switch (v.getId()){
+            case R.id.btnCalibration:
+                String value = etxtCalibration.getText().toString();
+                if(value.isEmpty()){
+                    Snackbar.make(btnCalibration, "标定值不可为空!", Snackbar.LENGTH_SHORT).show();
+                }
+                try{
+                    float fValue = Float.parseFloat(value);
+                    String order = devCollectSignal.createCalibrationOrder(fValue);
+                    DevChannelBridgeHelper.getIns().sendDevOrder(devCollectSignal, order, true);
+                }catch (Exception e){
+                    Snackbar.make(btnCalibration, "标定值包含非法字符!", Snackbar.LENGTH_SHORT).show();
+                }
+                break;
+            case R.id.btnSave:
+                save();
+                finish();
+                break;
+            case R.id.btnCancel:
+                finish();
+                break;
         }
-        try{
-            float fValue = Float.parseFloat(value);
-            String order = devCollectSignal.createCalibrationOrder(fValue);
-            DevChannelBridgeHelper.getIns().sendDevOrder(devCollectSignal, order, true);
-        }catch (Exception e){
-            Snackbar.make(btnCalibration, "标定值包含非法字符!", Snackbar.LENGTH_SHORT).show();
-        }
-
     };
 }

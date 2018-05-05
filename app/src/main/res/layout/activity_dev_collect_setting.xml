@@ -8,8 +8,14 @@
     tools:context="com.bairock.hamadev.settings.DevCollectSettingActivity">
 
     <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -17,7 +23,8 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:minWidth="500dp"
             android:orientation="vertical">
 
             <TableLayout
@@ -112,7 +119,7 @@
                 android:paddingTop="8dp">
 
                 <TableRow
-                    android:id="@+id/tabrow_Aa_Ab"
+                    android:id="@+id/tabrow_symbol"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
@@ -128,14 +135,19 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:ems="3"
-                        android:inputType="textPersonName"
-                        android:text="Name" />
+                        android:inputType="textPersonName" />
+                </TableRow>
+
+                <TableRow
+                    android:id="@+id/tabrow_Aa_Ab"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
 
                     <TextView
                         android:id="@+id/textView12"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Aa:" />
+                        android:text="Aa(环境最小值):" />
 
                     <EditText
                         android:id="@+id/etxtAa"
@@ -149,7 +161,7 @@
                         android:id="@+id/textView11"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Ab:" />
+                        android:text="Ab(环境最大值):" />
 
                     <EditText
                         android:id="@+id/etxtAb"
@@ -169,8 +181,7 @@
                         android:id="@+id/textView14"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_column="2"
-                        android:text="a:" />
+                        android:text="a(信号最小值):" />
 
                     <EditText
                         android:id="@+id/etxta"
@@ -184,7 +195,7 @@
                         android:id="@+id/textView15"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="b:" />
+                        android:text="b(信号最大值):" />
 
                     <EditText
                         android:id="@+id/etxtb"
@@ -215,7 +226,7 @@
                         android:id="@+id/textView16"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="f(A):" />
+                        android:text="@string/formula" />
 
                     <EditText
                         android:id="@+id/etxtFormula"
@@ -223,16 +234,16 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:ems="10"
-                        android:inputType="textPersonName"
-                        android:text="Name" />
+                        android:hint="@string/value_hint"
+                        android:inputType="textPersonName" />
 
                     <TextView
                         android:id="@+id/textView17"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="注:A为测量信号"
+                        android:text="@string/collect_setting_note"
                         android:textAlignment="center"
-                        android:textSize="10sp" />
+                        android:textSize="@dimen/text_small_note" />
                 </TableRow>
 
                 <TableRow
@@ -243,7 +254,7 @@
                         android:id="@+id/textView18"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="标定:" />
+                        android:text="@string/calibration" />
 
                     <EditText
                         android:id="@+id/etxtCalibration"
@@ -251,17 +262,45 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:ems="10"
+                        android:hint="@string/value_hint"
                         android:inputType="numberDecimal" />
 
                     <Button
                         android:id="@+id/btnCalibration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="标定" />
+                        android:text="@string/calibration" />
                 </TableRow>
 
             </TableLayout>
 
+            <LinearLayout
+                style="?android:attr/buttonBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:background="@android:color/background_light"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnSave"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/save"
+                    android:textColor="@color/back" />
+
+                <Button
+                    android:id="@+id/btnCancel"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/cancel"
+                    android:textColor="@color/back" />
+            </LinearLayout>
         </LinearLayout>
 
     </ScrollView>

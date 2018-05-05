@@ -3,6 +3,8 @@
     <color name="break_line">#d9d9d9</color>
     <color name="back_ground">#e9e9e9</color>
     <color name="back">#000000</color>
+    <color name="back_fort">#4a4a4a</color>
+    <color name="cube_back">#554a4a4a</color>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>

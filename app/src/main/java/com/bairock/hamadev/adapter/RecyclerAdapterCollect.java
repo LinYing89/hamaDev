@@ -4,11 +4,11 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bairock.hamadev.R;
@@ -17,17 +17,12 @@ import com.bairock.iot.intelDev.device.Device;
 import com.bairock.iot.intelDev.device.devcollect.CollectProperty;
 import com.bairock.iot.intelDev.device.devcollect.CollectSignalSource;
 import com.bairock.iot.intelDev.device.devcollect.DevCollect;
-import com.bairock.iot.intelDev.device.devcollect.DevCollectSignal;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by 44489 on 2017/9/1.
- */
-
-public class AdapterCollect extends BaseAdapter {
+public class RecyclerAdapterCollect extends RecyclerView.Adapter<RecyclerAdapterCollect.ViewHolder>{
 
     public static final int STATE = 0;
     public static final int VALUE = 1;
@@ -35,63 +30,42 @@ public class AdapterCollect extends BaseAdapter {
     public static final int ALIAS = 3;
     public static final int SRC_NAME = 4;
     public static final int SIMULATOR = 5;
+    public static final int SYMBOL = 6;
 
-    public static MyHandler handler;
+    public static RecyclerAdapterCollect.MyHandler handler;
 
-    private LayoutInflater vi;
-    private List<DevCollect> nameList;
-    private List<ViewHolder> listViewHolder;
+    private LayoutInflater mInflater;
+    private List<DevCollect> listDevice;
+    private List<RecyclerAdapterCollect.ViewHolder> listViewHolder;
 
-    public AdapterCollect(Context context, List<DevCollect> nameList){
-        this.nameList = nameList;
-        vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    public RecyclerAdapterCollect(Context context, List<DevCollect> listDevice) {
+        this.mInflater = LayoutInflater.from(context);
+        this.listDevice = listDevice;
         listViewHolder = new ArrayList<>();
-        handler = new MyHandler(this);
+        handler = new RecyclerAdapterCollect.MyHandler(this);
     }
 
-    public int getCount() {
-        return nameList.size();
+    @Override
+    public int getItemCount() {
+        return listDevice == null ? 0 : listDevice.size();
     }
 
-    public Object getItem(int position) {
-        return nameList.get(position);
+
+    @NonNull
+    @Override
+    public RecyclerAdapterCollect.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        RecyclerAdapterCollect.ViewHolder vh = new RecyclerAdapterCollect.ViewHolder(mInflater.inflate(R.layout.adapter_collect, parent, false));
+        listViewHolder.add(vh);
+        return vh;
     }
 
-    public long getItemId(int position) {
-        return position;
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerAdapterCollect.ViewHolder holder, int position) {
+        holder.setData(listDevice.get(position), position);
     }
 
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder mViewHolder;
-        DevCollect device = nameList.get(position);
+    static class ViewHolder extends RecyclerView.ViewHolder {
 
-        if(convertView == null){
-            mViewHolder = new ViewHolder();
-            listViewHolder.add(mViewHolder);
-            convertView = vi.inflate(R.layout.adapter_collect, parent, false);
-            mViewHolder.textSrcName  = (TextView) convertView.findViewById(R.id.textSrcSignal);
-            mViewHolder.textSimulator  = (TextView) convertView.findViewById(R.id.textSimulator);
-            mViewHolder.textName  = (TextView) convertView.findViewById(R.id.text_name);
-            mViewHolder.textAlias  = (TextView) convertView.findViewById(R.id.text_alias);
-            mViewHolder.textState  = (TextView) convertView.findViewById(R.id.text_value);
-            mViewHolder.textPer  = (TextView) convertView.findViewById(R.id.text_per);
-            mViewHolder.progressValue  = (ProgressBar) convertView.findViewById(R.id.progress_value);
-            mViewHolder.device = nameList.get(position);
-            convertView.setTag(mViewHolder);
-            mViewHolder.rootView = convertView;
-        }else{
-            mViewHolder = (ViewHolder) convertView.getTag();
-        }
-
-        mViewHolder.device = device;
-
-        mViewHolder.init();
-        mViewHolder.refreshValue();
-        mViewHolder.refreshState();
-        return convertView;
-    }
-
-    private static class ViewHolder {
         private DevCollect device;
         private View rootView;
         private TextView textSrcName;
@@ -99,15 +73,37 @@ public class AdapterCollect extends BaseAdapter {
         private TextView textAlias;
         private TextView textName;
         private TextView textState;
-        private TextView textPer;
-        private ProgressBar progressValue;
+        private TextView textSymbol;
 
-        private void init() {
+        public ViewHolder(View itemView) {
+            super(itemView);
+            rootView = itemView;
+            textSrcName  = itemView.findViewById(R.id.textSrcSignal);
+            textSimulator  = itemView.findViewById(R.id.textSimulator);
+            textName  = itemView.findViewById(R.id.text_name);
+            textName.setSelected(true);
+            textAlias  = itemView.findViewById(R.id.text_alias);
+            textAlias.setSelected(true);
+            textState  = itemView.findViewById(R.id.text_value);
+            textSymbol  = itemView.findViewById(R.id.textSymbol);
+        }
+
+        public void setData(DevCollect device, int position) {
+            this.device = device;
+            init(position);
+        }
+
+        private void init(int position) {
             textName.setText(device.getName());
             textAlias.setText(device.getAlias());
-            rootView.setBackgroundColor(Color.TRANSPARENT);
+//            if(position % 2 == 0) {
+//                rootView.setBackgroundColor(Color.TRANSPARENT);
+//            }else{
+//                rootView.setBackgroundColor(HamaApp.HAMA_CONTEXT.getResources().getColor(R.color.back_ground));
+//            }
             refreshSrcName();
             refreshSimulator();
+            refreshSymbol();
         }
 
         private void refreshValue(){
@@ -121,37 +117,9 @@ public class AdapterCollect extends BaseAdapter {
                         textState.setText("关");
                     }
                 }
-                //textState.setText(device.getCollectProperty().getValueWithSymbol());
             }else {
                 textState.setText(device.getCollectProperty().getValueWithSymbol());
             }
-
-//            if(device instanceof DevCollectSignal){
-//                if(device.getCollectProperty().getCollectSrc() != CollectSignalSource.SWITCH){
-//                    progressValue.setVisibility(View.VISIBLE);
-//                    textPer.setText(device.getCollectProperty().getPercentWithSymbol());
-//                    if(null != device.getCollectProperty().getPercent()) {
-//                        int value = device.getCollectProperty().getPercent().intValue();
-//                        progressValue.setProgress(value);
-//                    }else{
-//                        progressValue.setProgress(0);
-//                    }
-//                }else{
-//                    textPer.setText("");
-//                    progressValue.setVisibility(View.GONE);
-//                    if(device.getCollectProperty().getCurrentValue() != null) {
-//                        if (device.getCollectProperty().getCurrentValue() == 1) {
-//                            rootView.setBackgroundColor(HamaApp.stateKaiColorId);
-//                            textPer.setText("开");
-//                        } else {
-//                            rootView.setBackgroundColor(Color.TRANSPARENT);
-//                            textPer.setText("关");
-//                        }
-//                    }
-//                }
-//            }else{
-//                progressValue.setVisibility(View.GONE);
-//            }
         }
 
         private void refreshState(){
@@ -163,13 +131,16 @@ public class AdapterCollect extends BaseAdapter {
                 }
             }
         }
+        private void refreshSymbol(){
+            textSymbol.setText(device.getCollectProperty().getUnitSymbol());
+        }
 
         private void refreshSrcName(){
             textSrcName.setText(getSrcName());
         }
 
         private void refreshSimulator(){
-            textSimulator.setText("  值:" + String.valueOf(device.getCollectProperty().getSimulatorValue()));
+            textSimulator.setText(String.format("  值:%s", String.valueOf(device.getCollectProperty().getSimulatorValue())));
         }
 
         private void refreshName(){
@@ -199,20 +170,27 @@ public class AdapterCollect extends BaseAdapter {
             }
             return srcName;
         }
+
+        private String floatTrans1(float num){
+            if(num % 1.0 == 0){
+                return String.valueOf((int)num);
+            }
+            return String.valueOf(num);
+        }
     }
 
     public static class MyHandler extends Handler {
-        WeakReference<AdapterCollect> mActivity;
+        WeakReference<RecyclerAdapterCollect> mActivity;
 
-        MyHandler(AdapterCollect activity) {
+        MyHandler(RecyclerAdapterCollect activity) {
             mActivity = new WeakReference<>(activity);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            AdapterCollect theActivity = mActivity.get();
+            RecyclerAdapterCollect theActivity = mActivity.get();
             Device dev = (Device)msg.obj;
-            for(AdapterCollect.ViewHolder vh : theActivity.listViewHolder){
+            for(RecyclerAdapterCollect.ViewHolder vh : theActivity.listViewHolder){
                 if(vh.device == dev){
                     switch (msg.what) {
                         case STATE:
@@ -233,18 +211,13 @@ public class AdapterCollect extends BaseAdapter {
                         case SIMULATOR :
                             vh.refreshSimulator();
                             break;
+                        case SYMBOL :
+                            vh.refreshSymbol();
+                            break;
                     }
                     break;
                 }
             }
-
         }
-    }
-
-    public static String floatTrans1(float num){
-        if(num % 1.0 == 0){
-            return String.valueOf((int)num);
-        }
-        return String.valueOf(num);
     }
 }

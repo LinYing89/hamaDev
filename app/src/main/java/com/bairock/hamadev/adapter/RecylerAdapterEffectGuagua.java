@@ -1,20 +1,14 @@
 package com.bairock.hamadev.adapter;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import com.bairock.hamadev.R;
-import com.bairock.hamadev.app.HamaApp;
-import com.bairock.hamadev.database.EffectDao;
-import com.bairock.iot.intelDev.device.DevStateHelper;
 import com.bairock.iot.intelDev.linkage.Effect;
 
 import java.util.List;
@@ -37,7 +31,7 @@ public class RecylerAdapterEffectGuagua extends RecyclerView.Adapter<RecylerAdap
     @NonNull
     @Override
     public RecylerAdapterEffectGuagua.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new RecylerAdapterEffectGuagua.ViewHolder(mInflater.inflate(R.layout.adapter_list_effect, parent, false));
+        return new RecylerAdapterEffectGuagua.ViewHolder(mInflater.inflate(R.layout.adapter_list_effect_guagua, parent, false));
     }
 
     @Override

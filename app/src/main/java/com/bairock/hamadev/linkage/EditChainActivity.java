@@ -18,7 +18,7 @@ import android.widget.EditText;
 
 import com.bairock.hamadev.R;
 import com.bairock.hamadev.adapter.RecyclerAdapterCondition;
-import com.bairock.hamadev.adapter.RecylerAdapterEffect;
+import com.bairock.hamadev.adapter.RecyclerAdapterEffect;
 import com.bairock.hamadev.app.HamaApp;
 import com.bairock.hamadev.app.MainActivity;
 import com.bairock.hamadev.database.EffectDao;
@@ -61,7 +61,7 @@ public class EditChainActivity extends AppCompatActivity {
     private SwipeMenuRecyclerView swipeMenuRecyclerViewEffect;
 
     private RecyclerAdapterCondition adapterCondition;
-    private RecylerAdapterEffect adapterEffect;
+    private RecyclerAdapterEffect adapterEffect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -221,7 +221,7 @@ public class EditChainActivity extends AppCompatActivity {
     }
 
     private void setListViewEffect(){
-        adapterEffect = new RecylerAdapterEffect(this, subChain.getListEffect(), true);
+        adapterEffect = new RecyclerAdapterEffect(this, subChain.getListEffect(), true);
         swipeMenuRecyclerViewEffect.setAdapter(adapterEffect);
     }
 

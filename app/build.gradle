@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 27
@@ -60,4 +61,8 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-core:2.9.0.pr4'
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.0.pr4'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+repositories {
+    mavenCentral()
 }

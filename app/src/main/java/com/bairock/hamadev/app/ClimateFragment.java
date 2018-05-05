@@ -1,27 +1,33 @@
 package com.bairock.hamadev.app;
 
-import android.app.AlertDialog;
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.text.InputType;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.EditText;
-import android.widget.ListView;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 import com.bairock.hamadev.R;
-import com.bairock.hamadev.adapter.AdapterCollect;
-import com.bairock.hamadev.database.CollectPropertyDao;
+import com.bairock.hamadev.adapter.RecyclerAdapterCollect;
+import com.bairock.hamadev.settings.DevCollectSettingActivity;
 import com.bairock.iot.intelDev.device.DevHaveChild;
 import com.bairock.iot.intelDev.device.Device;
-import com.bairock.iot.intelDev.device.devcollect.CollectProperty;
 import com.bairock.iot.intelDev.device.devcollect.DevCollect;
-import com.bairock.iot.intelDev.device.devcollect.Pressure;
+import com.bairock.iot.intelDev.device.devcollect.DevCollectSignal;
 import com.bairock.iot.intelDev.user.DevGroup;
+import com.yanzhenjie.recyclerview.swipe.SwipeItemClickListener;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
+import com.yanzhenjie.recyclerview.swipe.touch.OnItemMoveListener;
+import com.yanzhenjie.recyclerview.swipe.touch.OnItemStateChangedListener;
+import com.yanzhenjie.recyclerview.swipe.widget.DefaultItemDecoration;
 
 import java.lang.ref.WeakReference;
 import java.util.Collections;
@@ -32,12 +38,12 @@ public class ClimateFragment extends Fragment {
 
     public static final int REFRESH_VALUE = 1;
     public static final int REFRESH_DEVICE = 2;
-    public static final int REFRESH_SORT= 3;
+    public static final int REFRESH_SORT = 3;
 
     public static MyHandler handler;
 
-    private ListView listViewPressure;
-    private AdapterCollect adapterCollect;
+    private SwipeMenuRecyclerView swipeMenuRecyclerViewCollector;
+    private RecyclerAdapterCollect adapterCollect;
     private List<DevCollect> listDevCollect;
 
     public ClimateFragment() {
@@ -53,11 +59,15 @@ public class ClimateFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_climate, container, false);
         handler = new MyHandler(this);
-        listViewPressure = (ListView)view.findViewById(R.id.list_pressure);
+        swipeMenuRecyclerViewCollector = view.findViewById(R.id.swipeMenuRecyclerViewCollector);
+        swipeMenuRecyclerViewCollector.setLayoutManager(new GridLayoutManager(this.getContext(), 4));
+        //swipeMenuRecyclerViewCollector.addItemDecoration(new DefaultItemDecoration(Color.LTGRAY));
+        swipeMenuRecyclerViewCollector.setLongPressDragEnabled(true); // 长按拖拽，默认关闭。
+
         setListener();
         setPressueList();
         HamaApp.DEV_GROUP.addOnDeviceCollectionChangedListener(onDeviceCollectionChangedListener);
@@ -69,46 +79,98 @@ public class ClimateFragment extends Fragment {
         super.onDestroyView();
         handler = null;
         HamaApp.DEV_GROUP.removeOnDeviceCollectionChangedListener(onDeviceCollectionChangedListener);
-        for(DevCollect device : listDevCollect){
+        for (DevCollect device : listDevCollect) {
             removeDeviceListener(device);
         }
+        RecyclerAdapterCollect.handler = null;
     }
 
-    private void setPressueList(){
+    private void setListener() {
+        swipeMenuRecyclerViewCollector.setOnItemMoveListener(onItemMoveListener);// 监听拖拽和侧滑删除，更新UI和数据源。
+        swipeMenuRecyclerViewCollector.setOnItemStateChangedListener(mOnItemStateChangedListener); // 监听Item的手指状态，拖拽、侧滑、松开。
+        //swipeMenuRecyclerViewCollector.setSwipeItemClickListener(swipeItemClickListener);
+    }
+
+    private void setPressueList() {
+        if (null != listDevCollect) {
+            for (Device device : listDevCollect) {
+                removeDeviceListener((DevCollect) device);
+            }
+        }
         listDevCollect = HamaApp.DEV_GROUP.findListCollectDev(true);
         Collections.sort(listDevCollect);
-        adapterCollect = new AdapterCollect(this.getContext(), listDevCollect);
-        listViewPressure.setAdapter(adapterCollect);
-        for(DevCollect device : listDevCollect){
+        for (int i = 0; i < listDevCollect.size(); i++) {
+            listDevCollect.get(i).setSortIndex(i);
+        }
+        adapterCollect = new RecyclerAdapterCollect(this.getContext(), listDevCollect);
+        swipeMenuRecyclerViewCollector.setAdapter(adapterCollect);
+        for (DevCollect device : listDevCollect) {
             setDeviceListener(device);
         }
     }
 
-    private void setDeviceListener(DevCollect device){
+    private void setDeviceListener(DevCollect device) {
         device.addOnNameChangedListener(onNameChangedListener);
         device.addOnAliasChangedListener(onAliasChangedListener);
-        //device.getCollectProperty().setOnCurrentValueChanged(onCurrentValueChangedListener);
     }
 
-    private void removeDeviceListener(DevCollect device){
+    private void removeDeviceListener(DevCollect device) {
         device.removeOnNameChangedListener(onNameChangedListener);
         device.removeOnAliasChangedListener(onAliasChangedListener);
         device.getCollectProperty().setOnCurrentValueChanged(null);
     }
 
-    private Device.OnNameChangedListener onNameChangedListener = new Device.OnNameChangedListener() {
+    //条件列表点击事件
+    private SwipeItemClickListener swipeItemClickListener = new SwipeItemClickListener() {
         @Override
-        public void onNameChanged(Device device, String s) {
-            AdapterCollect.handler.obtainMessage(AdapterCollect.NAME, device).sendToTarget();
+        public void onItemClick(View itemView, int position) {
+            DevCollect device = listDevCollect.get(position);
+            DevCollectSettingActivity.devCollectSignal = (DevCollectSignal) device;
+            ClimateFragment.this.startActivity(new Intent(ClimateFragment.this.getContext(), DevCollectSettingActivity.class));
         }
     };
 
-    private Device.OnAliasChangedListener onAliasChangedListener = new Device.OnAliasChangedListener() {
-        @Override
-        public void onAliasChanged(Device device, String s) {
-            AdapterCollect.handler.obtainMessage(AdapterCollect.ALIAS, device).sendToTarget();
+    /**
+     * Item的拖拽/侧滑删除时，手指状态发生变化监听。
+     */
+    private OnItemStateChangedListener mOnItemStateChangedListener = (viewHolder, actionState) -> {
+        if (actionState == OnItemStateChangedListener.ACTION_STATE_DRAG) {
+            // 拖拽的时候背景就透明了，这里我们可以添加一个特殊背景。
+            //viewHolder.itemView.setBackgroundColor(ContextCompat.getColor(Objects.requireNonNull(ElectricalCtrlFragment.this.getContext()), R.color.drag_background));
+            Animation animation = AnimationUtils.loadAnimation(ClimateFragment.this.getContext(), R.anim.drag_zoomout);
+            viewHolder.itemView.startAnimation(animation);
+        } else if (actionState == OnItemStateChangedListener.ACTION_STATE_IDLE) {
+            // 在手松开的时候还原背景。
+            //ViewCompat.setBackground(viewHolder.itemView, ContextCompat.getDrawable(BaseDragActivity.this, R.drawable.select_white));
+            Animation animation = AnimationUtils.loadAnimation(ClimateFragment.this.getContext(), R.anim.drag_zoomin);
+            viewHolder.itemView.startAnimation(animation);
+
         }
     };
+
+    private OnItemMoveListener onItemMoveListener = new OnItemMoveListener() {
+        @Override
+        public boolean onItemMove(RecyclerView.ViewHolder srcHolder, RecyclerView.ViewHolder targetHolder) {
+            // 真实的Position：通过ViewHolder拿到的position都需要减掉HeadView的数量。
+
+            int fromPosition = srcHolder.getAdapterPosition() - swipeMenuRecyclerViewCollector.getHeaderItemCount();
+            int toPosition = targetHolder.getAdapterPosition() - swipeMenuRecyclerViewCollector.getHeaderItemCount();
+            listDevCollect.get(fromPosition).setSortIndex(toPosition);
+            listDevCollect.get(toPosition).setSortIndex(fromPosition);
+            Collections.swap(listDevCollect, fromPosition, toPosition);
+            adapterCollect.notifyItemMoved(fromPosition, toPosition);
+            return true;// 返回true表示处理了并可以换位置，返回false表示你没有处理并不能换位置。
+        }
+
+        @Override
+        public void onItemDismiss(RecyclerView.ViewHolder srcHolder) {
+
+        }
+    };
+
+    private Device.OnNameChangedListener onNameChangedListener = (device, s) -> RecyclerAdapterCollect.handler.obtainMessage(RecyclerAdapterCollect.NAME, device).sendToTarget();
+
+    private Device.OnAliasChangedListener onAliasChangedListener = (device, s) -> RecyclerAdapterCollect.handler.obtainMessage(RecyclerAdapterCollect.ALIAS, device).sendToTarget();
 
     private DevGroup.OnDeviceCollectionChangedListener onDeviceCollectionChangedListener = new DevGroup.OnDeviceCollectionChangedListener() {
         @Override
@@ -124,70 +186,31 @@ public class ClimateFragment extends Fragment {
         }
     };
 
-    private void addDev(Device device){
-        if(device instanceof DevCollect){
-            DevCollect devCollect = (DevCollect)device;
+    private void addDev(Device device) {
+        if (device instanceof DevCollect) {
+            device.setSortIndex(listDevCollect.size());
+            DevCollect devCollect = (DevCollect) device;
             listDevCollect.add(devCollect);
             setDeviceListener(devCollect);
             handler.obtainMessage(REFRESH_VALUE).sendToTarget();
-        }else if(device instanceof DevHaveChild){
-            for(Device device1 : ((DevHaveChild)device).getListDev()){
+        } else if (device instanceof DevHaveChild) {
+            for (Device device1 : ((DevHaveChild) device).getListDev()) {
                 addDev(device1);
             }
         }
     }
-    private void removeDev(Device device){
-        if(device instanceof DevCollect){
-            DevCollect devCollect = (DevCollect)device;
+
+    private void removeDev(Device device) {
+        if (device instanceof DevCollect) {
+            DevCollect devCollect = (DevCollect) device;
             listDevCollect.remove(devCollect);
             removeDeviceListener(devCollect);
             handler.obtainMessage(REFRESH_VALUE).sendToTarget();
-        }else if(device instanceof DevHaveChild){
-            for(Device device1 : ((DevHaveChild)device).getListDev()){
+        } else if (device instanceof DevHaveChild) {
+            for (Device device1 : ((DevHaveChild) device).getListDev()) {
                 removeDev(device1);
             }
         }
-    }
-
-    private void setListener(){
-        listViewPressure.setOnItemLongClickListener(onItemLongClickListener);
-    }
-
-    private AdapterView.OnItemLongClickListener onItemLongClickListener = new AdapterView.OnItemLongClickListener() {
-        @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            showMaxValueDialog(listDevCollect.get(position));
-            return false;
-        }
-    };
-
-    private void showMaxValueDialog(DevCollect devCollect) {
-        if(!(devCollect instanceof Pressure)){
-            return;
-        }
-        final Pressure pressure = (Pressure)devCollect;
-        final EditText edit_newName = new EditText(ClimateFragment.this.getContext());
-        edit_newName.setInputType(InputType.TYPE_CLASS_NUMBER);
-        if(pressure.getCollectProperty().getCrestValue() == null){
-            edit_newName.setText("");
-        }else {
-            edit_newName.setText(String.valueOf(pressure.getCollectProperty().getCrestValue()));
-        }
-        new AlertDialog.Builder(ClimateFragment.this.getContext())
-                .setTitle("输入最大值，单位mm")
-                .setView(edit_newName)
-                .setPositiveButton(MainActivity.strEnsure,
-                        (dialog, which) -> {
-                            String value = edit_newName.getText().toString();
-                            try{
-                                float iValue = Float.parseFloat(value);
-                                pressure.getCollectProperty().setCrestValue(iValue);
-                                CollectPropertyDao collectPropertyDao = CollectPropertyDao.get(ClimateFragment.this.getActivity());
-                                collectPropertyDao.update(pressure.getCollectProperty());
-                            }catch (Exception e){
-                                e.printStackTrace();
-                            }
-                        }).setNegativeButton(MainActivity.strCancel, null).create().show();
     }
 
     public static class MyHandler extends Handler {
@@ -205,10 +228,10 @@ public class ClimateFragment extends Fragment {
                 case REFRESH_VALUE:
                     theActivity.adapterCollect.notifyDataSetChanged();
                     break;
-                case REFRESH_DEVICE :
+                case REFRESH_DEVICE:
                     theActivity.setPressueList();
                     break;
-                case REFRESH_SORT :
+                case REFRESH_SORT:
                     break;
             }
 

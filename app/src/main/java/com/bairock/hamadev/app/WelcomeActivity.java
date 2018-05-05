@@ -19,6 +19,7 @@ import com.bairock.hamadev.communication.MyOnSignalSourceChangedListener;
 import com.bairock.hamadev.communication.MyOnSimulatorChangedListener;
 import com.bairock.hamadev.communication.MyOnSortIndexChangedListener;
 import com.bairock.hamadev.communication.MyOnStateChangedListener;
+import com.bairock.hamadev.communication.MyOnUnitSymbolChangedListener;
 import com.bairock.hamadev.communication.SerialPortHelper;
 import com.bairock.hamadev.database.DevGroupDao;
 import com.bairock.hamadev.database.DeviceDao;
@@ -145,6 +146,7 @@ public class WelcomeActivity extends AppCompatActivity {
             cp.setOnCurrentValueChanged(new MyOnCurrentValueChangedListener());
             cp.setOnSignalSourceChangedListener(new MyOnSignalSourceChangedListener());
             cp.setOnSimulatorChangedListener(new MyOnSimulatorChangedListener());
+            cp.setOnUnitSymbolChangedListener(new MyOnUnitSymbolChangedListener());
         }
     }
 
@@ -267,11 +269,7 @@ public class WelcomeActivity extends AppCompatActivity {
                         SerialPortHelper.getIns().openSerialPort(theActivity);
                         SerialPortHelper.getIns().startReceiveThread();
                     }catch (Exception e) {
-                        theActivity.runOnUiThread(new Runnable() {
-                            public void run() {
-                                Toast.makeText(theActivity, "串口打开失败", Toast.LENGTH_LONG).show();
-                            }
-                        });
+                        theActivity.runOnUiThread(() -> Toast.makeText(theActivity, "串口打开失败", Toast.LENGTH_LONG).show());
                     }
                 }
 

@@ -1,8 +1,8 @@
 package com.bairock.hamadev.communication;
 
-import com.bairock.hamadev.adapter.AdapterCollect;
-import com.bairock.hamadev.adapter.AdapterElectrical;
-import com.bairock.hamadev.adapter.AdapterSearchDev;
+import com.bairock.hamadev.adapter.RecyclerAdapterCollect;
+import com.bairock.hamadev.adapter.RecyclerAdapterDevice;
+import com.bairock.hamadev.adapter.RecyclerAdapterElectrical;
 import com.bairock.hamadev.app.HamaApp;
 import com.bairock.iot.intelDev.communication.RefreshCollectorValueHelper;
 import com.bairock.iot.intelDev.device.DevStateHelper;
@@ -64,12 +64,12 @@ public class MyOnStateChangedListener implements Device.OnStateChangedListener {
     private void refreshUi(Device device){
         synchronized (syno) {
             if (device instanceof IStateDev) {
-                if (null != AdapterElectrical.handler) {
-                    AdapterElectrical.handler.obtainMessage(AdapterElectrical.STATE, device).sendToTarget();
+                if (null != RecyclerAdapterElectrical.handler) {
+                    RecyclerAdapterElectrical.handler.obtainMessage(RecyclerAdapterElectrical.STATE, device).sendToTarget();
                 }
             }else if(device instanceof DevCollect){
-                if (null != AdapterCollect.handler) {
-                    AdapterCollect.handler.obtainMessage(AdapterCollect.STATE, device).sendToTarget();
+                if (null != RecyclerAdapterCollect.handler) {
+                    RecyclerAdapterCollect.handler.obtainMessage(RecyclerAdapterCollect.STATE, device).sendToTarget();
                 }
             }
         }
@@ -77,8 +77,8 @@ public class MyOnStateChangedListener implements Device.OnStateChangedListener {
 
     private void refreshSearchUi(Device device){
         if(!(device instanceof SubDev)){
-            if(null != AdapterSearchDev.handler){
-                AdapterSearchDev.handler.obtainMessage(AdapterSearchDev.STATE, device).sendToTarget();
+            if(null != RecyclerAdapterDevice.handler){
+                RecyclerAdapterDevice.handler.obtainMessage(RecyclerAdapterDevice.STATE, device).sendToTarget();
             }
         }
     }

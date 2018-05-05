@@ -1,6 +1,6 @@
 package com.bairock.hamadev.communication;
 
-import com.bairock.hamadev.adapter.AdapterElectrical;
+import com.bairock.hamadev.adapter.RecyclerAdapterElectrical;
 import com.bairock.iot.intelDev.device.Device;
 import com.bairock.iot.intelDev.device.Gear;
 import com.bairock.iot.intelDev.device.IStateDev;
@@ -20,8 +20,8 @@ public class MyOnGearChangedListener implements Device.OnGearChangedListener{
 
     private void refreshUi(Device device){
         if (device instanceof IStateDev) {
-            if (null != AdapterElectrical.handler) {
-                AdapterElectrical.handler.obtainMessage(AdapterElectrical.AUTO, device).sendToTarget();
+            if (null != RecyclerAdapterElectrical.handler) {
+                RecyclerAdapterElectrical.handler.obtainMessage(RecyclerAdapterElectrical.AUTO, device).sendToTarget();
             }
         }
     }

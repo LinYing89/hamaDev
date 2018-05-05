@@ -28,8 +28,8 @@ import java.util.List;
 public class RecyclerAdapterElectrical extends RecyclerView.Adapter<RecyclerAdapterElectrical.ViewHolder> {
 
     public static final int AUTO = 0;
-    static final int CTRL_MODEL = 1;
-    static final int STATE = 2;
+    public static final int CTRL_MODEL = 1;
+    public static final int STATE = 2;
     public static final int NAME = 3;
     public static final int ALIAS = 4;
 

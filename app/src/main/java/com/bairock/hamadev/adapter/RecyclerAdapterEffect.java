@@ -2,82 +2,68 @@ package com.bairock.hamadev.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import com.bairock.hamadev.R;
+import com.bairock.hamadev.app.HamaApp;
 import com.bairock.hamadev.database.EffectDao;
 import com.bairock.iot.intelDev.device.DevStateHelper;
 import com.bairock.iot.intelDev.linkage.Effect;
 
 import java.util.List;
 
-/**
- *
- * Created by Administrator on 2017/9/7.
- */
+public class RecyclerAdapterEffect extends RecyclerView.Adapter<RecyclerAdapterEffect.ViewHolder> {
 
-public class AdapterEffect extends BaseAdapter {
-
-    private Context context;
+    private LayoutInflater mInflater;
     private List<Effect> listEffect;
-    private LayoutInflater vi;
     private boolean showSwitch;
 
-    public AdapterEffect(Context context, List<Effect> listEffect, boolean showSwitch){
-        this.context = context;
+    public RecyclerAdapterEffect(Context context, List<Effect> listEffect, boolean showSwitch) {
+        this.mInflater = LayoutInflater.from(context);
         this.listEffect = listEffect;
         this.showSwitch = showSwitch;
-        vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
-    public int getCount() {
-        return listEffect.size();
+    public int getItemCount() {
+        return listEffect == null ? 0 : listEffect.size();
+    }
+
+    @NonNull
+    @Override
+    public RecyclerAdapterEffect.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new RecyclerAdapterEffect.ViewHolder(mInflater.inflate(R.layout.adapter_list_effect, parent, false), showSwitch);
     }
 
     @Override
-    public Object getItem(int position) {
-        return listEffect.get(position);
+    public void onBindViewHolder(@NonNull RecyclerAdapterEffect.ViewHolder holder, int position) {
+        holder.setData(listEffect.get(position));
     }
 
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
+    static class ViewHolder extends RecyclerView.ViewHolder {
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder mViewHolder;
-        if(convertView == null){
-            mViewHolder = new ViewHolder(context, showSwitch);
-            convertView = vi.inflate(R.layout.adapter_list_effect, parent, false);
-            mViewHolder.txtDevice = (TextView) convertView.findViewById(R.id.txtDevice);
-            mViewHolder.switchState  = (Switch) convertView.findViewById(R.id.switchState);
-            convertView.setTag(mViewHolder);
-        }else{
-            mViewHolder = (ViewHolder) convertView.getTag();
-        }
-        mViewHolder.effect = listEffect.get(position);
-        mViewHolder.init();
-        return convertView;
-    }
-
-    private static class ViewHolder {
-        private Context context;
         private Effect effect;
         private TextView txtDevice;
         private Switch switchState;
         private boolean showSwitch;
 
-        ViewHolder(Context context, boolean showSwitch){
-            this.context = context;
+        ViewHolder(View itemView, boolean showSwitch){
+            super(itemView);
             this.showSwitch = showSwitch;
+            txtDevice = itemView.findViewById(R.id.txtDevice);
+            switchState  = itemView.findViewById(R.id.switchState);
+        }
+
+        public void setData(Effect effect) {
+            this.effect = effect;
+            init();
         }
 
         private void init(){
@@ -110,7 +96,7 @@ public class AdapterEffect extends BaseAdapter {
                 }else{
                     effect.setDsId(DevStateHelper.DS_GUAN);
                 }
-                EffectDao effectDao = EffectDao.get(context);
+                EffectDao effectDao = EffectDao.get(HamaApp.HAMA_CONTEXT);
                 effectDao.update(effect, null);
             }
         };
