@@ -16,7 +16,6 @@ import android.widget.TextView;
 import com.bairock.hamadev.R;
 import com.bairock.hamadev.app.HamaApp;
 import com.bairock.hamadev.database.DeviceDao;
-import com.bairock.iot.intelDev.device.CtrlModel;
 import com.bairock.iot.intelDev.device.Device;
 import com.bairock.iot.intelDev.device.Gear;
 import com.bairock.iot.intelDev.device.IStateDev;
@@ -28,7 +27,6 @@ import java.util.List;
 public class RecyclerAdapterElectrical extends RecyclerView.Adapter<RecyclerAdapterElectrical.ViewHolder> {
 
     public static final int AUTO = 0;
-    public static final int CTRL_MODEL = 1;
     public static final int STATE = 2;
     public static final int NAME = 3;
     public static final int ALIAS = 4;
@@ -55,7 +53,7 @@ public class RecyclerAdapterElectrical extends RecyclerView.Adapter<RecyclerAdap
     @NonNull
     @Override
     public RecyclerAdapterElectrical.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        RecyclerAdapterElectrical.ViewHolder vh = new RecyclerAdapterElectrical.ViewHolder(mInflater.inflate(R.layout.adapter_electrical, parent, false));
+        RecyclerAdapterElectrical.ViewHolder vh = new RecyclerAdapterElectrical.ViewHolder(mInflater.inflate(R.layout.adapter_electrical_cube, parent, false));
         listViewHolder.add(vh);
         return vh;
     }
@@ -70,7 +68,6 @@ public class RecyclerAdapterElectrical extends RecyclerView.Adapter<RecyclerAdap
         private Device device;
         private TextView textAlias;
         private TextView textName;
-        private TextView textCtrlModel;
         private Button btnOn;
         private Button btnAuto;
         private Button btnOff;
@@ -81,7 +78,6 @@ public class RecyclerAdapterElectrical extends RecyclerView.Adapter<RecyclerAdap
             rootView = itemView;
             textAlias = itemView.findViewById(R.id.text_gate);
             textName = itemView.findViewById(R.id.text_name);
-            textCtrlModel = itemView.findViewById(R.id.text_ctrl_model);
             btnOn = itemView.findViewById(R.id.btn_on);
             btnAuto = itemView.findViewById(R.id.btn_auto);
             btnOff = itemView.findViewById(R.id.btn_off);
@@ -110,7 +106,6 @@ public class RecyclerAdapterElectrical extends RecyclerView.Adapter<RecyclerAdap
 
             refreshAutoState();
             refreshState();
-            refreshDeviceModel();
         }
 
         private void refreshAutoState(){
@@ -150,16 +145,6 @@ public class RecyclerAdapterElectrical extends RecyclerView.Adapter<RecyclerAdap
             }
         }
 
-        private void refreshDeviceModel(){
-            if (device.getCtrlModel() == CtrlModel.REMOTE) {
-                if (!textCtrlModel.getText().equals("远程")) {
-                    textCtrlModel.setText("远程");
-                }
-            } else if (!textCtrlModel.getText().equals("本地")) {
-                textCtrlModel.setText("本地");
-            }
-        }
-
         private void refreshName(){
             textName.setText(device.getName());
         }
@@ -185,9 +170,6 @@ public class RecyclerAdapterElectrical extends RecyclerView.Adapter<RecyclerAdap
                     switch (msg.what) {
                         case AUTO:
                             vh.refreshAutoState();
-                            break;
-                        case CTRL_MODEL :
-                            vh.refreshDeviceModel();
                             break;
                         case STATE:
                             Log.e("AdapterElectrical", "vh " + vh.device.getCoding());

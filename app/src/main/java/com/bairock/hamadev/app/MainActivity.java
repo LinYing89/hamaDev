@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar =  findViewById(R.id.toolbar);
         toolbar.setLogo(R.mipmap.ic_logo_white);
         packageInfo = getAppVersionCode(this);
         //toolbar.setTitle(UserHelper.getUser().getName() + UserHelper.getUser().getPetName());
@@ -99,12 +99,11 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView =  findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         //UserDao userDao = UserDao.get(this);
 
         View headerView = navigationView.getHeaderView(0);
-        TextView textUser = (TextView)headerView.findViewById(R.id.text_user);
         //textUser.setText(UserHelper.getUser().getName());
         strEnsure = "确定";
         strCancel = "取消";
@@ -172,13 +171,9 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
-        if(id == R.id.nav_net){
-            MainActivity.this.startActivity(new Intent(MainActivity.this, EsptouchActivity.class));
-        }else if (id == R.id.nav_search) {
+        if (id == R.id.nav_search) {
             startActivity(new Intent(MainActivity.this, SearchActivity.class));
-        } else if (id == R.id.nav_sort) {
-            startActivity(new Intent(MainActivity.this, SortActivity.class));
-        }else if(id == R.id.nav_set_chain) {
+        } else if(id == R.id.nav_set_chain) {
             startActivity(new Intent(MainActivity.this, LinkageActivity.class));
         }else if(id == R.id.nav_system_set) {
             //startActivity(new Intent(MainActivity.this, DeviceMsgMonitorActivity.class));

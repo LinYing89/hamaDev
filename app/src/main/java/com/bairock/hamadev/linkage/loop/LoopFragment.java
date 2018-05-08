@@ -122,6 +122,7 @@ public class LoopFragment extends Fragment {
             ZLOOP = (ZLoop) HamaApp.DEV_GROUP.getLoopHolder().getListLinkage().get(position);
             EditLoopActivity.ADD = false;
             LoopFragment.this.startActivity(new Intent(LoopFragment.this.getContext(), EditLoopActivity.class));
+
         }
     };
 
@@ -132,7 +133,7 @@ public class LoopFragment extends Fragment {
             int adapterPosition = menuBridge.getAdapterPosition(); // RecyclerView的Item的position。
             Linkage linkage = HamaApp.DEV_GROUP.getLoopHolder().getListLinkage().get(adapterPosition);
 
-            HamaApp.DEV_GROUP.getChainHolder().removeLinkage(linkage);
+            HamaApp.DEV_GROUP.getLoopHolder().removeLinkage(linkage);
             linkage.setDeleted(true);
             LinkageDao linkageDevValueDao = LinkageDao.get(LoopFragment.this.getActivity());
             linkageDevValueDao.delete(linkage);

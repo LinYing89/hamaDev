@@ -1,7 +1,5 @@
 package com.bairock.hamadev.app;
 
-import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -17,17 +15,13 @@ import android.view.animation.AnimationUtils;
 
 import com.bairock.hamadev.R;
 import com.bairock.hamadev.adapter.RecyclerAdapterCollect;
-import com.bairock.hamadev.settings.DevCollectSettingActivity;
 import com.bairock.iot.intelDev.device.DevHaveChild;
 import com.bairock.iot.intelDev.device.Device;
 import com.bairock.iot.intelDev.device.devcollect.DevCollect;
-import com.bairock.iot.intelDev.device.devcollect.DevCollectSignal;
 import com.bairock.iot.intelDev.user.DevGroup;
-import com.yanzhenjie.recyclerview.swipe.SwipeItemClickListener;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
 import com.yanzhenjie.recyclerview.swipe.touch.OnItemMoveListener;
 import com.yanzhenjie.recyclerview.swipe.touch.OnItemStateChangedListener;
-import com.yanzhenjie.recyclerview.swipe.widget.DefaultItemDecoration;
 
 import java.lang.ref.WeakReference;
 import java.util.Collections;
@@ -119,16 +113,6 @@ public class ClimateFragment extends Fragment {
         device.removeOnAliasChangedListener(onAliasChangedListener);
         device.getCollectProperty().setOnCurrentValueChanged(null);
     }
-
-    //条件列表点击事件
-    private SwipeItemClickListener swipeItemClickListener = new SwipeItemClickListener() {
-        @Override
-        public void onItemClick(View itemView, int position) {
-            DevCollect device = listDevCollect.get(position);
-            DevCollectSettingActivity.devCollectSignal = (DevCollectSignal) device;
-            ClimateFragment.this.startActivity(new Intent(ClimateFragment.this.getContext(), DevCollectSettingActivity.class));
-        }
-    };
 
     /**
      * Item的拖拽/侧滑删除时，手指状态发生变化监听。

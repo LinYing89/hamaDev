@@ -43,9 +43,9 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
 	public CharSequence getPageTitle(int position) {
 		switch (position) {
 			case 0:
-				return "电器列表";
+				return "电器";
 			case 1:
-				return "仪表列表";
+				return "仪表";
 		}
 		return null;
 	}

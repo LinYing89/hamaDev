@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import android.view.animation.AnimationUtils;
 
 import com.bairock.hamadev.R;
 import com.bairock.hamadev.adapter.RecyclerAdapterElectrical;
+import com.bairock.hamadev.adapter.RecyclerAdapterElectrical2;
 import com.bairock.iot.intelDev.device.DevHaveChild;
 import com.bairock.iot.intelDev.device.Device;
 import com.bairock.iot.intelDev.device.IStateDev;
@@ -39,7 +41,7 @@ public class ElectricalCtrlFragment extends Fragment {
 
     public static MyHandler handler;
 
-    private RecyclerAdapterElectrical adapterElectrical;
+    private RecyclerAdapterElectrical2 adapterElectrical;
     private SwipeMenuRecyclerView swipeMenuRecyclerViewElectrical;
 
     private List<Device> listIStateDev = new ArrayList<>();
@@ -62,8 +64,9 @@ public class ElectricalCtrlFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_electrical_ctrl, container, false);
         handler = new MyHandler(this);
         swipeMenuRecyclerViewElectrical = view.findViewById(R.id.swipeMenuRecyclerViewElectrical);
-        swipeMenuRecyclerViewElectrical.setLayoutManager(new LinearLayoutManager(this.getContext()));
-        swipeMenuRecyclerViewElectrical.addItemDecoration(new DefaultItemDecoration(Color.LTGRAY));
+//        swipeMenuRecyclerViewElectrical.setLayoutManager(new LinearLayoutManager(this.getContext()));
+        swipeMenuRecyclerViewElectrical.setLayoutManager(new GridLayoutManager(this.getContext(), 4));
+//        swipeMenuRecyclerViewElectrical.addItemDecoration(new DefaultItemDecoration(Color.LTGRAY));
         swipeMenuRecyclerViewElectrical.setLongPressDragEnabled(true); // 长按拖拽，默认关闭。
         swipeMenuRecyclerViewElectrical.setOnItemMoveListener(onItemMoveListener);// 监听拖拽和侧滑删除，更新UI和数据源。
         swipeMenuRecyclerViewElectrical.setOnItemStateChangedListener(mOnItemStateChangedListener); // 监听Item的手指状态，拖拽、侧滑、松开。
@@ -96,7 +99,7 @@ public class ElectricalCtrlFragment extends Fragment {
             for(int i = 0; i < listIStateDev.size(); i++){
                 listIStateDev.get(i).setSortIndex(i);
             }
-            adapterElectrical = new RecyclerAdapterElectrical(this.getContext(), listIStateDev);
+            adapterElectrical = new RecyclerAdapterElectrical2(this.getContext(), listIStateDev);
             swipeMenuRecyclerViewElectrical.setAdapter(adapterElectrical);
             for(Device device : listIStateDev){
                 setDeviceListener(device);
@@ -139,9 +142,21 @@ public class ElectricalCtrlFragment extends Fragment {
 
             int fromPosition = srcHolder.getAdapterPosition() - swipeMenuRecyclerViewElectrical.getHeaderItemCount();
             int toPosition = targetHolder.getAdapterPosition() - swipeMenuRecyclerViewElectrical.getHeaderItemCount();
-            listIStateDev.get(fromPosition).setSortIndex(toPosition);
-            listIStateDev.get(toPosition).setSortIndex(fromPosition);
-            Collections.swap(listIStateDev, fromPosition, toPosition);
+
+            if (fromPosition < toPosition) {
+                for (int i = fromPosition; i < toPosition; i++) {
+                    listIStateDev.get(i).setSortIndex(i+1);
+                    listIStateDev.get(i + 1).setSortIndex(i);
+                    Collections.swap(listIStateDev, i, i + 1);
+                }
+            }else {
+                for (int i = fromPosition; i > toPosition; i--) {
+                    listIStateDev.get(i).setSortIndex(i-1);
+                    listIStateDev.get(i - 1).setSortIndex(i);
+                    Collections.swap(listIStateDev, i, i - 1);
+                }
+            }
+
             adapterElectrical.notifyItemMoved(fromPosition, toPosition);
             return true;// 返回true表示处理了并可以换位置，返回false表示你没有处理并不能换位置。
         }

@@ -218,13 +218,7 @@ public class PadClientHandler extends ChannelInboundHandlerAdapter {
 
     private void queueDevice(Device device){
         if(device.isNormal()){
-            //发送当前状态，不需要询问设备实时状态，因为询问之后如果设备状态没有改变就不会触发事件，也就不会向服务器发送信息
-            if(device instanceof DevSwitch){
-                DevSwitch ds = (DevSwitch) device;
-                PadClient.getIns().send(ds.createStateOrder());
-            }else if(device instanceof Pressure){
-                PadClient.getIns().send(((Pressure)device).createPrecentOrder());
-            }
+            HamaApp.sendOrder(device, device.createInitOrder(), true);
         }else{
             //发送异常信息
             PadClient.getIns().send(device.createAbnormalOrder());

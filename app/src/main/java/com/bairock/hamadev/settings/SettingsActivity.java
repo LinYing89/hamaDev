@@ -22,6 +22,7 @@ public class SettingsActivity extends AppCompatActivity {
         findViewById(R.id.tvServer).setOnClickListener(onClickListener);
         findViewById(R.id.tvAbout).setOnClickListener(onClickListener);
         findViewById(R.id.tvSerialSet).setOnClickListener(onClickListener);
+        findViewById(R.id.tvNetSet).setOnClickListener(onClickListener);
     }
 
     @Override
@@ -38,6 +39,9 @@ public class SettingsActivity extends AppCompatActivity {
         switch (v.getId()){
             case R.id.tvServer:
                 startActivity(new Intent(SettingsActivity.this, ServerSetActivity.class));
+                break;
+            case R.id.tvNetSet:
+                startActivity(new Intent(SettingsActivity.this, EsptouchActivity.class));
                 break;
             case R.id.tvSerialSet:
                 startActivity(new Intent(SettingsActivity.this, SerialSetActivity.class));

@@ -63,14 +63,5 @@
             android:text="关"
             android:textAppearance="?android:attr/textAppearanceListItem" />
 
-        <TextView
-            android:id="@+id/text_ctrl_model"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:focusable="false"
-            android:gravity="center_vertical"
-            android:text=""
-            android:textAppearance="?android:attr/textAppearanceListItemSmall" />
     </LinearLayout>
 </LinearLayout>

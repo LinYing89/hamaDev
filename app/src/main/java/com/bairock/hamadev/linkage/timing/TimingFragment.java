@@ -133,7 +133,7 @@ public class TimingFragment extends Fragment {
             int adapterPosition = menuBridge.getAdapterPosition(); // RecyclerView的Item的position。
             Linkage linkage = HamaApp.DEV_GROUP.getTimingHolder().getListLinkage().get(adapterPosition);
 
-            HamaApp.DEV_GROUP.getChainHolder().removeLinkage(linkage);
+            HamaApp.DEV_GROUP.getTimingHolder().removeLinkage(linkage);
             linkage.setDeleted(true);
             LinkageDao linkageDevValueDao = LinkageDao.get(TimingFragment.this.getActivity());
             linkageDevValueDao.delete(linkage);

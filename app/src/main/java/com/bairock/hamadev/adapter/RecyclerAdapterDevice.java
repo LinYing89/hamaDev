@@ -28,7 +28,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecyclerAdapterDevice extends RecyclerView.Adapter<RecyclerAdapterDevice.ViewHolder>{
+public class RecyclerAdapterDevice extends RecyclerView.Adapter<RecyclerAdapterDevice.ViewHolder> {
 
     public static final int CTRL_MODEL = 1;
     public static final int STATE = 2;
@@ -53,6 +53,37 @@ public class RecyclerAdapterDevice extends RecyclerView.Adapter<RecyclerAdapterD
         return listDevice == null ? 0 : listDevice.size();
     }
 
+    @Override
+
+    public int getItemViewType(int position) {
+        Device device = listDevice.get(position);
+        int i;
+        if (device instanceof DevHaveChild) {
+            //不显示位号菜单
+            i = 0;
+        } else {
+            //显示位号菜单
+            i = 1;
+        }
+        i <<= 1;
+        if (device.getParent() != null) {
+            //不显示模式菜单
+            i |= 0;
+            i <<= 1;
+        } else {
+            //显示模式菜单
+            i |= 1;
+            i <<= 1;
+            if (device.getCtrlModel() == CtrlModel.REMOTE) {
+                //设为本地模式为0
+                i |= 0;
+            } else {
+                //设为远程模式为1
+                i |= 1;
+            }
+        }
+        return i;
+    }
 
     @NonNull
     @Override
@@ -90,7 +121,7 @@ public class RecyclerAdapterDevice extends RecyclerView.Adapter<RecyclerAdapterD
             init();
         }
 
-        private void init(){
+        private void init() {
             refreshName();
             refreshAlias();
             refreshState();
@@ -100,42 +131,42 @@ public class RecyclerAdapterDevice extends RecyclerView.Adapter<RecyclerAdapterD
                 device.setVisibility(isChecked);
                 DeviceDao deviceDao = DeviceDao.get(HamaApp.HAMA_CONTEXT);
                 deviceDao.update(device);
-                if(device instanceof IStateDev){
-                    if(null != ElectricalCtrlFragment.handler) {
+                if (device instanceof IStateDev) {
+                    if (null != ElectricalCtrlFragment.handler) {
                         ElectricalCtrlFragment.handler.obtainMessage(ElectricalCtrlFragment.REFRESH_ELE).sendToTarget();
                     }
-                }else if(device instanceof DevCollect || device instanceof DevCollectSignalContainer){
-                    if(null != ClimateFragment.handler) {
+                } else if (device instanceof DevCollect || device instanceof DevCollectSignalContainer) {
+                    if (null != ClimateFragment.handler) {
                         ClimateFragment.handler.obtainMessage(ClimateFragment.REFRESH_DEVICE).sendToTarget();
                     }
                 }
             });
         }
 
-        private void refreshName(){
+        private void refreshName() {
             textName.setText(device.getName());
         }
 
-        private void refreshAlias(){
-            if(device instanceof DevHaveChild){
+        private void refreshAlias() {
+            if (device instanceof DevHaveChild) {
                 textCoding.setText(device.getCoding());
-            }else{
+            } else {
                 textCoding.setText(String.format("%s : %s", device.getCoding(), device.getAlias()));
             }
         }
 
-        private void refreshState(){
-            if(device.isNormal()) {
+        private void refreshState() {
+            if (device.isNormal()) {
                 redGreen.setBackgroundResource(R.mipmap.normal_green);
-            }else {
+            } else {
                 redGreen.setBackgroundResource(R.mipmap.abnormal_red);
             }
         }
 
-        private void refreshCtrlModel(){
-            if(device.getCtrlModel() != CtrlModel.REMOTE){
+        private void refreshCtrlModel() {
+            if (device.getCtrlModel() != CtrlModel.REMOTE) {
                 textCtrlModel.setText("本地");
-            }else {
+            } else {
                 textCtrlModel.setText("远程");
             }
         }
@@ -151,11 +182,11 @@ public class RecyclerAdapterDevice extends RecyclerView.Adapter<RecyclerAdapterD
         @Override
         public void handleMessage(Message msg) {
             RecyclerAdapterDevice theActivity = mActivity.get();
-            Device dev = (Device)msg.obj;
-            for(RecyclerAdapterDevice.ViewHolder vh : theActivity.listViewHolder){
-                if(vh.device == dev){
+            Device dev = (Device) msg.obj;
+            for (RecyclerAdapterDevice.ViewHolder vh : theActivity.listViewHolder) {
+                if (vh.device == dev) {
                     switch (msg.what) {
-                        case CTRL_MODEL :
+                        case CTRL_MODEL:
                             vh.refreshCtrlModel();
                             break;
                         case STATE:

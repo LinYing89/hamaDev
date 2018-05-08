@@ -10,6 +10,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.bairock.hamadev.R;
+import com.bairock.hamadev.app.ClimateFragment;
 import com.bairock.hamadev.app.ElectricalCtrlFragment;
 import com.bairock.hamadev.app.HamaApp;
 import com.bairock.hamadev.database.DeviceDao;
@@ -75,6 +76,9 @@ public class RecyclerAdapterChildDevice extends RecyclerView.Adapter<RecyclerAda
                 deviceDao.update(device);
                 if(null != ElectricalCtrlFragment.handler){
                     ElectricalCtrlFragment.handler.obtainMessage(ElectricalCtrlFragment.REFRESH_ELE).sendToTarget();
+                }
+                if(null != ClimateFragment.handler){
+                    ClimateFragment.handler.obtainMessage(ClimateFragment.REFRESH_DEVICE).sendToTarget();
                 }
             });
         }

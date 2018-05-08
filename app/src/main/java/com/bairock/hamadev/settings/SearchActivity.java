@@ -162,7 +162,7 @@ public class SearchActivity extends AppCompatActivity {
         if(viewType >> 2 == 1){
             //显示位号菜单
             SwipeMenuItem aliasItem = new SwipeMenuItem(this)
-                    .setBackgroundColor(getResources().getColor(R.color.orange))
+                    .setBackgroundColor(getResources().getColor(R.color.green_normal))
                     .setText("位号")
                     .setTextColor(Color.WHITE)
                     .setWidth(width)
@@ -190,7 +190,7 @@ public class SearchActivity extends AppCompatActivity {
         }
 
         SwipeMenuItem renameItem = new SwipeMenuItem(this)
-                .setBackgroundColor(getResources().getColor(R.color.green_normal))
+                .setBackgroundColor(getResources().getColor(R.color.orange))
                 .setText("重命名")
                 .setTextColor(Color.WHITE)
                 .setWidth(width + 10)
@@ -451,6 +451,9 @@ public class SearchActivity extends AppCompatActivity {
                             deleteDevice(device);
                         }
                     }
+                    break;
+                case 3:
+                    deleteDevice(device);
                     break;
             }
         }

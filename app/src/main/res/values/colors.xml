@@ -9,11 +9,16 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
-    <color name="abnormal">#FFE9967A</color>FFE9967A
+    <color name="abnormal">#FFE9967A</color>
     <color name="state_kai">#b4eeb4</color>
+    <color name="state_kai2">#B0E2FF</color>
 
     <color name="red_normal">#FF0000</color>
     <color name="green_normal">#37C000</color>
+    <color name="yellow_switch_on">#EEC900</color>
+    <color name="yellow_switch_on_stroke">#CD9B1D</color>
+    <color name="yellow_switch_off">#ADADAD</color>
+    <color name="yellow_switch_off_stroke">#8B8682</color>
     <color name="orange">#EE9A00</color>
     <color name="menu_blue">#4F94CD</color>
     <color name="drag_background">#884F94CD</color>

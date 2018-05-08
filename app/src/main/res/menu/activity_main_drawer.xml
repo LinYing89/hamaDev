@@ -3,45 +3,32 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_net"
-            android:icon="@drawable/ic_zoom_in_black_24dp"
-            android:title="@string/action_net"/>
-        <item
             android:id="@+id/nav_search"
             android:icon="@drawable/ic_zoom_in_black_24dp"
-            android:title="@string/action_search"/>
-        <item
-            android:id="@+id/nav_sort"
-            android:icon="@drawable/ic_clear_all_black_24dp"
-            android:title="@string/action_sort"/>
+            android:title="@string/action_search" />
         <item
             android:id="@+id/nav_set_chain"
             android:icon="@drawable/ic_timeline_black_24dp"
-            android:title="@string/action_set_chain"/>
+            android:title="@string/action_set_chain" />
         <item
             android:id="@+id/nav_system_set"
             android:icon="@drawable/ic_settings_black_24dp"
-            android:title="@string/action_set"/>
-
-        <item android:title="用户">
-            <menu>
-                <item
-                    android:id="@+id/nav_upload"
-                    android:icon="@drawable/ic_file_upload_black_24dp"
-                    android:title="@string/action_upload"/>
-                <item
-                    android:id="@+id/nav_download"
-                    android:icon="@drawable/ic_file_download_black_24dp"
-                    android:title="@string/action_download"/>
-                <item
-                    android:id="@+id/nav_exit"
-                    android:icon="@drawable/ic_highlight_off_black_24dp"
-                    android:title="@string/action_exit"/>
-                <item
-                    android:id="@+id/nav_log"
-                    android:title="测试"/>
-            </menu>
-        </item>
+            android:title="@string/action_set" />
+        <item
+            android:id="@+id/nav_upload"
+            android:icon="@drawable/ic_file_upload_black_24dp"
+            android:title="@string/action_upload" />
+        <item
+            android:id="@+id/nav_download"
+            android:icon="@drawable/ic_file_download_black_24dp"
+            android:title="@string/action_download" />
+        <item
+            android:id="@+id/nav_exit"
+            android:icon="@drawable/ic_highlight_off_black_24dp"
+            android:title="@string/action_exit" />
+        <item
+            android:id="@+id/nav_log"
+            android:title="测试" />
     </group>
 
 </menu>

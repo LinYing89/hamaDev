@@ -30,7 +30,19 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/break_line" />
+        <TextView
+            android:id="@+id/tvNetSet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:minHeight="?android:attr/listPreferredItemHeightSmall"
+            android:text="网络设置"
+            android:textAppearance="@android:style/TextAppearance.Widget.TextView" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/break_line" />
         <TextView
             android:id="@+id/tvSerialSet"
             android:layout_width="match_parent"

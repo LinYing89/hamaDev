@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TableRow;
+import android.widget.TextView;
 
 import com.bairock.hamadev.R;
 import com.bairock.hamadev.database.CollectPropertyDao;
@@ -24,6 +25,7 @@ public class DevCollectSettingActivity extends AppCompatActivity {
     public static DevCollectSignal devCollectSignal;
     private CollectProperty collectProperty;
 
+    private TextView txtCoding;
     private EditText etxtWeiHao;
     private EditText etxtName;
     private Spinner spinnerSignalSource;
@@ -83,6 +85,7 @@ public class DevCollectSettingActivity extends AppCompatActivity {
     }
 
     private void findViews(){
+        txtCoding = findViewById(R.id.txtCoding);
         etxtWeiHao = findViewById(R.id.etxtWeiHao);
         etxtName = findViewById(R.id.etxtName);
         etxtUnit = findViewById(R.id.etxtUnit);
@@ -109,6 +112,7 @@ public class DevCollectSettingActivity extends AppCompatActivity {
     }
 
     private void init(){
+        txtCoding.setText(devCollectSignal.getLongCoding());
         etxtWeiHao.setText(devCollectSignal.getAlias());
         etxtName.setText(devCollectSignal.getName());
         etxtUnit.setText(collectProperty.getUnitSymbol());

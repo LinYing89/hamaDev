@@ -56,13 +56,18 @@ public class ChainFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chain, container, false);
-        checkBoxEnable = view.findViewById(R.id.cbEnable);
-        btnAdd = view.findViewById(R.id.btnAdd);
+        //checkBoxEnable = view.findViewById(R.id.cbEnable);
+        //btnAdd = view.findViewById(R.id.btnAdd);
         swipeMenuRecyclerViewChain = view.findViewById(R.id.swipeMenuRecyclerViewChain);
         swipeMenuRecyclerViewChain.setLayoutManager(new LinearLayoutManager(this.getContext()));
         swipeMenuRecyclerViewChain.addItemDecoration(new DefaultItemDecoration(Color.LTGRAY));
         swipeMenuRecyclerViewChain.setSwipeMenuCreator(swipeMenuConditionCreator);
 
+        View headerView = getLayoutInflater().inflate(R.layout.linkage_list_header, swipeMenuRecyclerViewChain, false);
+        swipeMenuRecyclerViewChain.addHeaderView(headerView);
+
+        checkBoxEnable = headerView.findViewById(R.id.cbEnable);
+        btnAdd = headerView.findViewById(R.id.btnAdd);
         checkBoxEnable.setChecked(HamaApp.DEV_GROUP.getChainHolder().isEnable());
         setListener();
         setListChain();

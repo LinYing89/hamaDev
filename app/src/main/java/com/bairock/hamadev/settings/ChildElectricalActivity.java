@@ -23,10 +23,7 @@ import com.bairock.iot.intelDev.device.DevHaveChild;
 import com.bairock.iot.intelDev.device.Device;
 import com.bairock.iot.intelDev.device.devcollect.DevCollect;
 import com.bairock.iot.intelDev.device.devcollect.DevCollectSignal;
-import com.bairock.iot.intelDev.device.devcollect.DevCollectSignalContainer;
-import com.bairock.iot.intelDev.device.devswitch.DevSwitch;
 import com.bairock.iot.intelDev.user.ErrorCodes;
-import com.bairock.iot.intelDev.user.IntelDevHelper;
 import com.yanzhenjie.recyclerview.swipe.SwipeItemClickListener;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuBridge;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuCreator;
@@ -99,14 +96,14 @@ public class ChildElectricalActivity extends AppCompatActivity {
         int height = ViewGroup.LayoutParams.MATCH_PARENT;
         // 添加右侧的，如果不添加，则右侧不会出现菜单。
         SwipeMenuItem renameItem = new SwipeMenuItem(this)
-                .setBackgroundColor(getResources().getColor(R.color.green_normal))
+                .setBackgroundColor(getResources().getColor(R.color.orange))
                 .setText("重命名")
                 .setTextColor(Color.WHITE)
-                .setWidth(width)
+                .setWidth(width + 10)
                 .setHeight(height);
         swipeRightMenu.addMenuItem(renameItem);// 添加菜单到右侧。
         SwipeMenuItem aliasItem = new SwipeMenuItem(this)
-                .setBackgroundColor(getResources().getColor(R.color.orange))
+                .setBackgroundColor(getResources().getColor(R.color.green_normal))
                 .setText("位号")
                 .setTextColor(Color.WHITE)
                 .setWidth(width)

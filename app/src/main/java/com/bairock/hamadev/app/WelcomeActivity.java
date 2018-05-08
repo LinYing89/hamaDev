@@ -298,9 +298,9 @@ public class WelcomeActivity extends AppCompatActivity {
                 GuaguaHelper.getIns().startCheckGuaguaThread();
                 GuaguaHelper.getIns().setOnOrderSendListener((guagua, s, ctrlModel) -> HamaApp.sendOrder(guagua.findSuperParent(), s, true));
 //                HamaApp.SERVER_IP = "192.168.1.111";
-                Thread.sleep(2000);
+//                Thread.sleep(2000);
                 return true;
-            }catch (InterruptedException e){
+            }catch (Exception e){
                 e.printStackTrace();
                 return false;
             }

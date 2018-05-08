@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="95dp"
+    android:layout_margin="3dp"
+    app:cardCornerRadius="6dp"
+    app:cardElevation="2dp"
+    app:contentPadding="3dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/textAlias"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            tools:text="位号" />
+
+        <TextView
+            android:id="@+id/textName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:ellipsize="marquee"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:text="名称" />
+
+        <Button
+            android:id="@+id/btnState"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_above="@id/textName"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="3dp"
+            android:background="@drawable/sharp_btn_switch_off"
+            android:text="状态"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/llBtnSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/textName"
+            android:layout_centerHorizontal="true"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btnOn"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_margin="2dp"
+                android:background="@drawable/sharp_btn_switch_background"
+                android:text="开" />
+
+            <Button
+                android:id="@+id/btnAuto"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_margin="2dp"
+                android:background="@drawable/sharp_btn_switch_auto_background"
+                android:text="A"/>
+
+            <Button
+                android:id="@+id/btnOff"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_margin="2dp"
+                android:background="@drawable/sharp_btn_switch_background"
+                android:text="关" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="40dp"
+            android:layout_height="30dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:background="@android:color/transparent" />
+
+    </RelativeLayout>
+</android.support.v7.widget.CardView>
