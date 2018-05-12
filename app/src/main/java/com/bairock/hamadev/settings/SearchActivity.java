@@ -120,8 +120,6 @@ public class SearchActivity extends AppCompatActivity {
                         espTouchAddDevice.startConfig();
                     }
                 }
-//                showProgressDialog(getString(R.string.title_activity_search));
-//                SearchDeviceHelper.getIns().startSearchDevThread(HamaApp.DEV_GROUP.getListDevice());
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -132,9 +130,6 @@ public class SearchActivity extends AppCompatActivity {
         super.onDestroy();
         HamaApp.DEV_GROUP.removeOnDeviceCollectionChangedListener(onDeviceCollectionChangedListener);
         RecyclerAdapterDevice.handler = null;
-        for(Device device : listShowDevices){
-            removeDeviceListener(device);
-        }
         adapterEleHolder = null;
         tSendModel = null;
     }
@@ -206,22 +201,8 @@ public class SearchActivity extends AppCompatActivity {
         swipeRightMenu.addMenuItem(deleteItem);
     };
 
-    /** set device list adapter */
-//    public void setDeviceList() {
-//        listSearchDev = getSearchedDev();
-//        adapterEleHolder = new AdapterSearchDev(this, listSearchDev);
-//        listviewDevice.setAdapter(adapterEleHolder);
-//    }
     public void setDeviceList(List<Device> list) {
-        if(null != listShowDevices) {
-            for (Device device : listShowDevices) {
-                removeDeviceListener(device);
-            }
-        }
         listShowDevices = list;
-        for(Device device : list){
-            setDeviceListener(device);
-        }
         adapterEleHolder = new RecyclerAdapterDevice(this, list);
         swipeMenuRecyclerViewDevice.setAdapter(adapterEleHolder);
     }
@@ -252,42 +233,9 @@ public class SearchActivity extends AppCompatActivity {
         }
     }
 
-    private void setDeviceListener(Device device){
-        device.addOnNameChangedListener(onNameChangedListener);
-        device.addOnAliasChangedListener(onAliasChangedListener);
-    }
-
-    private void removeDeviceListener(Device device){
-        device.removeOnNameChangedListener(onNameChangedListener);
-        device.removeOnAliasChangedListener(onAliasChangedListener);
-    }
-
-    private Device.OnNameChangedListener onNameChangedListener = (device, s) -> {
-        if(null != RecyclerAdapterDevice.handler){
-            RecyclerAdapterDevice.handler.obtainMessage(RecyclerAdapterDevice.NAME, device).sendToTarget();
-        }
-    };
-
-    private Device.OnAliasChangedListener onAliasChangedListener = (device, s) -> {
-        if(null != RecyclerAdapterDevice.handler){
-            RecyclerAdapterDevice.handler.obtainMessage(RecyclerAdapterDevice.ALIAS, device).sendToTarget();
-        }
-    };
-
     private DevGroup.OnDeviceCollectionChangedListener onDeviceCollectionChangedListener = new DevGroup.OnDeviceCollectionChangedListener() {
         @Override
         public void onAdded(Device device) {
-            //listSearchDev.add(device);
-            setDeviceListener(device);
-            //device.setOnStateChanged(new MyOnStateChangedListener());
-            if(device instanceof Coordinator){
-                Coordinator devCollect = (Coordinator)device;
-//                for(Device device1 : devCollect.getListDev()){
-//                    listSearchDev.add(device1);
-//                    //device.setOnStateChanged(new MyOnStateChangedListener());
-//                }
-                setDeviceListener(devCollect);
-            }
             handler.obtainMessage(handler.RELOAD_LIST).sendToTarget();
         }
 
@@ -508,33 +456,6 @@ public class SearchActivity extends AppCompatActivity {
                     break;
                 case DEV_ADD_CHILD:
                     theActivity.childDevAdding = false;
-
-//                    Log.e("SearchAct", msg.obj + "");
-//                    Device device = (Device) msg.obj;
-//                    if(theActivity.childDevAdding) {
-//                        Device device2 = HamaApp.DEV_GROUP.findDeviceWithCoding(device.getCoding());
-//                        if(null != device2){
-//                            if(null != theActivity.addDeviceTask) {
-//                                theActivity.addDeviceTask.setDialogMessage("与已有设备编码重复,编码:" + device.getCoding());
-//                                theActivity.addDeviceTask.cancel(true);
-//                            }
-//                            return;
-//                        }
-//                        ((DevHaveChild) theActivity.rootDevice).addChildDev(device);
-//                        theActivity.childDevAdding = false;
-//                        WelcomeActivity.setDeviceListener(device, new MyOnStateChangedListener(),
-//                                new MyOnGearChangedListener(), new MyOnCtrlModelChangedListener());
-//                        device.setDevStateId(DevStateHelper.DS_YI_CHANG);
-//
-//                        //添加到连锁内存表
-//                        List<Device> listIStateDev = new ArrayList<>();
-//                        DevGroup.findListIStateDev(listIStateDev, device, false);
-//                        for (Device device1 : listIStateDev) {
-//                            LinkageTab.getIns().addTabRow(device1);
-//                        }
-//                        DeviceDao.get(HamaApp.HAMA_CONTEXT).add(device);
-//                    }
-
                     break;
             }
         }
@@ -727,6 +648,7 @@ public class SearchActivity extends AppCompatActivity {
         WeakReference<SearchActivity> mActivity;
 
         AddDeviceTask(SearchActivity activity) {
+
             mActivity = new WeakReference<>(activity);
             progressDialog = new ProgressDialog(activity);
             showAddChildDevDialog();
@@ -734,6 +656,7 @@ public class SearchActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(Void... params) {
             SearchActivity theAct = mActivity.get();
+            ((Coordinator)theAct.rootDevice).setConfigingChildDevice(true);
             theAct.childDevAdding = true;
 
             int count = 0;
@@ -763,10 +686,12 @@ public class SearchActivity extends AppCompatActivity {
 
         @Override
         protected void onCancelled() {
-            //addResult(false);
+            SearchActivity theAct = mActivity.get();
+            ((Coordinator)theAct.rootDevice).setConfigingChildDevice(false);
         }
 
         private void addResult(boolean result){
+
             progressDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
             progressDialog.getButton(DialogInterface.BUTTON_NEGATIVE).setEnabled(false);
             if(result){
@@ -776,6 +701,8 @@ public class SearchActivity extends AppCompatActivity {
                 progressDialog.setIcon(R.drawable.ic_close_pink_24dp);
                 setDialogMessage("添加失败");
             }
+            SearchActivity theAct = mActivity.get();
+            ((Coordinator)theAct.rootDevice).setConfigingChildDevice(false);
         }
 
         void setDialogMessage(String msg){

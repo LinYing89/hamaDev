@@ -79,6 +79,9 @@ public class MyMessageAnalysiser extends MessageAnalysiser {
             }
 
             Coordinator coordinator = (Coordinator)device;
+            if(!coordinator.isConfigingChildDevice()){
+                return false;
+            }
             for(int i = 2; i< codings.length; i++){
                 String coding = codings[i];
                 Device device1 = coordinator.findDevByCoding(coding);
@@ -106,9 +109,7 @@ public class MyMessageAnalysiser extends MessageAnalysiser {
 
     @Override
     public void configDevice(Device device, String s) {
-//        if(null != SearchActivity.handler){
-//            SearchActivity.handler.obtainMessage(SearchActivity.handler.DEV_ADD_CHILD, device).sendToTarget();
-//        }
+        addNewDevice(device);
     }
 
     @Override
@@ -126,7 +127,6 @@ public class MyMessageAnalysiser extends MessageAnalysiser {
     private void addNewDevice(Device device){
         if(EspTouchAddDevice.CONFIGING){
             EspTouchAddDevice.DEVICE = device;
-
         }
     }
 }

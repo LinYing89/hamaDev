@@ -1,6 +1,8 @@
 package com.bairock.hamadev.adapter;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,15 +18,26 @@ import com.bairock.hamadev.app.HamaApp;
 import com.bairock.hamadev.database.DeviceDao;
 import com.bairock.iot.intelDev.device.Device;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RecyclerAdapterChildDevice extends RecyclerView.Adapter<RecyclerAdapterChildDevice.ViewHolder> {
 
+    public static final int NAME = 0;
+    public static final int ALIAS = 1;
+
     private LayoutInflater mInflater;
     private List<Device> listElectrical;
 
+    public static RecyclerAdapterChildDevice.MyHandler handler;
+
+    private List<RecyclerAdapterChildDevice.ViewHolder> listViewHolder;
+
     public RecyclerAdapterChildDevice(Context context, List<Device> listElectrical) {
         this.mInflater = LayoutInflater.from(context);
+        listViewHolder = new ArrayList<>();
+        handler = new RecyclerAdapterChildDevice.MyHandler(this);
         this.listElectrical = listElectrical;
     }
 
@@ -36,7 +49,9 @@ public class RecyclerAdapterChildDevice extends RecyclerView.Adapter<RecyclerAda
     @NonNull
     @Override
     public RecyclerAdapterChildDevice.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new RecyclerAdapterChildDevice.ViewHolder(mInflater.inflate(R.layout.adapter_child_electrical, parent, false));
+        RecyclerAdapterChildDevice.ViewHolder vh = new RecyclerAdapterChildDevice.ViewHolder(mInflater.inflate(R.layout.adapter_child_electrical, parent, false));
+        listViewHolder.add(vh);
+        return vh;
     }
 
     @Override
@@ -81,6 +96,41 @@ public class RecyclerAdapterChildDevice extends RecyclerView.Adapter<RecyclerAda
                     ClimateFragment.handler.obtainMessage(ClimateFragment.REFRESH_DEVICE).sendToTarget();
                 }
             });
+        }
+
+        private void refreshName(){
+            textName.setText(device.getName());
+        }
+
+        private void refreshAlias(){
+            textAlias.setText(device.getAlias());
+        }
+    }
+
+    public static class MyHandler extends Handler {
+        WeakReference<RecyclerAdapterChildDevice> mActivity;
+
+        MyHandler(RecyclerAdapterChildDevice activity) {
+            mActivity = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            RecyclerAdapterChildDevice theActivity = mActivity.get();
+            Device dev = (Device) msg.obj;
+            for (ViewHolder vh : theActivity.listViewHolder) {
+                if (vh.device == dev) {
+                    switch (msg.what) {
+                        case NAME:
+                            vh.refreshName();
+                            break;
+                        case ALIAS:
+                            vh.refreshAlias();
+                            break;
+                    }
+                    break;
+                }
+            }
         }
     }
 }

@@ -27,11 +27,11 @@ import com.bairock.hamadev.database.EffectDao;
 import com.bairock.hamadev.database.LinkageConditionDao;
 import com.bairock.hamadev.database.LinkageDao;
 import com.bairock.hamadev.linkage.ConditionActivity;
+import com.bairock.hamadev.linkage.LinkageBaseFragment;
 import com.bairock.hamadev.linkage.timing.EditTimingActivity;
 import com.bairock.iot.intelDev.device.DevStateHelper;
 import com.bairock.iot.intelDev.device.Device;
 import com.bairock.iot.intelDev.linkage.Effect;
-import com.bairock.iot.intelDev.linkage.Linkage;
 import com.bairock.iot.intelDev.linkage.LinkageCondition;
 import com.bairock.iot.intelDev.linkage.loop.ZLoop;
 import com.yanzhenjie.recyclerview.swipe.SwipeItemClickListener;
@@ -52,7 +52,6 @@ public class EditLoopActivity extends AppCompatActivity {
 
     public static ZLoop zLoop;
     public static Effect effect;
-    public static boolean ADD;
 
     private ActionBar actionBar;
     private Button btnAddConditionHandler;
@@ -69,29 +68,23 @@ public class EditLoopActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_loop);
 
         actionBar = getSupportActionBar();
-        if(actionBar != null){
+        if (actionBar != null) {
             actionBar.setHomeButtonEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle("编辑循环");
         }
 
         findViews();
         setListener();
 
-        if(ADD){
-            actionBar.setTitle("添加循环");
-            zLoop = new ZLoop();
-            zLoop.setName(getDefaultName());
-            HamaApp.DEV_GROUP.getLoopHolder().addLinkage(zLoop);
-            LinkageDao.get(this).add(zLoop, HamaApp.DEV_GROUP.getLoopHolder().getId());
-        }else{
-            actionBar.setTitle("编辑循环");
-            zLoop = LoopFragment.ZLOOP;
-            if(zLoop == null){
-                finish();
-                return;
-            }
+        zLoop = (ZLoop) LinkageBaseFragment.Companion.getLINKAGE();
+        if (zLoop == null) {
+            finish();
+            return;
         }
-        actionBar.setSubtitle(zLoop.getName());
+        if (actionBar != null) {
+            actionBar.setSubtitle(zLoop.getName());
+        }
         setListViewCondition();
         setListViewEffect();
 
@@ -111,9 +104,6 @@ public class EditLoopActivity extends AppCompatActivity {
             case android.R.id.home:
                 this.finish(); // back button
                 break;
-            case R.id.action_edit_name:
-                showNameDialog();
-                break;
             case R.id.action_loop_count:
                 showLoopCountDialog();
                 break;
@@ -127,13 +117,10 @@ public class EditLoopActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(null != LoopFragment.handler){
-            LoopFragment.handler.obtainMessage(LoopFragment.REFRESH_LIST).sendToTarget();
-        }
         zLoop = null;
     }
 
-    private void findViews(){
+    private void findViews() {
         btnAddConditionHandler = findViewById(R.id.btnAddConditionHandler);
         btnAddEffect = findViewById(R.id.btnAddEffect);
         swipeMenuRecyclerViewCondition = findViewById(R.id.swipeMenuRecyclerViewCondition);
@@ -147,7 +134,7 @@ public class EditLoopActivity extends AppCompatActivity {
         swipeMenuRecyclerViewEffect.setSwipeMenuCreator(swipeMenuConditionCreator);
     }
 
-    private void setListener(){
+    private void setListener() {
         btnAddConditionHandler.setOnClickListener(onClickListener);
         btnAddEffect.setOnClickListener(onClickListener);
 
@@ -169,68 +156,29 @@ public class EditLoopActivity extends AppCompatActivity {
         swipeRightMenu.addMenuItem(deleteItem);// 添加菜单到右侧。
     };
 
-    private String getDefaultName(){
-        String name = "循环";
-        boolean have;
-        for(int i=1; i< 1000; i++){
-            have = false;
-            name = "循环" + i;
-            for(Linkage chain : HamaApp.DEV_GROUP.getLoopHolder().getListLinkage()){
-                if(chain.getName().equals(name)){
-                    have = true;
-                    break;
-                }
-            }
-            if(!have){
-                return name;
-            }
-        }
-        return name;
-    }
-
-    /**
-     * 名称对话框
-     */
-    private void showNameDialog() {
-        final EditText editHour = new EditText(this);
-        editHour.setText(String.valueOf(zLoop.getName()));
-        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setCancelable(false);
-        dialog.setView(editHour)
-                .setPositiveButton(
-                        MainActivity.strEnsure,
-                        (dialog1, which) -> {
-                            String strName = String.valueOf(editHour.getText());
-                            zLoop.setName(strName);
-                            setActionbarSubtitle();
-                            LinkageDao.get(EditLoopActivity.this).update(zLoop, HamaApp.DEV_GROUP.getChainHolder().getId());
-                        })
-                .setNegativeButton(MainActivity.strCancel, null).create().show();
-    }
-
     /**
      * 次数对话框
      */
     private void showLoopCountDialog() {
         View convertView = this.getLayoutInflater().inflate(
                 R.layout.dialog_loop_count, null);
-        final EditText editLoopCount = (EditText) convertView
+        final EditText editLoopCount = convertView
                 .findViewById(R.id.edit_loop_count);
         final CheckBox checkBoxLoopInfinite = convertView
                 .findViewById(R.id.check_loop_infinite);
-        if(zLoop.getLoopCount() == -1){
+        if (zLoop.getLoopCount() == -1) {
             editLoopCount.setEnabled(false);
             checkBoxLoopInfinite.setChecked(true);
-        }else{
+        } else {
             editLoopCount.setText(String.valueOf(zLoop.getLoopCount()));
             checkBoxLoopInfinite.setChecked(false);
         }
         checkBoxLoopInfinite.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if(isChecked){
+            if (isChecked) {
                 editLoopCount.setEnabled(false);
                 zLoop.setLoopCount(-1);
                 LinkageDao.get(EditLoopActivity.this).update(zLoop, null);
-            }else{
+            } else {
                 editLoopCount.setEnabled(true);
             }
         });
@@ -241,12 +189,12 @@ public class EditLoopActivity extends AppCompatActivity {
                 .setPositiveButton(
                         MainActivity.strEnsure,
                         (dialog1, which) -> {
-                            if(!checkBoxLoopInfinite.isChecked()){
+                            if (!checkBoxLoopInfinite.isChecked()) {
                                 String strHour = String.valueOf(editLoopCount.getText());
-                                try{
+                                try {
                                     zLoop.setLoopCount(Integer.parseInt(strHour));
                                     LinkageDao.get(EditLoopActivity.this).update(zLoop, null);
-                                }catch (Exception e){
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                     Snackbar.make(editLoopCount, "格式错误", Snackbar.LENGTH_SHORT).show();
                                 }
@@ -259,15 +207,15 @@ public class EditLoopActivity extends AppCompatActivity {
 
     }
 
-    private void setActionbarSubtitle(){
-        if(zLoop.getLoopCount() == -1){
+    private void setActionbarSubtitle() {
+        if (zLoop.getLoopCount() == -1) {
             actionBar.setSubtitle(zLoop.getName() + " " + "次数:" + "无限");
-        }else{
+        } else {
             actionBar.setSubtitle(zLoop.getName() + " " + "次数:" + zLoop.getLoopCount());
         }
     }
 
-    private void setListViewCondition(){
+    private void setListViewCondition() {
         adapterCondition = new RecyclerAdapterCondition(this, zLoop.getListCondition());
         swipeMenuRecyclerViewCondition.setAdapter(adapterCondition);
     }
@@ -280,7 +228,7 @@ public class EditLoopActivity extends AppCompatActivity {
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            switch (v.getId()){
+            switch (v.getId()) {
                 case R.id.btnAddConditionHandler:
                     ConditionActivity.ADD = true;
                     ConditionActivity.handler = handler;
@@ -337,23 +285,23 @@ public class EditLoopActivity extends AppCompatActivity {
         }
     };
 
-    private void showDeviceList(){
+    private void showDeviceList() {
         List<Device> list = new ArrayList<>();
-        for(Device device : HamaApp.DEV_GROUP.findListIStateDev(true)){
+        for (Device device : HamaApp.DEV_GROUP.findListIStateDev(true)) {
             boolean haved = false;
-            for(Effect effect : zLoop.getListEffect()){
-                if(device == effect.getDevice()){
+            for (Effect effect : zLoop.getListEffect()) {
+                if (device == effect.getDevice()) {
                     haved = true;
                     break;
                 }
             }
-            if(!haved){
+            if (!haved) {
                 list.add(device);
             }
         }
 
         String[] names = new String[list.size()];
-        for(int i = 0; i < list.size(); i++){
+        for (int i = 0; i < list.size(); i++) {
             names[i] = list.get(i).getName();
         }
         AlertDialog.Builder listDialog = new AlertDialog.Builder(this);
@@ -370,7 +318,7 @@ public class EditLoopActivity extends AppCompatActivity {
         listDialog.show();
     }
 
-        public static class MyHandler extends Handler {
+    public static class MyHandler extends Handler {
         WeakReference<EditLoopActivity> mActivity;
 
         MyHandler(EditLoopActivity activity) {
@@ -384,18 +332,18 @@ public class EditLoopActivity extends AppCompatActivity {
                 case EditTimingActivity.REFRESH_EVENT_HANDLER_LIST:
                     theActivity.adapterCondition.notifyDataSetChanged();
                     break;
-                case EditTimingActivity.REFRESH_DEVICE_LIST :
+                case EditTimingActivity.REFRESH_DEVICE_LIST:
                     theActivity.adapterEffect.notifyDataSetChanged();
                     break;
-                case ConditionActivity.ADD_CONDITION :
-                    LinkageCondition lc = (LinkageCondition)msg.obj;
+                case ConditionActivity.ADD_CONDITION:
+                    LinkageCondition lc = (LinkageCondition) msg.obj;
                     EditLoopActivity.zLoop.addCondition(lc);
                     LinkageConditionDao linkageConditionDao = LinkageConditionDao.get(theActivity);
                     linkageConditionDao.add(lc, EditLoopActivity.zLoop.getId());
                     theActivity.adapterCondition.notifyDataSetChanged();
                     break;
-                case ConditionActivity.UPDATE_CONDITION :
-                    LinkageCondition lc1 = (LinkageCondition)msg.obj;
+                case ConditionActivity.UPDATE_CONDITION:
+                    LinkageCondition lc1 = (LinkageCondition) msg.obj;
                     LinkageConditionDao linkageConditionDao1 = LinkageConditionDao.get(theActivity);
                     linkageConditionDao1.update(lc1, null);
                     theActivity.adapterCondition.notifyDataSetChanged();

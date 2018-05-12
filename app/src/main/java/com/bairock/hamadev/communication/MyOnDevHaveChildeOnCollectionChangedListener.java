@@ -1,6 +1,8 @@
 package com.bairock.hamadev.communication;
 
+import com.bairock.hamadev.app.ClimateFragment;
 import com.bairock.hamadev.app.ElectricalCtrlFragment;
+import com.bairock.hamadev.app.WelcomeActivity;
 import com.bairock.hamadev.settings.SearchActivity;
 import com.bairock.iot.intelDev.device.DevHaveChild;
 import com.bairock.iot.intelDev.device.Device;
@@ -14,6 +16,7 @@ public class MyOnDevHaveChildeOnCollectionChangedListener implements DevHaveChil
     @Override
     public void onAdded(Device device) {
         refreshUi();
+        WelcomeActivity.setDeviceListener(device, new MyOnStateChangedListener(), new MyOnGearChangedListener(), new MyOnCtrlModelChangedListener());
     }
 
     @Override
@@ -27,6 +30,9 @@ public class MyOnDevHaveChildeOnCollectionChangedListener implements DevHaveChil
         }
         if(null != ElectricalCtrlFragment.handler){
             ElectricalCtrlFragment.handler.obtainMessage(ElectricalCtrlFragment.REFRESH_ELE).sendToTarget();
+        }
+        if(null != ClimateFragment.handler){
+            ClimateFragment.handler.obtainMessage(ClimateFragment.REFRESH_DEVICE).sendToTarget();
         }
     }
 }

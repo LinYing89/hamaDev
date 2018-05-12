@@ -50,7 +50,7 @@
             android:name=".linkage.LinkageActivity"
             android:label="连锁"
             android:screenOrientation="landscape"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".settings.EsptouchActivity"
             android:label="网络"
@@ -132,7 +132,12 @@
             android:name=".settings.DevCollectSettingActivity"
             android:label="参数设置"
             android:screenOrientation="landscape" />
-        <activity android:name=".settings.BridgeMsgTestActivity"
+        <activity
+            android:name=".settings.BridgeMsgTestActivity"
+            android:screenOrientation="landscape" />
+        <activity android:name=".settings.DevSwitchAttributeSettingActivity"
+            android:label="参数设置"
+            android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="landscape"/>
     </application>
 

@@ -73,9 +73,6 @@ public class ClimateFragment extends Fragment {
         super.onDestroyView();
         handler = null;
         HamaApp.DEV_GROUP.removeOnDeviceCollectionChangedListener(onDeviceCollectionChangedListener);
-        for (DevCollect device : listDevCollect) {
-            removeDeviceListener(device);
-        }
         RecyclerAdapterCollect.handler = null;
     }
 
@@ -86,11 +83,6 @@ public class ClimateFragment extends Fragment {
     }
 
     private void setPressueList() {
-        if (null != listDevCollect) {
-            for (Device device : listDevCollect) {
-                removeDeviceListener((DevCollect) device);
-            }
-        }
         listDevCollect = HamaApp.DEV_GROUP.findListCollectDev(true);
         Collections.sort(listDevCollect);
         for (int i = 0; i < listDevCollect.size(); i++) {
@@ -98,20 +90,6 @@ public class ClimateFragment extends Fragment {
         }
         adapterCollect = new RecyclerAdapterCollect(this.getContext(), listDevCollect);
         swipeMenuRecyclerViewCollector.setAdapter(adapterCollect);
-        for (DevCollect device : listDevCollect) {
-            setDeviceListener(device);
-        }
-    }
-
-    private void setDeviceListener(DevCollect device) {
-        device.addOnNameChangedListener(onNameChangedListener);
-        device.addOnAliasChangedListener(onAliasChangedListener);
-    }
-
-    private void removeDeviceListener(DevCollect device) {
-        device.removeOnNameChangedListener(onNameChangedListener);
-        device.removeOnAliasChangedListener(onAliasChangedListener);
-        device.getCollectProperty().setOnCurrentValueChanged(null);
     }
 
     /**
@@ -152,10 +130,6 @@ public class ClimateFragment extends Fragment {
         }
     };
 
-    private Device.OnNameChangedListener onNameChangedListener = (device, s) -> RecyclerAdapterCollect.handler.obtainMessage(RecyclerAdapterCollect.NAME, device).sendToTarget();
-
-    private Device.OnAliasChangedListener onAliasChangedListener = (device, s) -> RecyclerAdapterCollect.handler.obtainMessage(RecyclerAdapterCollect.ALIAS, device).sendToTarget();
-
     private DevGroup.OnDeviceCollectionChangedListener onDeviceCollectionChangedListener = new DevGroup.OnDeviceCollectionChangedListener() {
         @Override
         public void onAdded(Device device) {
@@ -175,7 +149,6 @@ public class ClimateFragment extends Fragment {
             device.setSortIndex(listDevCollect.size());
             DevCollect devCollect = (DevCollect) device;
             listDevCollect.add(devCollect);
-            setDeviceListener(devCollect);
             handler.obtainMessage(REFRESH_VALUE).sendToTarget();
         } else if (device instanceof DevHaveChild) {
             for (Device device1 : ((DevHaveChild) device).getListDev()) {
@@ -188,7 +161,6 @@ public class ClimateFragment extends Fragment {
         if (device instanceof DevCollect) {
             DevCollect devCollect = (DevCollect) device;
             listDevCollect.remove(devCollect);
-            removeDeviceListener(devCollect);
             handler.obtainMessage(REFRESH_VALUE).sendToTarget();
         } else if (device instanceof DevHaveChild) {
             for (Device device1 : ((DevHaveChild) device).getListDev()) {

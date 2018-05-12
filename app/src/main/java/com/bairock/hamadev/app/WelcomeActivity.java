@@ -9,12 +9,14 @@ import android.widget.Toast;
 import com.bairock.hamadev.R;
 import com.bairock.hamadev.communication.ChannelBridgeHelperHeartSendListener;
 import com.bairock.hamadev.communication.MyMessageAnalysiser;
+import com.bairock.hamadev.communication.MyOnAliasChangedListener;
 import com.bairock.hamadev.communication.MyOnBridgesChangedListener;
 import com.bairock.hamadev.communication.MyOnCommunicationListener;
 import com.bairock.hamadev.communication.MyOnCtrlModelChangedListener;
 import com.bairock.hamadev.communication.MyOnCurrentValueChangedListener;
 import com.bairock.hamadev.communication.MyOnDevHaveChildeOnCollectionChangedListener;
 import com.bairock.hamadev.communication.MyOnGearChangedListener;
+import com.bairock.hamadev.communication.MyOnNameChangedListener;
 import com.bairock.hamadev.communication.MyOnSignalSourceChangedListener;
 import com.bairock.hamadev.communication.MyOnSimulatorChangedListener;
 import com.bairock.hamadev.communication.MyOnSortIndexChangedListener;
@@ -131,6 +133,9 @@ public class WelcomeActivity extends AppCompatActivity {
         device.setOnGearChanged(onGearChangedListener);
         device.setOnCtrlModelChanged(onCtrlModelChangedListener);
         device.setOnSortIndexChangedListener(new MyOnSortIndexChangedListener());
+        device.addOnAliasChangedListener(new MyOnAliasChangedListener());
+        device.addOnNameChangedListener(new MyOnNameChangedListener());
+
         if(device instanceof DevHaveChild){
             DevHaveChild devHaveChild = (DevHaveChild)device;
             //协调器添加子设备集合改变监听器
@@ -253,7 +258,7 @@ public class WelcomeActivity extends AppCompatActivity {
             try {
                 //没有可搜索设备时单机测试用
                 //testDevice();
-                //testDeviceBx();
+//                testDeviceBx();
                 //testCoordinator();
                 initUser();
 
@@ -264,14 +269,14 @@ public class WelcomeActivity extends AppCompatActivity {
                 SharedHelper sharedHelper = new SharedHelper();
                 sharedHelper.init();
                 WelcomeActivity theActivity = mActivity.get();
-                if(sharedHelper.isSerialOpen(theActivity)){
-                    try {
-                        SerialPortHelper.getIns().openSerialPort(theActivity);
-                        SerialPortHelper.getIns().startReceiveThread();
-                    }catch (Exception e) {
-                        theActivity.runOnUiThread(() -> Toast.makeText(theActivity, "串口打开失败", Toast.LENGTH_LONG).show());
-                    }
-                }
+//                if(sharedHelper.isSerialOpen(theActivity)){
+//                    try {
+//                        SerialPortHelper.getIns().openSerialPort(theActivity);
+//                        SerialPortHelper.getIns().startReceiveThread();
+//                    }catch (Exception e) {
+//                        theActivity.runOnUiThread(() -> Toast.makeText(theActivity, "串口打开失败", Toast.LENGTH_LONG).show());
+//                    }
+//                }
 
                 try {
                     HamaApp.DEV_SERVER = new DevServer();

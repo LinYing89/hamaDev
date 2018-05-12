@@ -9,25 +9,20 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 
 import com.bairock.hamadev.R;
 import com.bairock.hamadev.adapter.RecyclerAdapterCondition;
 import com.bairock.hamadev.adapter.RecyclerAdapterEffect;
 import com.bairock.hamadev.app.HamaApp;
-import com.bairock.hamadev.app.MainActivity;
 import com.bairock.hamadev.database.EffectDao;
 import com.bairock.hamadev.database.LinkageConditionDao;
-import com.bairock.hamadev.database.LinkageDao;
 import com.bairock.iot.intelDev.device.DevStateHelper;
 import com.bairock.iot.intelDev.device.Device;
 import com.bairock.iot.intelDev.linkage.Effect;
-import com.bairock.iot.intelDev.linkage.Linkage;
 import com.bairock.iot.intelDev.linkage.LinkageCondition;
 import com.bairock.iot.intelDev.linkage.SubChain;
 import com.yanzhenjie.recyclerview.swipe.SwipeItemClickListener;
@@ -49,11 +44,8 @@ public class EditChainActivity extends AppCompatActivity {
     public static final int REFRESH_EVENT_HANDLER_LIST = 2;
 
     private SubChain subChain;
-    //private LinkageCondition linkageCondition;
     public static Effect effect;
-    public static boolean ADD;
 
-    private ActionBar actionBar;
     private Button btnAddCondition;
     private Button btnAddEffect;
 
@@ -68,31 +60,23 @@ public class EditChainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_chain);
 
-        actionBar = getSupportActionBar();
-        if(actionBar != null){
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
             actionBar.setHomeButtonEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle("编辑连锁");
         }
 
         findViews();
         setListener();
-
-        if(ADD){
-            actionBar.setTitle("添加连锁");
-            subChain = new SubChain();
-            subChain.setName(getDefaultName());
-            HamaApp.DEV_GROUP.getChainHolder().addLinkage(subChain);
-            LinkageDao linkageDevValueDao = LinkageDao.get(this);
-            linkageDevValueDao.add(subChain, HamaApp.DEV_GROUP.getChainHolder().getId());
-        }else{
-            actionBar.setTitle("编辑连锁");
-            subChain = (SubChain) ChainFragment.LINKAGE;
-            if(subChain == null){
-                finish();
-                return;
-            }
+        subChain = (SubChain) LinkageBaseFragment.Companion.getLINKAGE();
+        if (subChain == null) {
+            finish();
+            return;
         }
-        actionBar.setSubtitle(subChain.getName());
+        if (actionBar != null) {
+            actionBar.setSubtitle(subChain.getName());
+        }
 
         setListViewCondition();
         setListViewEffect();
@@ -101,19 +85,10 @@ public class EditChainActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_edit_chain, menu);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 this.finish(); // back button
-                break;
-            case R.id.action_edit_name:
-                showNameDialog();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -122,18 +97,10 @@ public class EditChainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        if(ADD){
-//            HamaApp.DEV_GROUP.getChainHolder().addSubChain(subChain);
-//            LinkageDao linkageDevValueDao = LinkageDao.get(this);
-//            linkageDevValueDao.add(subChain, HamaApp.DEV_GROUP.getChainHolder().getId());
-//        }
-        if(null != ChainFragment.handler){
-            ChainFragment.handler.obtainMessage(ChainFragment.REFRESH_LIST).sendToTarget();
-        }
         subChain = null;
     }
 
-    private void findViews(){
+    private void findViews() {
         btnAddCondition = findViewById(R.id.btnAddCondition);
         btnAddEffect = findViewById(R.id.btnAddEffect);
         swipeMenuRecyclerViewCondition = findViewById(R.id.swipeMenuRecyclerViewCondition);
@@ -147,7 +114,7 @@ public class EditChainActivity extends AppCompatActivity {
         swipeMenuRecyclerViewEffect.setSwipeMenuCreator(swipeMenuConditionCreator);
     }
 
-    private void setListener(){
+    private void setListener() {
         btnAddCondition.setOnClickListener(onClickListener);
         btnAddEffect.setOnClickListener(onClickListener);
 
@@ -174,53 +141,13 @@ public class EditChainActivity extends AppCompatActivity {
         swipeRightMenu.addMenuItem(deleteItem);// 添加菜单到右侧。
     };
 
-    private String getDefaultName(){
-        String name = "连锁";
-        boolean have;
-        for(int i=1; i< 1000; i++){
-            have = false;
-            name = "连锁" + i;
-            for(Linkage chain : HamaApp.DEV_GROUP.getChainHolder().getListLinkage()){
-                if(chain.getName().equals(name)){
-                    have = true;
-                    break;
-                }
-            }
-            if(!have){
-                return name;
-            }
-        }
-        return name;
-    }
-
-    /**
-     * 名称对话框
-     */
-    private void showNameDialog() {
-        final EditText editHour = new EditText(this);
-        editHour.setText(String.valueOf(subChain.getName()));
-        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setCancelable(false);
-        dialog.setView(editHour)
-                .setPositiveButton(
-                        MainActivity.strEnsure,
-                        (dialog1, which) -> {
-                            String strName = String.valueOf(editHour.getText());
-                            subChain.setName(strName);
-                            actionBar.setSubtitle(strName);
-                            LinkageDao linkageDevValueDao = LinkageDao.get(EditChainActivity.this);
-                            linkageDevValueDao.update(subChain, HamaApp.DEV_GROUP.getChainHolder().getId());
-                        })
-                .setNegativeButton(MainActivity.strCancel, null).create().show();
-    }
-
-    private void setListViewCondition(){
+    private void setListViewCondition() {
         adapterCondition = new RecyclerAdapterCondition(this, subChain.getListCondition());
         //adapterCondition.notifyDataSetChanged();
         swipeMenuRecyclerViewCondition.setAdapter(adapterCondition);
     }
 
-    private void setListViewEffect(){
+    private void setListViewEffect() {
         adapterEffect = new RecyclerAdapterEffect(this, subChain.getListEffect(), true);
         swipeMenuRecyclerViewEffect.setAdapter(adapterEffect);
     }
@@ -228,7 +155,7 @@ public class EditChainActivity extends AppCompatActivity {
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            switch (v.getId()){
+            switch (v.getId()) {
                 case R.id.btnAddCondition:
                     ConditionActivity.ADD = true;
                     ConditionActivity.handler = handler;
@@ -281,23 +208,23 @@ public class EditChainActivity extends AppCompatActivity {
         }
     };
 
-    private void showDeviceList(){
+    private void showDeviceList() {
         List<Device> list = new ArrayList<>();
-        for(Device device : HamaApp.DEV_GROUP.findListIStateDev(true)){
+        for (Device device : HamaApp.DEV_GROUP.findListIStateDev(true)) {
             boolean haved = false;
-            for(Effect effect : subChain.getListEffect()){
-                if(device == effect.getDevice()){
+            for (Effect effect : subChain.getListEffect()) {
+                if (device == effect.getDevice()) {
                     haved = true;
                     break;
                 }
             }
-            if(!haved){
+            if (!haved) {
                 list.add(device);
             }
         }
 
         String[] names = new String[list.size()];
-        for(int i = 0; i < list.size(); i++){
+        for (int i = 0; i < list.size(); i++) {
             names[i] = list.get(i).getName();
         }
         AlertDialog.Builder listDialog = new AlertDialog.Builder(this);
@@ -328,18 +255,18 @@ public class EditChainActivity extends AppCompatActivity {
                 case REFRESH_EVENT_HANDLER_LIST:
                     theActivity.adapterCondition.notifyDataSetChanged();
                     break;
-                case REFRESH_DEVICE_LIST :
+                case REFRESH_DEVICE_LIST:
                     theActivity.adapterEffect.notifyDataSetChanged();
                     break;
-                case ConditionActivity.ADD_CONDITION :
-                    LinkageCondition lc = (LinkageCondition)msg.obj;
+                case ConditionActivity.ADD_CONDITION:
+                    LinkageCondition lc = (LinkageCondition) msg.obj;
                     theActivity.subChain.addCondition(lc);
                     LinkageConditionDao linkageConditionDao = LinkageConditionDao.get(theActivity);
                     linkageConditionDao.add(lc, theActivity.subChain.getId());
                     theActivity.adapterCondition.notifyDataSetChanged();
                     break;
-                case ConditionActivity.UPDATE_CONDITION :
-                    LinkageCondition lc1 = (LinkageCondition)msg.obj;
+                case ConditionActivity.UPDATE_CONDITION:
+                    LinkageCondition lc1 = (LinkageCondition) msg.obj;
                     LinkageConditionDao linkageConditionDao1 = LinkageConditionDao.get(theActivity);
                     linkageConditionDao1.update(lc1, null);
                     theActivity.adapterCondition.notifyDataSetChanged();

@@ -15,6 +15,7 @@
 
     <color name="red_normal">#FF0000</color>
     <color name="green_normal">#37C000</color>
+    <color name="green_normal_stroke">#37a800</color>
     <color name="yellow_switch_on">#EEC900</color>
     <color name="yellow_switch_on_stroke">#CD9B1D</color>
     <color name="yellow_switch_off">#ADADAD</color>

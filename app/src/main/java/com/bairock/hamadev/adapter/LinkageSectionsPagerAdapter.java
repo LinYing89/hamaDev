@@ -4,10 +4,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.bairock.hamadev.linkage.ChainFragment;
-import com.bairock.hamadev.linkage.guagua.GuaguaFragment;
-import com.bairock.hamadev.linkage.loop.LoopFragment;
-import com.bairock.hamadev.linkage.timing.TimingFragment;
+import com.bairock.hamadev.linkage.ChainFragment2;
+import com.bairock.hamadev.linkage.guagua.GuaguaFragment2;
+import com.bairock.hamadev.linkage.loop.LoopFragment2;
+import com.bairock.hamadev.linkage.timing.TimingFragment2;
 
 /**
  *
@@ -23,22 +23,22 @@ public class LinkageSectionsPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
 
-        Fragment fragment = null;
+        Fragment fragment;
         switch (position){
             case 0 :
-                fragment = ChainFragment.newInstance(position);
+                fragment = ChainFragment2.newInstance(position);
                 break;
             case 1:
-                fragment = TimingFragment.newInstance(position);
+                fragment = TimingFragment2.newInstance(position);
                 break;
             case 2:
-                fragment = LoopFragment.newInstance(position);
+                fragment = LoopFragment2.newInstance(position);
                 break;
             case 3:
-                fragment = GuaguaFragment.newInstance(position);
+                fragment = GuaguaFragment2.newInstance(position);
                 break;
             default:
-                fragment = ChainFragment.newInstance(position);
+                fragment = ChainFragment2.newInstance(position);
                 break;
         }
         return fragment;
@@ -46,7 +46,6 @@ public class LinkageSectionsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        // Show 3 total pages.
         return 4;
     }
 

@@ -131,14 +131,11 @@ public class RecyclerAdapterDevice extends RecyclerView.Adapter<RecyclerAdapterD
                 device.setVisibility(isChecked);
                 DeviceDao deviceDao = DeviceDao.get(HamaApp.HAMA_CONTEXT);
                 deviceDao.update(device);
-                if (device instanceof IStateDev) {
-                    if (null != ElectricalCtrlFragment.handler) {
-                        ElectricalCtrlFragment.handler.obtainMessage(ElectricalCtrlFragment.REFRESH_ELE).sendToTarget();
-                    }
-                } else if (device instanceof DevCollect || device instanceof DevCollectSignalContainer) {
-                    if (null != ClimateFragment.handler) {
-                        ClimateFragment.handler.obtainMessage(ClimateFragment.REFRESH_DEVICE).sendToTarget();
-                    }
+                if (null != ElectricalCtrlFragment.handler) {
+                    ElectricalCtrlFragment.handler.obtainMessage(ElectricalCtrlFragment.REFRESH_ELE).sendToTarget();
+                }
+                if (null != ClimateFragment.handler) {
+                    ClimateFragment.handler.obtainMessage(ClimateFragment.REFRESH_DEVICE).sendToTarget();
                 }
             });
         }

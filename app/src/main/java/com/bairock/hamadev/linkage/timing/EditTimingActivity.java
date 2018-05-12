@@ -9,25 +9,21 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 
 import com.bairock.hamadev.R;
 import com.bairock.hamadev.adapter.RecyclerAdapterTimer;
 import com.bairock.hamadev.adapter.RecyclerAdapterEffect;
 import com.bairock.hamadev.app.HamaApp;
-import com.bairock.hamadev.app.MainActivity;
 import com.bairock.hamadev.database.EffectDao;
-import com.bairock.hamadev.database.LinkageDao;
 import com.bairock.hamadev.database.ZTimerDao;
+import com.bairock.hamadev.linkage.LinkageBaseFragment;
 import com.bairock.iot.intelDev.device.DevStateHelper;
 import com.bairock.iot.intelDev.device.Device;
 import com.bairock.iot.intelDev.linkage.Effect;
-import com.bairock.iot.intelDev.linkage.Linkage;
 import com.bairock.iot.intelDev.linkage.timing.Timing;
 import com.bairock.iot.intelDev.linkage.timing.ZTimer;
 import com.yanzhenjie.recyclerview.swipe.SwipeItemClickListener;
@@ -51,9 +47,7 @@ public class EditTimingActivity extends AppCompatActivity {
     public static Timing timing;
     public static ZTimer zTimer;
     public static Effect effect;
-    public static boolean ADD;
 
-    private ActionBar actionBar;
     private Button btnAddTimer;
     private Button btnAddEffect;
     private SwipeMenuRecyclerView swipeMenuRecyclerViewCondition;
@@ -67,40 +61,28 @@ public class EditTimingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_timing);
 
-        actionBar = getSupportActionBar();
-        if(actionBar != null){
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
             actionBar.setHomeButtonEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle("编辑定时");
         }
 
         findViews();
         setListener();
 
-        if(ADD){
-            actionBar.setTitle("添加定时");
-            timing = new Timing();
-            timing.setName(getDefaultName());
-            HamaApp.DEV_GROUP.getTimingHolder().addTiming(timing);
-            LinkageDao.get(this).add(timing, HamaApp.DEV_GROUP.getTimingHolder().getId());
-        }else{
-            actionBar.setTitle("编辑定时");
-            timing = TimingFragment.TIMING;
-            if(timing == null){
-                finish();
-                return;
-            }
+        timing = (Timing) LinkageBaseFragment.Companion.getLINKAGE();
+        if (timing == null) {
+            finish();
+            return;
         }
-        actionBar.setSubtitle(timing.getName());
+        if (actionBar != null) {
+            actionBar.setSubtitle(timing.getName());
+        }
         setListViewCondition();
         setListViewEffect();
 
         handler = new MyHandler(this);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_edit_chain, menu);
-        return true;
     }
 
     @Override
@@ -109,9 +91,6 @@ public class EditTimingActivity extends AppCompatActivity {
             case android.R.id.home:
                 this.finish(); // back button
                 break;
-            case R.id.action_edit_name:
-                showNameDialog();
-                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -119,13 +98,10 @@ public class EditTimingActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(null != TimingFragment.handler){
-            TimingFragment.handler.obtainMessage(TimingFragment.REFRESH_LIST).sendToTarget();
-        }
         timing = null;
     }
 
-    private void findViews(){
+    private void findViews() {
         btnAddTimer = findViewById(R.id.btnAddTimer);
         btnAddEffect = findViewById(R.id.btnAddEffect);
         swipeMenuRecyclerViewCondition = findViewById(R.id.swipeMenuRecyclerViewCondition);
@@ -139,7 +115,7 @@ public class EditTimingActivity extends AppCompatActivity {
         swipeMenuRecyclerViewEffect.setSwipeMenuCreator(swipeMenuConditionCreator);
     }
 
-    private void setListener(){
+    private void setListener() {
         btnAddTimer.setOnClickListener(onClickListener);
         btnAddEffect.setOnClickListener(onClickListener);
 
@@ -165,57 +141,18 @@ public class EditTimingActivity extends AppCompatActivity {
         swipeRightMenu.addMenuItem(deleteItem);// 添加菜单到右侧。
     };
 
-    private String getDefaultName(){
-        String name = "定时";
-        boolean have;
-        for(int i=1; i< 1000; i++){
-            have = false;
-            name = "定时" + i;
-            for(Linkage linkage : HamaApp.DEV_GROUP.getTimingHolder().getListLinkage()){
-                if(linkage.getName().equals(name)){
-                    have = true;
-                    break;
-                }
-            }
-            if(!have){
-                return name;
-            }
-        }
-        return name;
-    }
-
-    /**
-     * 名称对话框
-     */
-    private void showNameDialog() {
-        final EditText editHour = new EditText(this);
-        editHour.setText(String.valueOf(timing.getName()));
-        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setCancelable(false);
-        dialog.setView(editHour)
-                .setPositiveButton(
-                        MainActivity.strEnsure,
-                        (dialog1, which) -> {
-                            String strName = String.valueOf(editHour.getText());
-                            timing.setName(strName);
-                            actionBar.setSubtitle(strName);
-                            LinkageDao.get(EditTimingActivity.this).update(timing, null);
-                        })
-                .setNegativeButton(MainActivity.strCancel, null).create().show();
-    }
-
-    private void setListViewCondition(){
+    private void setListViewCondition() {
         adapterTimer = new RecyclerAdapterTimer(this, timing.getListZTimer());
         swipeMenuRecyclerViewCondition.setAdapter(adapterTimer);
     }
 
-    private void setListViewEffect(){
+    private void setListViewEffect() {
         adapterEffect = new RecyclerAdapterEffect(this, timing.getListEffect(), false);
         swipeMenuRecyclerViewEffect.setAdapter(adapterEffect);
     }
 
     private View.OnClickListener onClickListener = v -> {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.btnAddTimer:
                 startActivity(new Intent(EditTimingActivity.this, TimerActivity.class));
                 break;
@@ -266,23 +203,23 @@ public class EditTimingActivity extends AppCompatActivity {
         }
     };
 
-    private void showDeviceList(){
+    private void showDeviceList() {
         List<Device> list = new ArrayList<>();
-        for(Device device : HamaApp.DEV_GROUP.findListIStateDev(true)){
+        for (Device device : HamaApp.DEV_GROUP.findListIStateDev(true)) {
             boolean haved = false;
-            for(Effect effect : timing.getListEffect()){
-                if(device == effect.getDevice()){
+            for (Effect effect : timing.getListEffect()) {
+                if (device == effect.getDevice()) {
                     haved = true;
                     break;
                 }
             }
-            if(!haved){
+            if (!haved) {
                 list.add(device);
             }
         }
 
         String[] names = new String[list.size()];
-        for(int i = 0; i < list.size(); i++){
+        for (int i = 0; i < list.size(); i++) {
             names[i] = list.get(i).getName();
         }
         AlertDialog.Builder listDialog = new AlertDialog.Builder(this);
@@ -313,7 +250,7 @@ public class EditTimingActivity extends AppCompatActivity {
                 case EditTimingActivity.REFRESH_EVENT_HANDLER_LIST:
                     theActivity.adapterTimer.notifyDataSetChanged();
                     break;
-                case EditTimingActivity.REFRESH_DEVICE_LIST :
+                case EditTimingActivity.REFRESH_DEVICE_LIST:
                     theActivity.adapterEffect.notifyDataSetChanged();
                     break;
             }

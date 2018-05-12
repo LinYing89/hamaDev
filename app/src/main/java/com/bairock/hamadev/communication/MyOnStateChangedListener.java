@@ -2,8 +2,7 @@ package com.bairock.hamadev.communication;
 
 import com.bairock.hamadev.adapter.RecyclerAdapterCollect;
 import com.bairock.hamadev.adapter.RecyclerAdapterDevice;
-import com.bairock.hamadev.adapter.RecyclerAdapterElectrical;
-import com.bairock.hamadev.adapter.RecyclerAdapterElectrical2;
+import com.bairock.hamadev.adapter.RecyclerAdapterElectrical3;
 import com.bairock.hamadev.app.HamaApp;
 import com.bairock.iot.intelDev.communication.RefreshCollectorValueHelper;
 import com.bairock.iot.intelDev.device.DevStateHelper;
@@ -65,8 +64,8 @@ public class MyOnStateChangedListener implements Device.OnStateChangedListener {
     private void refreshUi(Device device){
         synchronized (syno) {
             if (device instanceof IStateDev) {
-                if (null != RecyclerAdapterElectrical2.handler) {
-                    RecyclerAdapterElectrical2.handler.obtainMessage(RecyclerAdapterElectrical2.STATE, device).sendToTarget();
+                if (null != RecyclerAdapterElectrical3.handler) {
+                    RecyclerAdapterElectrical3.handler.obtainMessage(RecyclerAdapterElectrical3.STATE, device).sendToTarget();
                 }
             }else if(device instanceof DevCollect){
                 if (null != RecyclerAdapterCollect.handler) {

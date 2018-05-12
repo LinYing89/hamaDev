@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/windowTitleSize"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/back_ground"
+        app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="6dp"
+                android:paddingLeft="6dp"
+                android:paddingStart="6dp"
+                android:paddingRight="6dp"
+                android:paddingEnd="6dp"
+                android:background="@android:color/white"
+                tools:context=".settings.DevSwitchAttributeSettingActivity">
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:minHeight="@dimen/listItemMinHeight">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:text="编码   " />
+
+                    <TextView
+                        android:id="@+id/txtDevCoding"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:textColor="@android:color/black"
+                        tools:text="Bx0001_0_1" />
+                </TableRow>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/break_line"/>
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:minHeight="@dimen/listItemMinHeight">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:text="位号"/>
+
+                    <EditText
+                        android:id="@+id/etxtAlisa"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:hint="位号"
+                        android:inputType="text"
+                        android:textSize="14sp" />
+                </TableRow>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/break_line"/>
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:minHeight="@dimen/listItemMinHeight">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:text="名称"/>
+
+                    <EditText
+                        android:id="@+id/etxtName"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:hint="名称"
+                        android:inputType="text"
+                        android:textSize="14sp" />
+                </TableRow>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/break_line"/>
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:minHeight="@dimen/listItemMinHeight">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:text="档位"/>
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+                        <RadioGroup
+                            android:id="@+id/rgGear"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:orientation="horizontal">
+                            <RadioButton
+                                android:id="@+id/rbGearKai"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:text="开"/>
+                            <RadioButton
+                                android:id="@+id/rbGearZiDong"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="16dp"
+                                android:layout_marginStart="16dp"
+                                android:text="自动"/>
+                            <RadioButton
+                                android:id="@+id/rbGearGuan"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="16dp"
+                                android:layout_marginStart="16dp"
+                                android:text="关"/>
+                        </RadioGroup>
+                    </RelativeLayout>
+
+                </TableRow>
+            </TableLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                style="?android:buttonBarStyle"
+                android:background="@android:color/white"
+                android:orientation="horizontal">
+                <Button
+                    android:id="@+id/btnSave"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="?android:buttonBarButtonStyle"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/black"
+                    android:text="@string/save"/>
+                <Button
+                    android:id="@+id/btnCancel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="?android:buttonBarButtonStyle"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/black"
+                    android:text="@string/cancel"/>
+            </LinearLayout>
+        </LinearLayout>
+
+
+
+    </android.support.v4.widget.NestedScrollView>
+</android.support.design.widget.CoordinatorLayout>

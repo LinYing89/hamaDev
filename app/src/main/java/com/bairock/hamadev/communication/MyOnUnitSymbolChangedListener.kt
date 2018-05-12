@@ -8,7 +8,7 @@ class MyOnUnitSymbolChangedListener : CollectProperty.OnUnitSymbolChangedListene
 
     override fun onUnitSymbolChanged(p0: DevCollect?, p1: String?) {
         if(null != RecyclerAdapterCollect.handler){
-            RecyclerAdapterCollect.handler.obtainMessage(RecyclerAdapterCollect.SYMBOL, p0)
+            RecyclerAdapterCollect.handler.obtainMessage(RecyclerAdapterCollect.SYMBOL, p0).sendToTarget()
         }
     }
 }

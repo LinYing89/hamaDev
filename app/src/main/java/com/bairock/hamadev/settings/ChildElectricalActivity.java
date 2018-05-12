@@ -34,6 +34,7 @@ import com.yanzhenjie.recyclerview.swipe.widget.DefaultItemDecoration;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ChildElectricalActivity extends AppCompatActivity {
@@ -84,6 +85,7 @@ public class ChildElectricalActivity extends AppCompatActivity {
     protected void onDestroy() {
         controller = null;
         handler = null;
+        RecyclerAdapterChildDevice.handler = null;
         super.onDestroy();
     }
 
@@ -113,6 +115,15 @@ public class ChildElectricalActivity extends AppCompatActivity {
 
     private void setChildDeviceList() {
         listShowDevices = new ArrayList<>(controller.getListDev());
+        Collections.sort(listShowDevices, (device, t1) -> {
+            int sort = 0;
+            try {
+                sort = Integer.parseInt(device.getSubCode()) - Integer.parseInt(t1.getSubCode());
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return sort;
+        });
         adapterEle = new RecyclerAdapterChildDevice(this, listShowDevices);
         swipeMenuRecyclerViewDevice.setAdapter(adapterEle);
     }

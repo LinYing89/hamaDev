@@ -6,7 +6,7 @@ android {
     buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "com.bairock.hamadev"
-        minSdkVersion 15
+        minSdkVersion 21
         targetSdkVersion 27
         versionCode 1
         versionName "3.0"
@@ -67,3 +67,5 @@ dependencies {
 repositories {
     mavenCentral()
 }
+
+apply plugin: 'kotlin-android-extensions'

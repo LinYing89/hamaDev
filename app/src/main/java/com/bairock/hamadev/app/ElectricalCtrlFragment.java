@@ -1,13 +1,11 @@
 package com.bairock.hamadev.app;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,8 +14,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import com.bairock.hamadev.R;
-import com.bairock.hamadev.adapter.RecyclerAdapterElectrical;
-import com.bairock.hamadev.adapter.RecyclerAdapterElectrical2;
+import com.bairock.hamadev.adapter.RecyclerAdapterElectrical3;
 import com.bairock.iot.intelDev.device.DevHaveChild;
 import com.bairock.iot.intelDev.device.Device;
 import com.bairock.iot.intelDev.device.IStateDev;
@@ -25,7 +22,6 @@ import com.bairock.iot.intelDev.user.DevGroup;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
 import com.yanzhenjie.recyclerview.swipe.touch.OnItemMoveListener;
 import com.yanzhenjie.recyclerview.swipe.touch.OnItemStateChangedListener;
-import com.yanzhenjie.recyclerview.swipe.widget.DefaultItemDecoration;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -38,10 +34,9 @@ public class ElectricalCtrlFragment extends Fragment {
     public static final int REFRESH_ELE = 2;
     public static final int REFRESH_SORT= 3;
     public static final int SHOW_ALERT_DIALOG= 6;
-
     public static MyHandler handler;
 
-    private RecyclerAdapterElectrical2 adapterElectrical;
+    private RecyclerAdapterElectrical3 adapterElectrical;
     private SwipeMenuRecyclerView swipeMenuRecyclerViewElectrical;
 
     private List<Device> listIStateDev = new ArrayList<>();
@@ -65,7 +60,7 @@ public class ElectricalCtrlFragment extends Fragment {
         handler = new MyHandler(this);
         swipeMenuRecyclerViewElectrical = view.findViewById(R.id.swipeMenuRecyclerViewElectrical);
 //        swipeMenuRecyclerViewElectrical.setLayoutManager(new LinearLayoutManager(this.getContext()));
-        swipeMenuRecyclerViewElectrical.setLayoutManager(new GridLayoutManager(this.getContext(), 4));
+        swipeMenuRecyclerViewElectrical.setLayoutManager(new GridLayoutManager(this.getContext(), 6));
 //        swipeMenuRecyclerViewElectrical.addItemDecoration(new DefaultItemDecoration(Color.LTGRAY));
         swipeMenuRecyclerViewElectrical.setLongPressDragEnabled(true); // 长按拖拽，默认关闭。
         swipeMenuRecyclerViewElectrical.setOnItemMoveListener(onItemMoveListener);// 监听拖拽和侧滑删除，更新UI和数据源。
@@ -80,41 +75,20 @@ public class ElectricalCtrlFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         handler = null;
-        for(Device device : listIStateDev){
-            removeDeviceListener(device);
-        }
         HamaApp.DEV_GROUP.removeOnDeviceCollectionChangedListener(onDeviceCollectionChangedListener);
-        RecyclerAdapterElectrical.handler = null;
+        RecyclerAdapterElectrical3.handler = null;
     }
 
     public void setGridViewElectrical() {
         if(null != HamaApp.DEV_GROUP) {
-            if(null != listIStateDev){
-                for(Device device : listIStateDev){
-                    removeDeviceListener(device);
-                }
-            }
             listIStateDev = HamaApp.DEV_GROUP.findListIStateDev(true);
             Collections.sort(listIStateDev);
             for(int i = 0; i < listIStateDev.size(); i++){
                 listIStateDev.get(i).setSortIndex(i);
             }
-            adapterElectrical = new RecyclerAdapterElectrical2(this.getContext(), listIStateDev);
+            adapterElectrical = new RecyclerAdapterElectrical3(this.getContext(), listIStateDev);
             swipeMenuRecyclerViewElectrical.setAdapter(adapterElectrical);
-            for(Device device : listIStateDev){
-                setDeviceListener(device);
-            }
         }
-    }
-
-    private void setDeviceListener(Device device){
-        device.addOnNameChangedListener(onNameChangedListener);
-        device.addOnAliasChangedListener(onAliasChangedListener);
-    }
-
-    private void removeDeviceListener(Device device){
-        device.removeOnNameChangedListener(onNameChangedListener);
-        device.removeOnAliasChangedListener(onAliasChangedListener);
     }
 
     /**
@@ -167,18 +141,6 @@ public class ElectricalCtrlFragment extends Fragment {
         }
     };
 
-    private Device.OnNameChangedListener onNameChangedListener = (device, s) -> {
-        if(null != RecyclerAdapterElectrical.handler){
-            RecyclerAdapterElectrical.handler.obtainMessage(RecyclerAdapterElectrical.NAME, device).sendToTarget();
-        }
-    };
-
-    private Device.OnAliasChangedListener onAliasChangedListener = (device, s) -> {
-        if(null != RecyclerAdapterElectrical.handler){
-            RecyclerAdapterElectrical.handler.obtainMessage(RecyclerAdapterElectrical.ALIAS, device).sendToTarget();
-        }
-    };
-
     private DevGroup.OnDeviceCollectionChangedListener onDeviceCollectionChangedListener = new DevGroup.OnDeviceCollectionChangedListener() {
         @Override
         public void onAdded(Device device) {
@@ -197,7 +159,6 @@ public class ElectricalCtrlFragment extends Fragment {
         if(device instanceof IStateDev && device.isVisibility()){
             device.setSortIndex(listIStateDev.size());
             listIStateDev.add(device);
-            setDeviceListener(device);
             handler.obtainMessage(REFRESH_ELE_STATE).sendToTarget();
         }else if(device instanceof DevHaveChild){
             for(Device device1 : ((DevHaveChild)device).getListDev()){
@@ -209,7 +170,6 @@ public class ElectricalCtrlFragment extends Fragment {
     private void removeDev(Device device){
         if(device instanceof IStateDev){
             listIStateDev.remove(device);
-            removeDeviceListener(device);
             handler.obtainMessage(REFRESH_ELE_STATE).sendToTarget();
         }else if(device instanceof DevHaveChild){
             for(Device device1 : ((DevHaveChild)device).getListDev()){

@@ -231,7 +231,7 @@ public class EspTouchAddDevice {
                     return false;
                 }
                 if(TCP_CONFIG_MODEL){
-                    publishProgress(100);
+                    publishProgress(100, 1);
                     return true;
                 }
 
@@ -277,7 +277,7 @@ public class EspTouchAddDevice {
             if(values.length >= 2){
                 if(values[1] != null){
                     if(values[1] == 1){
-                        theActivity.mProgressDialog.setMessage("正在配置设备:" + DEVICE.getCoding());
+                        theActivity.mProgressDialog.setMessage("配置成功的设备:" + DEVICE.getCoding());
                     }
                 }
             }

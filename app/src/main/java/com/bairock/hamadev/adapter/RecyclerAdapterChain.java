@@ -14,6 +14,7 @@ import com.bairock.hamadev.R;
 import com.bairock.hamadev.app.HamaApp;
 import com.bairock.hamadev.database.LinkageDao;
 import com.bairock.iot.intelDev.linkage.Linkage;
+import com.bairock.iot.intelDev.linkage.LinkageHolder;
 
 public class RecyclerAdapterChain extends RecyclerView.Adapter<RecyclerAdapterChain.ViewHolder> {
 

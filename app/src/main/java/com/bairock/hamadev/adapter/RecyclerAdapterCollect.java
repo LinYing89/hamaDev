@@ -29,7 +29,6 @@ public class RecyclerAdapterCollect extends RecyclerView.Adapter<RecyclerAdapter
     public static final int STATE = 0;
     public static final int VALUE = 1;
     public static final int NAME = 2;
-    public static final int ALIAS = 3;
     public static final int SRC_NAME = 4;
     public static final int SIMULATOR = 5;
     public static final int SYMBOL = 6;
@@ -76,7 +75,6 @@ public class RecyclerAdapterCollect extends RecyclerView.Adapter<RecyclerAdapter
         private DevCollect device;
         private TextView textSrcName;
         private TextView textSimulator;
-        private TextView textAlias;
         private TextView textName;
         private TextView textState;
         private TextView textSymbol;
@@ -88,8 +86,6 @@ public class RecyclerAdapterCollect extends RecyclerView.Adapter<RecyclerAdapter
             textSimulator = itemView.findViewById(R.id.textSimulator);
             textName = itemView.findViewById(R.id.text_name);
             textName.setSelected(true);
-            textAlias = itemView.findViewById(R.id.text_alias);
-            textAlias.setSelected(true);
             textState = itemView.findViewById(R.id.text_value);
             textSymbol = itemView.findViewById(R.id.textSymbol);
         }
@@ -105,7 +101,6 @@ public class RecyclerAdapterCollect extends RecyclerView.Adapter<RecyclerAdapter
 
         private void init() {
             refreshName();
-            refreshAlias();
             refreshValue();
             refreshState();
             refreshSrcName();
@@ -153,10 +148,6 @@ public class RecyclerAdapterCollect extends RecyclerView.Adapter<RecyclerAdapter
 
         private void refreshName() {
             textName.setText(device.getName());
-        }
-
-        private void refreshAlias() {
-            textAlias.setText(device.getAlias());
         }
 
         private String getSrcName() {
@@ -209,9 +200,6 @@ public class RecyclerAdapterCollect extends RecyclerView.Adapter<RecyclerAdapter
                             break;
                         case NAME:
                             vh.refreshName();
-                            break;
-                        case ALIAS:
-                            vh.refreshAlias();
                             break;
                         case SRC_NAME:
                             vh.refreshSrcName();

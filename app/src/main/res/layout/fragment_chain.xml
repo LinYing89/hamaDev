@@ -1,13 +1,59 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.bairock.hamadev.linkage.ChainFragment">
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="100dp"
+        android:layout_height="match_parent"
+        android:paddingLeft="4dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:paddingRight="4dp"
+        android:orientation="vertical">
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/listItemMinHeight">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:text="启用"/>
+
+            <Switch
+                android:id="@+id/switchEnable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"/>
+        </RelativeLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/break_line"/>
+        <Button
+            android:id="@+id/btnAdd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:drawableLeft="@drawable/ic_add_circle_outline_black_24dp"
+            android:text="添加"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/break_line"/>
+    </LinearLayout>
+    <View
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:background="@color/break_line"/>
 
     <com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView
         android:id="@+id/swipeMenuRecyclerViewChain"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_marginLeft="10dp"
+        android:layout_weight="1"/>
 
 </LinearLayout>

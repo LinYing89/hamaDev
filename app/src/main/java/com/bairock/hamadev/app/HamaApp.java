@@ -3,7 +3,6 @@ package com.bairock.hamadev.app;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
-import android.support.multidex.MultiDex;
 import android.util.Log;
 
 import com.bairock.hamadev.R;
@@ -52,7 +51,7 @@ public class HamaApp extends Application {
     public void onCreate() {
         super.onCreate();
 
-        MultiDex.install(this);
+        //MultiDex.install(this);
         //SERVER_IP = "192.168.2.100";
         //URL_ROOT = "http://" + SERVER_IP + ":8080/hamaSer";
         //DevServer.PORT = 8000;

@@ -1,12 +1,10 @@
 package com.bairock.hamadev.communication;
 
 import com.bairock.hamadev.adapter.RecyclerAdapterDevice;
-import com.bairock.hamadev.adapter.RecyclerAdapterElectrical;
 import com.bairock.hamadev.app.HamaApp;
 import com.bairock.hamadev.database.DeviceDao;
 import com.bairock.iot.intelDev.device.CtrlModel;
 import com.bairock.iot.intelDev.device.Device;
-import com.bairock.iot.intelDev.device.IStateDev;
 
 /**
  *

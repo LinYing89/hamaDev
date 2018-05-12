@@ -5,28 +5,22 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 
 import com.bairock.hamadev.R;
 import com.bairock.hamadev.adapter.RecyclerAdapterCondition;
 import com.bairock.hamadev.adapter.RecylerAdapterEffectGuagua;
-import com.bairock.hamadev.app.HamaApp;
-import com.bairock.hamadev.app.MainActivity;
 import com.bairock.hamadev.database.EffectDao;
 import com.bairock.hamadev.database.LinkageConditionDao;
-import com.bairock.hamadev.database.LinkageDao;
 import com.bairock.hamadev.linkage.ConditionActivity;
+import com.bairock.hamadev.linkage.LinkageBaseFragment;
 import com.bairock.iot.intelDev.linkage.Effect;
-import com.bairock.iot.intelDev.linkage.Linkage;
 import com.bairock.iot.intelDev.linkage.LinkageCondition;
 import com.bairock.iot.intelDev.linkage.SubChain;
 import com.yanzhenjie.recyclerview.swipe.SwipeItemClickListener;
@@ -47,9 +41,7 @@ public class EditGuaguaActivity extends AppCompatActivity {
 
     public static SubChain subChain;
     public static Effect effect;
-    public static boolean ADD;
 
-    private ActionBar actionBar;
     private Button btnAddCondition;
     private Button btnAddEffect;
 
@@ -63,30 +55,24 @@ public class EditGuaguaActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_guagua);
-        actionBar = getSupportActionBar();
-        if(actionBar != null){
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
             actionBar.setHomeButtonEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle("编辑呱呱");
         }
 
         findViews();
         setListener();
 
-        if(ADD){
-            actionBar.setTitle("添加呱呱");
-            subChain = new SubChain();
-            subChain.setName(getDefaultName());
-            HamaApp.DEV_GROUP.getGuaguaHolder().addLinkage(subChain);
-            LinkageDao.get(this).add(subChain, HamaApp.DEV_GROUP.getGuaguaHolder().getId());
-        }else{
-            actionBar.setTitle("编辑呱呱");
-            subChain = GuaguaFragment.SUB_CHAIN;
-            if(subChain == null){
-                finish();
-                return;
-            }
+        subChain = (SubChain) LinkageBaseFragment.Companion.getLINKAGE();
+        if (subChain == null) {
+            finish();
+            return;
         }
-        actionBar.setSubtitle(subChain.getName());
+        if (actionBar != null) {
+            actionBar.setSubtitle(subChain.getName());
+        }
 
         setListViewCondition();
         setListViewEffect();
@@ -95,19 +81,10 @@ public class EditGuaguaActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_edit_chain, menu);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 this.finish(); // back button
-                break;
-            case R.id.action_edit_name:
-                showNameDialog();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -116,13 +93,10 @@ public class EditGuaguaActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(null != GuaguaFragment.handler){
-            GuaguaFragment.handler.obtainMessage(GuaguaFragment.REFRESH_LIST).sendToTarget();
-        }
         subChain = null;
     }
 
-    private void findViews(){
+    private void findViews() {
         btnAddCondition = findViewById(R.id.btnAddCondition);
         btnAddEffect = findViewById(R.id.btnAddEffect);
         swipeMenuRecyclerViewCondition = findViewById(R.id.swipeMenuRecyclerViewCondition);
@@ -136,7 +110,7 @@ public class EditGuaguaActivity extends AppCompatActivity {
         swipeMenuRecyclerViewEffect.setSwipeMenuCreator(swipeMenuConditionCreator);
     }
 
-    private void setListener(){
+    private void setListener() {
         btnAddCondition.setOnClickListener(onClickListener);
         btnAddEffect.setOnClickListener(onClickListener);
 
@@ -149,66 +123,22 @@ public class EditGuaguaActivity extends AppCompatActivity {
     private SwipeMenuCreator swipeMenuConditionCreator = (swipeLeftMenu, swipeRightMenu, viewType) -> {
         int width = getResources().getDimensionPixelSize(R.dimen.dp_70);
 
-        // 1. MATCH_PARENT 自适应高度，保持和Item一样高;
-        // 2. 指定具体的高，比如80;
-        // 3. WRAP_CONTENT，自身高度，不推荐;
         int height = ViewGroup.LayoutParams.MATCH_PARENT;
-        // 添加右侧的，如果不添加，则右侧不会出现菜单。
         SwipeMenuItem deleteItem = new SwipeMenuItem(EditGuaguaActivity.this)
                 .setBackgroundColor(Color.RED)
                 .setText("删除")
                 .setTextColor(Color.WHITE)
                 .setWidth(width)
                 .setHeight(height);
-        swipeRightMenu.addMenuItem(deleteItem);// 添加菜单到右侧。
+        swipeRightMenu.addMenuItem(deleteItem);
     };
 
-    private String getDefaultName(){
-        String name = "呱呱";
-        boolean have;
-        for(int i=1; i< 1000; i++){
-            have = false;
-            name = "呱呱" + i;
-            for(Linkage chain : HamaApp.DEV_GROUP.getGuaguaHolder().getListLinkage()){
-                if(chain.getName().equals(name)){
-                    have = true;
-                    break;
-                }
-            }
-            if(!have){
-                return name;
-            }
-        }
-        return name;
-    }
-
-    /**
-     * 名称对话框
-     */
-    private void showNameDialog() {
-        final EditText editHour = new EditText(this);
-        editHour.setText(String.valueOf(subChain.getName()));
-        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setCancelable(false);
-        dialog.setView(editHour)
-                .setPositiveButton(
-                        MainActivity.strEnsure,
-                        (dialog1, which) -> {
-                            String strName = String.valueOf(editHour.getText());
-                            subChain.setName(strName);
-                            actionBar.setSubtitle(strName);
-                            LinkageDao linkageDevValueDao = LinkageDao.get(EditGuaguaActivity.this);
-                            linkageDevValueDao.update(subChain, null);
-                        })
-                .setNegativeButton(MainActivity.strCancel, null).create().show();
-    }
-
-    private void setListViewCondition(){
+    private void setListViewCondition() {
         adapterCondition = new RecyclerAdapterCondition(this, subChain.getListCondition());
         swipeMenuRecyclerViewCondition.setAdapter(adapterCondition);
     }
 
-    private void setListViewEffect(){
+    private void setListViewEffect() {
         adapterEffect = new RecylerAdapterEffectGuagua(this, subChain.getListEffect());
         swipeMenuRecyclerViewEffect.setAdapter(adapterEffect);
     }
@@ -216,7 +146,7 @@ public class EditGuaguaActivity extends AppCompatActivity {
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            switch (v.getId()){
+            switch (v.getId()) {
                 case R.id.btnAddCondition:
                     ConditionActivity.ADD = true;
                     ConditionActivity.handler = handler;
@@ -284,24 +214,23 @@ public class EditGuaguaActivity extends AppCompatActivity {
                 case REFRESH_EVENT_HANDLER_LIST:
                     theActivity.adapterCondition.notifyDataSetChanged();
                     break;
-                case REFRESH_DEVICE_LIST :
+                case REFRESH_DEVICE_LIST:
                     theActivity.adapterEffect.notifyDataSetChanged();
                     break;
-                case ConditionActivity.ADD_CONDITION :
-                    LinkageCondition lc = (LinkageCondition)msg.obj;
+                case ConditionActivity.ADD_CONDITION:
+                    LinkageCondition lc = (LinkageCondition) msg.obj;
                     EditGuaguaActivity.subChain.addCondition(lc);
                     LinkageConditionDao linkageConditionDao = LinkageConditionDao.get(theActivity);
                     linkageConditionDao.add(lc, EditGuaguaActivity.subChain.getId());
                     theActivity.adapterCondition.notifyDataSetChanged();
                     break;
-                case ConditionActivity.UPDATE_CONDITION :
-                    LinkageCondition lc1 = (LinkageCondition)msg.obj;
+                case ConditionActivity.UPDATE_CONDITION:
+                    LinkageCondition lc1 = (LinkageCondition) msg.obj;
                     LinkageConditionDao linkageConditionDao1 = LinkageConditionDao.get(theActivity);
                     linkageConditionDao1.update(lc1, null);
                     theActivity.adapterCondition.notifyDataSetChanged();
                     break;
             }
-
         }
     }
 }
