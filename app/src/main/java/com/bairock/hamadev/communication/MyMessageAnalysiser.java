@@ -49,7 +49,7 @@ public class MyMessageAnalysiser extends MessageAnalysiser {
     @Override
     public void unKnowDev(Device device, String s) {
         //新设备，未在本系统中
-        addNewDevice(device);
+        //addNewDevice(device);
     }
 
     @Override

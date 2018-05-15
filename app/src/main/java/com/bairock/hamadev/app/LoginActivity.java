@@ -39,8 +39,10 @@ import com.bairock.iot.intelDev.linkage.timing.TimingHolder;
 import com.bairock.iot.intelDev.linkage.timing.ZTimer;
 import com.bairock.iot.intelDev.user.DevGroup;
 import com.bairock.iot.intelDev.user.User;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 
 public class LoginActivity extends AppCompatActivity {
@@ -206,7 +208,13 @@ public class LoginActivity extends AppCompatActivity {
             Log.e("LoginActivity getUrl: ", HamaApp.getLoginUrl() + "?name=" + username + "&group=" + group + "&psd=" + psd);
             //System.out.println("get url: " + url);
             Log.e("LoginActivity get: ", s);
-            if (s.contains("OK")) {
+            ObjectMapper mapper = new ObjectMapper();
+            Map map = mapper.readValue(s, Map.class);
+            if((int)(map.get("stateCode")) == 200){
+                HamaApp.SERVER_PAD_PORT = (int)map.get("padPort");
+                HamaApp.SERVER_DEV_PORT = (int)map.get("devPort");
+                String petName = (String)map.get("petName");
+
                 boolean add = null == HamaApp.USER;
                 if(add){
                     HamaApp.USER = new User();
@@ -220,7 +228,7 @@ public class LoginActivity extends AppCompatActivity {
                 HamaApp.USER.setName(username);
                 HamaApp.DEV_GROUP.setName(group);
                 HamaApp.DEV_GROUP.setPsd(psd);
-                HamaApp.DEV_GROUP.setPetName(s.substring(s.indexOf(":") + 1));
+                HamaApp.DEV_GROUP.setPetName(petName);
                 UserDao userDao = UserDao.get(LoginActivity.this);
                 DevGroupDao devGroupDao = DevGroupDao.get(LoginActivity.this);
                 if(add){
@@ -232,6 +240,7 @@ public class LoginActivity extends AppCompatActivity {
                     if(!username.equals(oldUserName) || !group.equals(oldGroupName)){
                         userDao.updateUser(HamaApp.USER);
                         devGroupDao.update(HamaApp.DEV_GROUP);
+                        //重新生成设备id
                         refreshDbId();
                     }
                 }

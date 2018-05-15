@@ -57,10 +57,10 @@ class DevSwitchAttributeSettingActivity : AppCompatActivity() {
         btnSave.setOnClickListener {
             val alias = etxtAlisa.text.toString()
             val name = etxtName.text.toString()
-            if(device!!.alias == alias){
+            if(device!!.alias != alias){
                 device!!.alias = alias
             }
-            if(device!!.name == name){
+            if(device!!.name != name){
                 device!!.name = name
             }
             val gear: Gear = when(rgGear.checkedRadioButtonId){

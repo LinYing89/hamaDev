@@ -15,6 +15,8 @@ import com.bairock.iot.intelDev.device.OrderHelper;
 import com.bairock.iot.intelDev.device.devcollect.Pressure;
 import com.bairock.iot.intelDev.device.devswitch.DevSwitch;
 
+import java.util.List;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -203,10 +205,11 @@ public class PadClientHandler extends ChannelInboundHandlerAdapter {
 
 
             //String devCoding = msg.substring(1, index);
-            Device dev = myMessageAnalysiser.putMsg("$" + strData, HamaApp.USER);
-            if(dev == null){
+            List<Device> listDev = myMessageAnalysiser.putMsg("$" + strData, HamaApp.USER);
+            if(listDev == null){
                 return;
             }
+            Device dev = listDev.get(0);
             if(stateHead.equals("2")){
                 String s1 = state.substring(1,2);
                 if(s1.equals(DevStateHelper.getIns().getDs(DevStateHelper.DS_YI_CHANG))){

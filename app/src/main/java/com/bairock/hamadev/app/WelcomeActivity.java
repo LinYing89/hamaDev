@@ -268,7 +268,7 @@ public class WelcomeActivity extends AppCompatActivity {
 
                 SharedHelper sharedHelper = new SharedHelper();
                 sharedHelper.init();
-                WelcomeActivity theActivity = mActivity.get();
+                //WelcomeActivity theActivity = mActivity.get();
 //                if(sharedHelper.isSerialOpen(theActivity)){
 //                    try {
 //                        SerialPortHelper.getIns().openSerialPort(theActivity);

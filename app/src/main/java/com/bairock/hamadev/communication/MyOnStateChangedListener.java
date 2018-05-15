@@ -11,6 +11,7 @@ import com.bairock.iot.intelDev.device.IStateDev;
 import com.bairock.iot.intelDev.device.LinkType;
 import com.bairock.iot.intelDev.device.devcollect.DevCollect;
 import com.bairock.iot.intelDev.device.devcollect.DevCollectSignalContainer;
+import com.bairock.iot.intelDev.device.devcollect.Pressure;
 import com.bairock.iot.intelDev.device.devswitch.SubDev;
 
 /**
@@ -36,7 +37,9 @@ public class MyOnStateChangedListener implements Device.OnStateChangedListener {
             PadClient.getIns().send(device.createAbnormalOrder());
         }
         if(device instanceof DevCollect || device instanceof DevCollectSignalContainer){
-            RefreshCollectorValueHelper.getIns().endRefresh(device);
+            if(!(device instanceof Pressure)) {
+                RefreshCollectorValueHelper.getIns().endRefresh(device);
+            }
         }
     }
 
@@ -57,7 +60,9 @@ public class MyOnStateChangedListener implements Device.OnStateChangedListener {
             }
         }
         if(canAdd){
-            RefreshCollectorValueHelper.getIns().RefreshDev(device);
+            if(!(device instanceof Pressure)) {
+                RefreshCollectorValueHelper.getIns().RefreshDev(device);
+            }
         }
     }
 

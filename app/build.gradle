@@ -6,7 +6,7 @@ android {
     buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "com.bairock.hamadev"
-        minSdkVersion 21
+        minSdkVersion 15
         targetSdkVersion 27
         versionCode 1
         versionName "3.0"

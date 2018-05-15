@@ -53,7 +53,7 @@ public class BridgesStateActivity extends AppCompatActivity {
                 listBridgeState.remove(bridgeState);
             }
         }
-        lvBridge = (ListView)findViewById(R.id.lvBridge);
+        lvBridge = findViewById(R.id.lvBridge);
         setAdapter();
         setListener();
         myHandler = new MyHandler(this);
@@ -116,9 +116,9 @@ public class BridgesStateActivity extends AppCompatActivity {
             if(bridgeState.getChannelId().equals(channelId)){
                 bridgeState.setRecCount(count);
                 bridgeState.addMsg(0, msg);
-                if(bridgeState.getDevCoding() == null){
+//                if(bridgeState.getDevCoding() == null){
                     bridgeState.setDevCoding(devCoding);
-                }
+//                }
                 if(null != myHandler){
                     myHandler.obtainMessage(0).sendToTarget();
                 }
